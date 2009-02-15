@@ -1,3 +1,5 @@
+INCLUDEPATH = $$PWD
+DEPENDPATH = $$PWD
 
-HEADERS += gui/hrPushButton.hpp
-SOURCES += gui/hrPushButton.cpp
+HEADERS += hrPushButton.hpp
+SOURCES += hrPushButton.cpp

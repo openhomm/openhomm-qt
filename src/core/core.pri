@@ -1,10 +1,12 @@
-HEADERS +=  core/hrString.hpp \
-            core/hrLodEngine.hpp \
-            core/hrLodEngineIterator.hpp \
-            core/hrSndEngineIterator.hpp \
-            core/hrSndEngine.hpp
-SOURCES +=  core/hrString.cpp \
-            core/hrLodEngine.cpp \
-            core/hrLodEngineIterator.cpp \
-            core/hrSndEngineIterator.cpp \
-            core/hrSndEngine.cpp
+INCLUDEPATH += $$PWD
+DEPENDPATH += $$PWD
+HEADERS +=  hrString.hpp \
+            hrLodEngine.hpp \
+            hrLodEngineIterator.hpp \
+            hrSndEngineIterator.hpp \
+            hrSndEngine.hpp
+SOURCES +=  hrString.cpp \
+            hrLodEngine.cpp \
+            hrLodEngineIterator.cpp \
+            hrSndEngineIterator.cpp \
+            hrSndEngine.cpp
