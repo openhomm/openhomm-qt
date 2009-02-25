@@ -1,5 +1,7 @@
 #pragma once
 
+#include <QObject>
+
 class hrPushButton : public QObject
 {
     Q_OBJECT;
