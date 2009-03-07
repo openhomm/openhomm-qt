@@ -2,15 +2,16 @@
 #include "hrApplication.hpp"
 #include "hrLodEngineIterator.hpp"
 #include "hrLodEngine.hpp"
+#include "hrSndEngineIterator.hpp"
+#include "hrSndEngine.hpp"
 
-hrLodEngineHandler handler;
+hrLodEngineHandler lodHandler;
+hrSndEngineHandler sndHandler;
 
 int main(int argc, char** argv)
 {
+    QT_REQUIRE_VERSION(argc, argv, "4.5.0");
     hrApplication app(argc, argv);
-
-    QFile aa("lod:/my/1.png");
-    aa.open(QIODevice::ReadOnly);
 
     return app.exec();
 }
