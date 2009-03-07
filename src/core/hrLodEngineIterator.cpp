@@ -4,28 +4,28 @@
 hrLodEngineIterator::hrLodEngineIterator (QDir::Filters filters, const QStringList &filterNames)
         : QAbstractFileEngineIterator(filters, filterNames), index(-1)
 {
-    qDebug() << __FUNCTION__;
+    qDebug() << Q_FUNC_INFO;
 }
 
 hrLodEngineIterator::~hrLodEngineIterator()
 {
-    qDebug() << __FUNCTION__;
+    qDebug() << Q_FUNC_INFO;
 }
 
 QString hrLodEngineIterator::next()
 {
-    qDebug() << __FUNCTION__;
+    qDebug() << Q_FUNC_INFO;
     return "";
 }
 
 bool hrLodEngineIterator::hasNext() const
 {
-    qDebug() << __FUNCTION__;
+    qDebug() << Q_FUNC_INFO;
     return false;
 }
 
 QString hrLodEngineIterator::currentFileName() const
 {
-    qDebug() << __FUNCTION__;
+    qDebug() << Q_FUNC_INFO;
     return "";
 }
