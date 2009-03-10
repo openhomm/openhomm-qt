@@ -17,7 +17,7 @@ QImageIOPlugin::Capabilities hrDefPlugin::capabilities(QIODevice *device, const 
 
 QImageIOHandler* hrDefPlugin::create(QIODevice *device, const QByteArray &format) const
 {
-    return NULLL;
+    return NULL;
 }
 
 QStringList hrDefPlugin::keys() const

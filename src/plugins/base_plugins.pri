@@ -1,6 +1,6 @@
 include(../../base.pri)
 DESTDIR     = $$join(DESTDIR,,,/imageformats)
-OBJECTS_DIR = $$join(OBJECTS_DIR,,,/imageformats)
+OBJECTS_DIR = $$join(OBJECTS_DIR,,,/imageformats/$$TARGET)
 MOC_DIR     = $$join(MOC_DIR,,,/imageformats)
 RCC_DIR     = $$join(RCC_DIR,,,/imageformats)
 
