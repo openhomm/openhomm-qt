@@ -41,6 +41,7 @@ bool hrPcxHandler::read(QImage *image)
     if ( size == width * height )
     {
         *image = QImage(data, width, height, width, QImage::Format_Indexed8);
+        this->readPallete();
         image->setColorTable(pallete);
     }
     else if ( size == width * height * 3 )
@@ -104,7 +105,7 @@ void hrPcxHandler::readPallete()
 {
     device()->seek(device()->size() - 256*3);
 
-    for ( int i = 0; i < 256; i = i++ )
+    for ( int i = 0; i < 256; i++ )
     {
         hrRgb rgb;
         device()->read( (char *) &rgb, 3);
