@@ -46,7 +46,8 @@ bool hrPcxHandler::read(QImage *image)
     }
     else if ( size == width * height * 3 )
     {
-        *image = QImage(data, width, height, width*3, QImage::Format_RGB888);
+        QImage im(data, width, height, width*3, QImage::Format_RGB888);
+        *image = im.rgbSwapped();
     }
     else
     {
