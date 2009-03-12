@@ -287,12 +287,13 @@ bool hrLodEngine::preload_file()
     {
         QByteArray ba = _lf->file->read(entry.csize);
 
+        //quint32 len = qToBigEndian(entry.size);
         char *l = (char*)&entry.size;
 
-        ba.prepend(l[3]);
-        ba.prepend(l[2]);
-        ba.prepend(l[1]);
         ba.prepend(l[0]);
+        ba.prepend(l[1]);
+        ba.prepend(l[2]);
+        ba.prepend(l[3]);
 
         QByteArray unc = qUncompress(ba);
 
