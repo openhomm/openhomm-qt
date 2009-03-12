@@ -1,6 +1,8 @@
 #include <qimageiohandler.h>
 #include <qdebug.h>
 
+#include "hrPcxHandler.hpp"
+
 class hrPcxPlugin : public QImageIOPlugin
 {
 public:
@@ -11,13 +13,27 @@ public:
 
 QImageIOPlugin::Capabilities hrPcxPlugin::capabilities(QIODevice *device, const QByteArray &format) const
 {
+    if (format == "pcx")
+        return Capabilities(CanRead | CanWrite);
+    if (!format.isEmpty())
+        return 0;
+    if (!device->isOpen())
+        return 0;
+
     Capabilities cap;
+
+    if ( device->isReadable() && hrPcxHandler::canRead(device) )
+        cap |= CanRead;
+
     return cap;
 }
 
 QImageIOHandler* hrPcxPlugin::create(QIODevice *device, const QByteArray &format) const
 {
-    return NULL;
+    QImageIOHandler *pcxHandler = new hrPcxHandler();
+    pcxHandler->setDevice(device);
+    pcxHandler->setFormat(format);
+    return pcxHandler;
 }
 
 QStringList hrPcxPlugin::keys() const
