@@ -11,7 +11,7 @@ struct hrRgb
     quint8 r,g,b;
 };
 
-hrPcxHandler::hrPcxHandler()
+hrPcxHandler::hrPcxHandler() : QImageIOHandler()
 {
 }
 
@@ -87,9 +87,24 @@ bool hrPcxHandler::canRead(QIODevice *device)
     return true;
 }
 
-QVariant hrPcxHandler::option(ImageOption) const
+QVariant hrPcxHandler::option(ImageOption option) const
 {
-    qWarning("%s: not supported", Q_FUNC_INFO);
+    if (option == Size && canRead())
+    {
+        QSize imageSize;
+        quint32 width, height;
+        quint64 pos = device()->pos();
+        device()->seek(4);
+
+        device()->read( (char *) &width, 4);
+        device()->read( (char *) &height, 4);
+        device()->seek(pos);
+
+        imageSize = QSize(width, height);
+
+        if ( imageSize.isValid() )
+            return imageSize;
+    }
     return QVariant();
 }
 
