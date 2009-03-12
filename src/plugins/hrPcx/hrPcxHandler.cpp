@@ -98,7 +98,6 @@ void hrPcxHandler::setOption(ImageOption, const QVariant &)
 
 bool hrPcxHandler::supportsOption(ImageOption option) const
 {
-    qDebug() << option;
     return option == Size;
 }
 
