@@ -11,7 +11,7 @@ struct hrRgb
     quint8 r,g,b;
 };
 
-hrPcxHandler::hrPcxHandler() : hasPallete(false)
+hrPcxHandler::hrPcxHandler()
 {
 }
 
@@ -53,6 +53,8 @@ bool hrPcxHandler::read(QImage *image)
     {
         *image = QImage();
     }
+
+    delete [] data;
 
     if ( image->isNull() )
         return false;
