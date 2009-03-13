@@ -3,7 +3,8 @@
 #include <QtGui/qimageiohandler.h>
 #include <QtCore/QSize>
 #include <QtGlobal>
-#include <qcolor>
+#include <QColor>
+
 class hrPcxHandler : public QImageIOHandler
 {
 public:
@@ -23,6 +24,5 @@ public:
 private:
     void readPallete();
 private:
-    bool hasPallete;
     QVector<QRgb> pallete;
 };
