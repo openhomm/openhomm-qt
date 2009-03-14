@@ -14,7 +14,7 @@ public:
 QImageIOPlugin::Capabilities hrPcxPlugin::capabilities(QIODevice *device, const QByteArray &format) const
 {
     if (format == "pcx")
-        return Capabilities(CanRead | CanWrite);
+        return CanRead;
     if (!format.isEmpty())
         return 0;
     if (!device->isOpen())
