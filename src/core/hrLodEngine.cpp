@@ -23,8 +23,6 @@ hrLodEngine::hrLodEngine(const QString& path) : QAbstractFileEngine()
 
 hrLodEngine::~hrLodEngine()
 {
-    Q_ASSERT(_buffer != NULL);
-
     if ( _buffer->isOpen() )
         _buffer->close();
 
@@ -60,8 +58,11 @@ bool hrLodEngine::open(QIODevice::OpenMode flags)
 }
 bool hrLodEngine::close()
 {
-    Q_ASSERT(_buffer != NULL);
-    _buffer->close();
+    if ( _buffer != NULL )
+    {
+        _buffer->close();
+        delete _buffer;
+    }
     return true;
 }
 bool hrLodEngine::flush()
@@ -71,28 +72,38 @@ bool hrLodEngine::flush()
 }
 qint64 hrLodEngine::size() const
 {
-    Q_ASSERT(_buffer != NULL);
-    return _buffer->size();
+    if ( _buffer != NULL )
+        return _buffer->size();
+
+    return 0;
 }
 qint64 hrLodEngine::pos() const
 {
-    Q_ASSERT(_buffer != NULL);
-    return _buffer->pos();
+    if ( _buffer != NULL )
+        return _buffer->pos();
+
+    return 0;
 }
 bool hrLodEngine::atEnd() const
 {
-    Q_ASSERT(_buffer != NULL);
-    return _buffer->atEnd();
+    if ( _buffer != NULL )
+        return _buffer->atEnd();
+
+    return true;
 }
 bool hrLodEngine::seek(qint64 offset)
 {
-    Q_ASSERT(_buffer != NULL);
-    return _buffer->seek(offset);
+    if ( _buffer != NULL )
+        return _buffer->seek(offset);
+
+    return false;
 }
 qint64 hrLodEngine::read(char *data, qint64 maxlen)
 {
-    Q_ASSERT(_buffer != NULL);
-    return _buffer->read(data, maxlen);;
+    if ( _buffer != NULL )
+        return _buffer->read(data, maxlen);
+
+    return 0;
 }
 qint64 hrLodEngine::write(const char *data, qint64 len)
 {
