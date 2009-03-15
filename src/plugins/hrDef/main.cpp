@@ -18,7 +18,13 @@ QImageIOPlugin::Capabilities hrDefPlugin::capabilities(QIODevice *device, const 
         return 0;
     if (!device->isOpen())
         return 0;
-    return 0;
+
+    Capabilities cap;
+
+    if ( device->isReadable() && hrDefHandler::canRead(device) )
+        cap |= CanRead;
+
+    return cap;
 }
 
 QImageIOHandler* hrDefPlugin::create(QIODevice *device, const QByteArray &format) const

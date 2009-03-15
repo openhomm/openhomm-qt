@@ -1,6 +1,5 @@
 #include "hrDefHandler.hpp"
 #include <QImage>
-#include <QtEndian>
 #include <QVector>
 #include <QRgb>
 #include <QVariant>
@@ -17,7 +16,7 @@ struct BlockHeader
 {
     quint32 index;
     quint32 countFrames;
-    char junk[8];
+    quint8 junk[8];
 };
 
 struct FrameHeader
@@ -64,7 +63,7 @@ private:
 
     QVector<Block> blocks;
     QVector<QRgb> colors;
-    uchar *imageBuffer;
+    quint8 *imageBuffer;
     int curFrame;
     int countFrames;
     int curBlock;
@@ -90,7 +89,8 @@ DefReader::DefReader(QIODevice *device)
 
 DefReader::~DefReader()
 {
-    if (!imageBuffer) delete imageBuffer;
+    if (!imageBuffer)
+        delete imageBuffer;
 }
 
 int DefReader::count()
@@ -135,7 +135,8 @@ bool DefReader::jumpToImage(int imageNumber)
     }
     else if (imageNumber >= 0 && imageNumber < countFrames)
         curFrame = imageNumber;
-    else return false;
+    else
+        return false;
     return true;
 }
 
@@ -150,7 +151,7 @@ bool DefReader::jumpToNextImage()
 
 bool DefReader::readPalette()
 {
-    uchar buf[256 * 3];
+    quint8 buf[256 * 3];
     if (dev->read((char*)buf, 256 * 3) == 256 * 3)
     {
         QRgb rgb;
@@ -217,7 +218,7 @@ bool DefReader::readHeader()
 bool DefReader::readFrame0(QImage & image, FrameHeader & fh)
 {
     if (!imageBuffer) delete imageBuffer;
-    imageBuffer = new uchar[fh.size];
+    imageBuffer = new quint8[fh.size];
 
     if (dev->read((char*)imageBuffer, fh.size) == fh.size)
     {
@@ -233,47 +234,51 @@ bool DefReader::readFrame1(QImage & image, FrameHeader & fh)
     int sizeFull = fh.widthFull * fh.heightFull;
 
     if (!imageBuffer) delete imageBuffer;
-    imageBuffer = new uchar[sizeFull];
+    imageBuffer = new quint8[sizeFull];
 
     memset(imageBuffer, 0, sizeFull);
 
-    uchar *buf = new uchar[fh.size];
+    quint8 *buf = new quint8[fh.size];
     dev->read((char*)buf, fh.size);
 
     int numScanLines = fh.heightFrame;
     quint32 *offsets = (quint32*)&buf[0];
 
-    for (int i = 0; i < numScanLines; i++)
+    for (int curLine = 0; curLine < numScanLines; curLine++)
     {
-        uchar *imageLine = imageBuffer + (fh.marginTop + i) * fh.widthFull;
+        quint8 *imageLine = imageBuffer + (fh.marginTop + curLine) * fh.widthFull;
         imageLine += fh.marginLeft;
 
-        uchar *line = &buf[offsets[i]];
+        quint8 *line = &buf[offsets[curLine]];
 
         int lenLine = 0;
-        if (i < numScanLines - 1)
-            lenLine = offsets[i + 1] - offsets[i];
+        if (curLine < numScanLines - 1)
+            lenLine = offsets[curLine + 1] - offsets[curLine];
         else
-            lenLine = fh.size - offsets[i];
+            lenLine = fh.size - offsets[curLine];
 
-        for (int j = 0; j < lenLine; j++)
+        int offset = 0;
+
+        while(offset < lenLine)
         {
-            uchar typeSegment = line[j];
+            quint8 typeSegment = line[offset];
             if (typeSegment == 0xFF)
             {
-                uchar lenSegment = line[++j];
-                for (uchar k = 0; k < lenSegment; k++)
+                quint8 lenSegment = line[++offset] + 1;
+                offset++;
+                for (quint8 k = 0; k < lenSegment; k++)
                 {
-                    *imageLine++ = line[++j];
+                    *imageLine++ = line[offset++];
                 }
             }
-            else if (typeSegment == 0x00)
+            else //if (typeSegment == 0x00)
             {
-                uchar lenSegment = line[++j];
-                for (uchar k = 0; k < lenSegment; k++)
+                quint8 lenSegment = line[++offset] + 1;
+                for (quint8 k = 0; k < lenSegment; k++)
                 {
                     *imageLine++ = 0;
                 }
+                offset++;
             }
         }
     }
