@@ -3,6 +3,7 @@
 #include <QtEndian>
 #include <QVector>
 #include <QRgb>
+#include <QVariant>
 
 struct DefHeader
 {
@@ -95,19 +96,22 @@ DefReader::~DefReader()
 int DefReader::count()
 {
     if (countFrames == 0 && !isHeaderRead)
-        if (readHeader()) isHeaderRead = true;
+        if (readHeader())
+            isHeaderRead = true;
     return countFrames;
 }
 
 int DefReader::getWidth()
 {
-    if (!isHeaderRead) readHeader();
+    if (!isHeaderRead)
+        readHeader();
     return width;
 }
 
 int DefReader::getHeight()
 {
-    if (!isHeaderRead) readHeader();
+    if (!isHeaderRead)
+        readHeader();
     return width;
 }
 
@@ -226,8 +230,12 @@ bool DefReader::readFrame0(QImage & image, FrameHeader & fh)
 
 bool DefReader::readFrame1(QImage & image, FrameHeader & fh)
 {
+    int sizeFull = fh.widthFull * fh.heightFull;
+
     if (!imageBuffer) delete imageBuffer;
-    imageBuffer = new uchar[fh.widthFull * fh.heightFull];
+    imageBuffer = new uchar[sizeFull];
+
+    memset(imageBuffer, 0, sizeFull);
 
     uchar *buf = new uchar[fh.size];
     dev->read((char*)buf, fh.size);
@@ -239,6 +247,7 @@ bool DefReader::readFrame1(QImage & image, FrameHeader & fh)
     {
         uchar *imageLine = imageBuffer + (fh.marginTop + i) * fh.widthFull;
         imageLine += fh.marginLeft;
+
         uchar *line = &buf[offsets[i]];
 
         int lenLine = 0;
@@ -249,7 +258,8 @@ bool DefReader::readFrame1(QImage & image, FrameHeader & fh)
 
         for (int j = 0; j < lenLine; j++)
         {
-            if (line[j] == 0xFF)
+            uchar typeSegment = line[j];
+            if (typeSegment == 0xFF)
             {
                 uchar lenSegment = line[++j];
                 for (uchar k = 0; k < lenSegment; k++)
@@ -257,7 +267,7 @@ bool DefReader::readFrame1(QImage & image, FrameHeader & fh)
                     *imageLine++ = line[++j];
                 }
             }
-            else if (line[j] == 0x00)
+            else if (typeSegment == 0x00)
             {
                 uchar lenSegment = line[++j];
                 for (uchar k = 0; k < lenSegment; k++)
@@ -296,7 +306,6 @@ bool DefReader::read(QImage *image)
 
     return false;
 }
-
 
 
 hrDefHandler::hrDefHandler(QIODevice *device)

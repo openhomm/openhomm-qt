@@ -1,6 +1,5 @@
 #include <qimageiohandler.h>
 #include <qdebug.h>
-
 #include "hrDefHandler.hpp"
 
 class hrDefPlugin : public QImageIOPlugin
@@ -14,26 +13,19 @@ public:
 QImageIOPlugin::Capabilities hrDefPlugin::capabilities(QIODevice *device, const QByteArray &format) const
 {
     if (format == "def")
-        return CanRead;
+        return Capabilities(CanRead);
     if (!format.isEmpty())
         return 0;
     if (!device->isOpen())
         return 0;
-
-    Capabilities cap;
-
-    if ( device->isReadable() && hrDefHandler::canRead(device) )
-        cap |= CanRead;
-
-    return cap;
+    return 0;
 }
 
 QImageIOHandler* hrDefPlugin::create(QIODevice *device, const QByteArray &format) const
 {
-    QImageIOHandler *defHandler = new hrDefHandler();
-    defHandler->setDevice(device);
-    defHandler->setFormat(format);
-    return defHandler;
+    hrDefHandler *hand = new hrDefHandler(device);
+    hand->setFormat(format);
+    return hand;
 }
 
 QStringList hrDefPlugin::keys() const
