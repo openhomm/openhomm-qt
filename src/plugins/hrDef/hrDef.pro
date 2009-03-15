@@ -7,4 +7,6 @@ else {
 
 include(../base_plugins.pri)
 
-SOURCES = main.cpp
+SOURCES =   main.cpp \
+            hrDefHandler.cpp
+HEADERS =   hrDefHandler.hpp
