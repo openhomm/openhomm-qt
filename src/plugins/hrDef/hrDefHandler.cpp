@@ -75,6 +75,9 @@ private:
     bool readFrame0(QImage & image, FrameHeader & fh);
     bool readFrame1(QImage & image, FrameHeader & fh);
 
+    bool checkFrame(FrameHeader &fh);
+    void fillFrameBorders(FrameHeader &fh);
+
     QIODevice *dev;
 
     QVector<Block> blocks;
@@ -143,16 +146,15 @@ bool DefReader::jumpToImage(int imageNumber)
 
     if (imageNumber < 0)
     {
-        if (abs(imageNumber) > countBlocks)
+        if (qAbs(imageNumber) > countBlocks)
             return false;
-        curBlock = abs(imageNumber) - 1;
+        curBlock = qAbs(imageNumber) - 1;
         curFrame = 0;
         countFrames = blocks[curBlock].countFrames;
     }
     else if (imageNumber >= 0 && imageNumber < countFrames)
         curFrame = imageNumber;
-    else
-        return false;
+    else return false;
     return true;
 }
 
@@ -245,54 +247,109 @@ bool DefReader::readFrame0(QImage & image, FrameHeader & fh)
     return true;
 }
 
+bool DefReader::checkFrame(FrameHeader &fh)
+{
+    if (fh.marginLeft + fh.widthFrame <= fh.widthFull
+        && fh.marginTop + fh.heightFrame <= fh.heightFull)
+        return true;
+    else
+        return false;
+}
+
+void DefReader::fillFrameBorders(FrameHeader &fh)
+{
+    if (fh.widthFrame == fh.widthFull
+        && fh.heightFrame == fh.heightFull)
+        return;
+    if (!imageBuffer)
+        return;
+    quint8 *line = &imageBuffer[0];
+    quint32 i = 0;
+    quint32 j = 0;
+    for (; j < fh.marginTop; j++)
+        for (; i < fh.widthFull; i++)
+            *line++ = 0;
+
+    for (; j < fh.marginTop + fh.heightFrame; j++)
+    {
+        for (i = 0; i < fh.marginLeft; i++)
+            *line++ = 0;
+        line += fh.widthFrame;
+        for (i += fh.widthFrame; i < fh.widthFull; i++)
+            *line++ = 0;
+    }
+
+    for (; j < fh.heightFull; j++)
+        for (; i < fh.widthFull; i++)
+            *line++ = 0;
+}
+
 bool DefReader::readFrame1(QImage & image, FrameHeader & fh)
 {
-    int sizeFull = fh.widthFull * fh.heightFull;
+    if (!checkFrame(fh))
+        return false;
+
+    quint32 sizeFull = fh.widthFull * fh.heightFull;
 
     if (!imageBuffer) delete imageBuffer;
     imageBuffer = new quint8[sizeFull];
 
-    memset(imageBuffer, 0, sizeFull);
+    //memset(imageBuffer, 0, sizeFull);
+    fillFrameBorders(fh);
 
     quint8 *buf = new quint8[fh.size];
-    dev->read((char*)buf, fh.size);
+    if (dev->read((char*)buf, fh.size) != fh.size)
+        return false;
 
-    int numScanLines = fh.heightFrame;
     quint32 *offsets = (quint32*)&buf[0];
 
-    for (int curLine = 0; curLine < numScanLines; curLine++)
+    for (quint32 curLine = 0; curLine < fh.heightFrame; curLine++)
     {
-        quint8 *imageLine = imageBuffer + (fh.marginTop + curLine) * fh.widthFull;
-        imageLine += fh.marginLeft;
+        quint32 offsetImageBuffer = (fh.marginTop + curLine) * fh.widthFull + fh.marginLeft;
 
-        quint8 *line = &buf[offsets[curLine]];
+        quint8 *imageLine = imageBuffer + offsetImageBuffer;
+        quint32 offsetImageLine = 0;
+
+        if (offsets[curLine] > fh.size)
+            return false;
+
+        quint8 *line = buf + offsets[curLine];
 
         int lenLine = 0;
-        if (curLine < numScanLines - 1)
+        if (curLine < fh.heightFrame - 1)
             lenLine = offsets[curLine + 1] - offsets[curLine];
         else
             lenLine = fh.size - offsets[curLine];
 
+        if (lenLine < 0 || offsets[curLine] + lenLine > fh.size)
+            return false;
+
         int offset = 0;
 
-        while(offset < lenLine)
+        while (offset < lenLine)
         {
             quint8 typeSegment = line[offset];
             if (typeSegment == 0xFF)
             {
                 quint8 lenSegment = line[++offset] + 1;
+                if (offsetImageLine + lenSegment > fh.widthFrame)
+                    return false;
+
                 offset++;
                 for (quint8 k = 0; k < lenSegment; k++)
                 {
-                    *imageLine++ = line[offset++];
+                    imageLine[offsetImageLine++] = line[offset++];
                 }
             }
             else //if (typeSegment == 0x00)
             {
                 quint8 lenSegment = line[++offset] + 1;
+                if (offsetImageLine + lenSegment > fh.widthFrame)
+                    return false;
+
                 for (quint8 k = 0; k < lenSegment; k++)
                 {
-                    *imageLine++ = 0;
+                    imageLine[offsetImageLine++] = 0;
                 }
                 offset++;
             }
