@@ -6,5 +6,5 @@ count(TOO_OLD_LIST, 1) {
 }
 
 TEMPLATE = subdirs
-SUBDIRS = src src\plugins
+SUBDIRS = src src\plugins tools
 
