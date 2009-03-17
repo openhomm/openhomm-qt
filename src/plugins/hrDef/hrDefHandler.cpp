@@ -67,6 +67,8 @@ public:
     int getWidth();
     int getHeight();
 
+    static bool canRead(QIODevice *device);
+
 private:
     bool readHeader();
     bool readPalette();
@@ -154,7 +156,8 @@ bool DefReader::jumpToImage(int imageNumber)
     }
     else if (imageNumber >= 0 && imageNumber < countFrames)
         curFrame = imageNumber;
-    else return false;
+    else
+        return false;
     return true;
 }
 
@@ -187,9 +190,9 @@ bool DefReader::readPalette()
 bool DefReader::readBlockHeaders()
 {
     BlockHeader bh;
-    Block block;
     for (int i = 0; i < countBlocks; i++)
     {
+        Block block;
         if (dev->read((char*)&bh, sizeof(bh)) == sizeof(bh))
         {
             block.countFrames = bh.countFrames;
@@ -240,10 +243,11 @@ bool DefReader::readFrame0(QImage & image, FrameHeader & fh)
 
     if (dev->read((char*)imageBuffer, fh.size) == fh.size)
     {
-        image = QImage(imageBuffer, width, height, QImage::Format_Indexed8);
+        image = QImage(imageBuffer, width, height, width, QImage::Format_Indexed8);
         image.setColorTable(colors);
     }
-    else return false;
+    else
+        return false;
     return true;
 }
 
@@ -261,13 +265,12 @@ void DefReader::fillFrameBorders(FrameHeader &fh)
     if (fh.widthFrame == fh.widthFull
         && fh.heightFrame == fh.heightFull)
         return;
-    if (!imageBuffer)
-        return;
-    quint8 *line = &imageBuffer[0];
+    quint8 *line = imageBuffer;
     quint32 i = 0;
     quint32 j = 0;
+
     for (; j < fh.marginTop; j++)
-        for (; i < fh.widthFull; i++)
+        for (i = 0; i < fh.widthFull; i++)
             *line++ = 0;
 
     for (; j < fh.marginTop + fh.heightFrame; j++)
@@ -280,7 +283,7 @@ void DefReader::fillFrameBorders(FrameHeader &fh)
     }
 
     for (; j < fh.heightFull; j++)
-        for (; i < fh.widthFull; i++)
+        for (i = 0; i < fh.widthFull; i++)
             *line++ = 0;
 }
 
@@ -349,7 +352,7 @@ bool DefReader::readFrame1(QImage & image, FrameHeader & fh)
 
                 for (quint8 k = 0; k < lenSegment; k++)
                 {
-                    imageLine[offsetImageLine++] = 0;
+                    imageLine[offsetImageLine++] = typeSegment;//0;
                 }
                 offset++;
             }
@@ -385,6 +388,29 @@ bool DefReader::read(QImage *image)
     return false;
 }
 
+bool DefReader::canRead(QIODevice *device)
+{
+    if (!device)
+        return false;
+    bool isProbablyDef = false;
+    qint64 oldPos = device->pos();
+    device->seek(0);
+    // def format does not have a magic number
+    DefHeader dh;
+    if (device->read((char*)&dh, sizeof(dh)) == sizeof(dh))
+    {
+        if (dh.width <= 800
+            && dh.height <= 600 // heroes 3 original resolution
+            && dh.countBlocks < 0xFFFF // probably..
+            )
+        {
+            isProbablyDef = true;
+        }
+    }
+    device->seek(oldPos);
+    return isProbablyDef;
+}
+
 
 hrDefHandler::hrDefHandler(QIODevice *device)
 {
@@ -399,9 +425,8 @@ hrDefHandler::~hrDefHandler()
 
 bool hrDefHandler::read(QImage *image)
 {
-    if (!canRead())
-        return false;
-
+    /*if (!canRead())
+        return false;*/
     return dr->read(image);
 }
 
@@ -443,31 +468,44 @@ int hrDefHandler::nextImageDelay() const
 
 bool hrDefHandler::canRead() const
 {
-    if (!canRead(device()))
-        return false;
-    return true;
+    return canRead(device());
 }
 
 bool hrDefHandler::canRead(QIODevice *device)
 {
     if (!device)
     {
-        qWarning("hrDefHandler::canRead() called with no device");
+        qWarning("hrDefHandler::canRead() empty device");
         return false;
     }
+
+    if (!DefReader::canRead(device))
+    {
+        return false;
+    }
+
+    if (!device->isSequential())
+    {
+        qWarning("hrDefHandler::canRead() random access devices only");
+        return false;
+    }
+
     return true;
 }
 
+// todo: add Name and SubType
 QVariant hrDefHandler::option(ImageOption option) const
 {
-    if (option == Size && canRead())
+    if (option == Size)
     {
         QSize imageSize;
         imageSize = QSize(dr->getWidth(), dr->getHeight());
-
         if ( imageSize.isValid() )
             return imageSize;
     }
+    else
+        if (option == Animation)
+            return true;
 
     return QVariant();
 }
@@ -479,7 +517,8 @@ void hrDefHandler::setOption(ImageOption option, const QVariant &value)
 
 bool hrDefHandler::supportsOption(ImageOption option) const
 {
-    return option == Size;
+    return option == Size
+        || option == Animation;
 }
 
 QByteArray hrDefHandler::name() const

@@ -29,7 +29,7 @@ public:
 QImageIOPlugin::Capabilities hrDefPlugin::capabilities(QIODevice *device, const QByteArray &format) const
 {
     if (format == "def")
-        return Capabilities(CanRead);
+        return CanRead;
     if (!format.isEmpty())
         return 0;
     if (!device->isOpen())
@@ -38,7 +38,9 @@ QImageIOPlugin::Capabilities hrDefPlugin::capabilities(QIODevice *device, const 
     Capabilities cap;
 
     if ( device->isReadable() && hrDefHandler::canRead(device) )
+    {
         cap |= CanRead;
+    }
 
     return cap;
 }

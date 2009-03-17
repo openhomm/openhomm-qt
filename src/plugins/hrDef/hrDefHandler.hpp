@@ -39,6 +39,7 @@ public:
     virtual bool jumpToNextImage();
     virtual int loopCount() const;
     virtual int nextImageDelay() const;
+
     static bool canRead(QIODevice *device);
 
     QVariant option(ImageOption option) const;
