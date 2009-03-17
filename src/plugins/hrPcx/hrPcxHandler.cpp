@@ -33,10 +33,13 @@ hrPcxHandler::hrPcxHandler() : QImageIOHandler()
 
 bool hrPcxHandler::canRead() const
 {
-    if ( !canRead(device()) )
-        return false;
+    if ( canRead(device()) )
+    {
+        setFormat("pcx");
+        return true;
+    }
 
-    return true;
+    return false;
 }
 
 bool hrPcxHandler::read(QImage *image)
@@ -100,7 +103,19 @@ bool hrPcxHandler::canRead(QIODevice *device)
         return false;
     }
 
-    return true;
+    quint32 s, w, h;
+
+    device->read( (char *) &s, 4);
+    device->read( (char *) &w, 4);
+    device->read( (char *) &h, 4);
+    device->seek(0);
+    
+    if ( s == w * h )
+        return true;
+    if ( s == w * h * 3 )
+        return true;
+
+    return false;
 }
 
 QVariant hrPcxHandler::option(ImageOption option) const
