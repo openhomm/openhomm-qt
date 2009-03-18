@@ -1,5 +1,8 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
+#include <QThread>
+
+
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent), ui(new Ui::MainWindowClass)
@@ -16,11 +19,25 @@ MainWindow::MainWindow(QWidget *parent)
     treeFrames.setColumnWidth(0, 50);
     treeFrames.setHeaderLabels(QStringList("Frames"));
 
+    delay = 10;
+    connect(&timer, SIGNAL(timeout()), this, SLOT(onJumpToImage()));
 }
 
 MainWindow::~MainWindow()
 {
     delete ui;
+}
+
+void MainWindow::onJumpToImage()
+{
+    ir.jumpToNextImage();
+    ir.read(&im);
+    pix = QPixmap::fromImage(im);
+    scene.clear();
+    scene.setSceneRect(pix.rect());
+    scene.addPixmap(pix);
+    QGraphicsView &view = *ui->graphicsView;
+    view.setScene(&scene);
 }
 
 void MainWindow::LoadImage(QModelIndex index)
@@ -64,8 +81,8 @@ void MainWindow::LoadImage(QModelIndex index)
             pix = QPixmap::fromImage(im);
             //QPixmap pix(model.filePath(index));
             scene.clear();
-            scene.addPixmap(pix);
             scene.setSceneRect(pix.rect());
+            scene.addPixmap(pix);
 
             QGraphicsView &view = *ui->graphicsView;
             view.setScene(&scene);
@@ -99,6 +116,8 @@ void MainWindow::JumpToImage(QModelIndex index)
     }
 }
 
+
+
 void MainWindow::on_treeView_activated(QModelIndex index)
 {
     LoadImage(index);
@@ -118,3 +137,24 @@ void MainWindow::on_treeWidgetFrames_clicked(QModelIndex index)
 {
     JumpToImage(index);
 }
+
+void MainWindow::on_checkBox_toggled(bool checked)
+{
+    if (checked)
+    {
+        timer.start(delay);
+    }
+    else
+        timer.stop();
+}
+
+void MainWindow::on_horizontalSlider_sliderMoved(int position)
+{
+    delay = position;
+    if (timer.isActive())
+    {
+        timer.stop();
+        timer.start(delay);
+    }
+}
+

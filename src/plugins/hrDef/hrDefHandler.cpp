@@ -74,17 +74,16 @@ private:
     bool readPalette();
     bool readBlockHeaders();
 
-    bool readFrame0(QImage & image, FrameHeader & fh);
-    bool readFrame1(QImage & image, FrameHeader & fh);
+    bool readFrame0(QImage *image, FrameHeader & fh);
+    bool readFrame1(QImage *image, FrameHeader & fh);
 
     bool checkFrame(FrameHeader &fh);
-    void fillFrameBorders(FrameHeader &fh);
+    void fillFrameBorders(FrameHeader &fh, quint8 *imageBuffer);
 
     QIODevice *dev;
 
     QVector<Block> blocks;
     QVector<QRgb> colors;
-    quint8 *imageBuffer;
     int curFrame;
     int countFrames;
     int curBlock;
@@ -98,7 +97,6 @@ private:
 DefReader::DefReader(QIODevice *device)
 {
     dev = device;
-    imageBuffer = NULL;
     curFrame = 0;
     countFrames = 0;
     curBlock = 0;
@@ -110,8 +108,6 @@ DefReader::DefReader(QIODevice *device)
 
 DefReader::~DefReader()
 {
-    if (!imageBuffer)
-        delete imageBuffer;
 }
 
 int DefReader::count()
@@ -166,7 +162,7 @@ bool DefReader::jumpToNextImage()
     if (!count())
         return false;
 
-    curFrame < countFrames ? curFrame++ : curFrame = 0;
+    curFrame < countFrames - 1 ? curFrame++ : curFrame = 0;
     return true;
 }
 
@@ -236,18 +232,22 @@ bool DefReader::readHeader()
     return false;
 }
 
-bool DefReader::readFrame0(QImage & image, FrameHeader & fh)
+bool DefReader::readFrame0(QImage *image, FrameHeader & fh)
 {
-    if (!imageBuffer) delete imageBuffer;
-    imageBuffer = new quint8[fh.size];
+    quint8 *imageBuffer = new quint8[fh.size];
 
     if (dev->read((char*)imageBuffer, fh.size) == fh.size)
     {
-        image = QImage(imageBuffer, width, height, width, QImage::Format_Indexed8);
-        image.setColorTable(colors);
+        QImage im(imageBuffer, width, height, width, QImage::Format_Indexed8);
+        *image = im;
+        image->setColorTable(colors);
     }
     else
+    {
+        delete [] imageBuffer;
         return false;
+    }
+    delete [] imageBuffer;
     return true;
 }
 
@@ -260,7 +260,7 @@ bool DefReader::checkFrame(FrameHeader &fh)
         return false;
 }
 
-void DefReader::fillFrameBorders(FrameHeader &fh)
+void DefReader::fillFrameBorders(FrameHeader &fh, quint8 *imageBuffer)
 {
     if (fh.widthFrame == fh.widthFull
         && fh.heightFrame == fh.heightFull)
@@ -287,18 +287,17 @@ void DefReader::fillFrameBorders(FrameHeader &fh)
             *line++ = 0;
 }
 
-bool DefReader::readFrame1(QImage & image, FrameHeader & fh)
+bool DefReader::readFrame1(QImage *image, FrameHeader & fh)
 {
     if (!checkFrame(fh))
         return false;
 
     quint32 sizeFull = fh.widthFull * fh.heightFull;
 
-    if (!imageBuffer) delete imageBuffer;
-    imageBuffer = new quint8[sizeFull];
+    quint8 *imageBuffer = new quint8[sizeFull];
 
     //memset(imageBuffer, 0, sizeFull);
-    fillFrameBorders(fh);
+    fillFrameBorders(fh, imageBuffer);
 
     quint8 *buf = new quint8[fh.size];
     if (dev->read((char*)buf, fh.size) != fh.size)
@@ -358,8 +357,10 @@ bool DefReader::readFrame1(QImage & image, FrameHeader & fh)
             }
         }
     }
-    image = QImage(imageBuffer, fh.widthFull, fh.heightFull, fh.widthFull, QImage::Format_Indexed8);
-    image.setColorTable(colors);
+    QImage im(imageBuffer, fh.widthFull, fh.heightFull, fh.widthFull, QImage::Format_Indexed8);
+    *image = im;
+    image->setColorTable(colors);
+    delete [] imageBuffer;
     delete [] buf;
     return true;
 }
@@ -378,13 +379,14 @@ bool DefReader::read(QImage *image)
 
     if (fh.type == 0)
     {
-        return readFrame0(*image, fh);
+        return readFrame0(image, fh);
     }
     if (fh.type == 1)
     {
-        return readFrame1(*image, fh);
+        return readFrame1(image, fh);
     }
 
+    *image = QImage();
     return false;
 }
 
@@ -478,15 +480,15 @@ bool hrDefHandler::canRead(QIODevice *device)
         qWarning("hrDefHandler::canRead() empty device");
         return false;
     }
-
-    if (!DefReader::canRead(device))
-    {
-        return false;
-    }
-
+/*
     if (!device->isSequential())
     {
         qWarning("hrDefHandler::canRead() random access devices only");
+        return false;
+    }*/
+
+    if (!DefReader::canRead(device))
+    {
         return false;
     }
 
