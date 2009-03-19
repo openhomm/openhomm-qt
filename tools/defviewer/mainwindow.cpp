@@ -1,7 +1,5 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
-#include <QThread>
-
 
 
 MainWindow::MainWindow(QWidget *parent)
@@ -19,8 +17,15 @@ MainWindow::MainWindow(QWidget *parent)
     treeFrames.setColumnWidth(0, 50);
     treeFrames.setHeaderLabels(QStringList("Frames"));
 
+    //view.setOptimizationFlag(QGraphicsView::DontClipPainter, true);
+
     delay = 10;
     connect(&timer, SIGNAL(timeout()), this, SLOT(onJumpToImage()));
+
+    QGraphicsView &view = *ui->graphicsView;
+    //view.setViewport(new QGLWidget());
+    view.resize(600, 400);
+    view.setScene(&scene);
 }
 
 MainWindow::~MainWindow()
@@ -36,8 +41,6 @@ void MainWindow::onJumpToImage()
     scene.clear();
     scene.setSceneRect(pix.rect());
     scene.addPixmap(pix);
-    QGraphicsView &view = *ui->graphicsView;
-    view.setScene(&scene);
 }
 
 void MainWindow::LoadImage(QModelIndex index)
@@ -83,9 +86,6 @@ void MainWindow::LoadImage(QModelIndex index)
             scene.clear();
             scene.setSceneRect(pix.rect());
             scene.addPixmap(pix);
-
-            QGraphicsView &view = *ui->graphicsView;
-            view.setScene(&scene);
         }
         else
             label.setText(s + ": fail read");
@@ -108,9 +108,6 @@ void MainWindow::JumpToImage(QModelIndex index)
                 scene.clear();
                 scene.addPixmap(pix);
                 scene.setSceneRect(pix.rect());
-
-                QGraphicsView &view = *ui->graphicsView;
-                view.setScene(&scene);
             }
         }
     }
@@ -141,9 +138,7 @@ void MainWindow::on_treeWidgetFrames_clicked(QModelIndex index)
 void MainWindow::on_checkBox_toggled(bool checked)
 {
     if (checked)
-    {
         timer.start(delay);
-    }
     else
         timer.stop();
 }

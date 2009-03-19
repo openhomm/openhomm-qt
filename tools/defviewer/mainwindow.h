@@ -2,6 +2,7 @@
 #define MAINWINDOW_H
 
 #include <QtGui>
+#include <QtOpenGL>
 
 namespace Ui
 {
@@ -24,6 +25,7 @@ private:
 
     QDirModel model;
     QGraphicsScene scene;
+    QPainter painter;
     QImageReader ir;
     QImage im;
     QPixmap pix;

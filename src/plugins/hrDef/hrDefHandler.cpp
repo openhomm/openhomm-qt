@@ -76,6 +76,8 @@ private:
 
     bool readFrame0(QImage *image, FrameHeader & fh);
     bool readFrame1(QImage *image, FrameHeader & fh);
+    bool readFrame2(QImage *image, FrameHeader & fh);
+    bool readFrame3(QImage *image, FrameHeader & fh);
 
     bool checkFrame(FrameHeader &fh);
     void fillFrameBorders(FrameHeader &fh, quint8 *imageBuffer);
@@ -172,7 +174,26 @@ bool DefReader::readPalette()
     if (dev->read((char*)buf, 256 * 3) == 256 * 3)
     {
         QRgb rgb;
-        for(int i = 0, j = 0; i < 256; i++, j += 3)
+        int gray;
+        // first color is alpha
+        rgb = qRgba(buf[0], buf[1], buf[2], 0);
+        colors.append(rgb);
+        // second is light shadow
+        gray = qGray(buf[3], buf[4], buf[5]);
+        rgb = qRgba(0, 0, 0, gray);
+        colors.append(rgb);
+        // only used in Tshre.def and AvGnoll.def
+        rgb = qRgb(buf[6], buf[7], buf[8]);
+        colors.append(rgb);
+        // only used in Tshre.def
+        rgb = qRgb(buf[9], buf[10], buf[11]);
+        colors.append(rgb);
+        // strong shadow
+        gray = qGray(buf[12], buf[13], buf[14]);
+        rgb = qRgba(0, 0, 0, gray);
+        colors.append(rgb);
+
+        for(int i = 5, j = 15; i < 256; i++, j += 3)
         {
             rgb = qRgb(buf[j], buf[j + 1], buf[j + 2]);
             colors.append(rgb);
@@ -313,45 +334,223 @@ bool DefReader::readFrame1(QImage *image, FrameHeader & fh)
         quint32 offsetImageLine = 0;
 
         if (offsets[curLine] > fh.size)
+        {
+            qWarning("offsets[curLine] > fh.size");
             return false;
+        }
 
         quint8 *line = buf + offsets[curLine];
 
-        int lenLine = 0;
+        quint32 lenLine = 0;
         if (curLine < fh.heightFrame - 1)
             lenLine = offsets[curLine + 1] - offsets[curLine];
         else
             lenLine = fh.size - offsets[curLine];
 
-        if (lenLine < 0 || offsets[curLine] + lenLine > fh.size)
+        if (offsets[curLine] + lenLine > fh.size)
             return false;
 
-        int offset = 0;
+        quint32 offset = 0;
 
         while (offset < lenLine)
         {
             quint8 typeSegment = line[offset];
             if (typeSegment == 0xFF)
             {
-                quint8 lenSegment = line[++offset] + 1;
+                quint32 lenSegment = line[++offset] + 1;
                 if (offsetImageLine + lenSegment > fh.widthFrame)
+                {
                     return false;
+                }
 
                 offset++;
-                for (quint8 k = 0; k < lenSegment; k++)
+                for (quint32 k = 0; k < lenSegment; k++)
                 {
                     imageLine[offsetImageLine++] = line[offset++];
                 }
             }
             else //if (typeSegment == 0x00)
             {
-                quint8 lenSegment = line[++offset] + 1;
+                quint32 lenSegment = line[++offset] + 1;
                 if (offsetImageLine + lenSegment > fh.widthFrame)
+                {
                     return false;
+                }
 
-                for (quint8 k = 0; k < lenSegment; k++)
+                for (quint32 k = 0; k < lenSegment; k++)
                 {
                     imageLine[offsetImageLine++] = typeSegment;//0;
+                }
+                offset++;
+            }
+        }
+    }
+    QImage im(imageBuffer, fh.widthFull, fh.heightFull, fh.widthFull, QImage::Format_Indexed8);
+    *image = im;
+    image->setColorTable(colors);
+    //QImage mask = image->createMaskFromColor(colors[0], Qt::MaskOutColor);
+    //image->setAlphaChannel(mask);
+    delete [] imageBuffer;
+    delete [] buf;
+    return true;
+}
+
+bool DefReader::readFrame2(QImage *image, FrameHeader & fh)
+{
+    if (!checkFrame(fh))
+        return false;
+
+    quint32 sizeFull = fh.widthFull * fh.heightFull;
+
+    quint8 *imageBuffer = new quint8[sizeFull];
+
+    //memset(imageBuffer, 0, sizeFull);
+    fillFrameBorders(fh, imageBuffer);
+
+    quint8 *buf = new quint8[fh.size];
+    if (dev->read((char*)buf, fh.size) != fh.size)
+        return false;
+
+    quint16 *offsets = (quint16*)&buf[0];
+
+    for (quint32 curLine = 0; curLine < fh.heightFrame; curLine++)
+    {
+        quint32 offsetImageBuffer = (fh.marginTop + curLine) * fh.widthFull + fh.marginLeft;
+
+        quint8 *imageLine = imageBuffer + offsetImageBuffer;
+        quint32 offsetImageLine = 0;
+
+        if (offsets[curLine] > fh.size)
+        {
+            qWarning("offsets[curLine] > fh.size");
+            return false;
+        }
+
+        quint8 *line = buf + offsets[curLine];
+
+        quint32 lenLine = 0;
+        if (curLine < fh.heightFrame - 1)
+            lenLine = offsets[curLine + 1] - offsets[curLine];
+        else
+            lenLine = fh.size - offsets[curLine];
+
+        if (offsets[curLine] + lenLine > fh.size)
+            return false;
+
+        quint32 offset = 0;
+
+        while (offset < lenLine)
+        {
+            int typeSegment = line[offset] >> 5;
+            int lenSegment = (line[offset] & 0x1F) + 1;
+
+            if (offsetImageLine + lenSegment > fh.widthFrame)
+                return false;
+
+            if (typeSegment == 0x07)
+            {
+                offset++;
+                for (int k = 0; k < lenSegment; k++)
+                {
+                    imageLine[offsetImageLine++] = line[offset++];
+                }
+            }
+            else
+            {
+                for (int k = 0; k < lenSegment; k++)
+                {
+                    imageLine[offsetImageLine++] = typeSegment;
+                }
+                offset++;
+            }
+        }
+    }
+    QImage im(imageBuffer, fh.widthFull, fh.heightFull, fh.widthFull, QImage::Format_Indexed8);
+    *image = im;
+    image->setColorTable(colors);
+    //QImage mask = image->createMaskFromColor(colors[0], Qt::MaskOutColor);
+    //image->setAlphaChannel(mask);
+    delete [] imageBuffer;
+    delete [] buf;
+    return true;
+}
+
+bool DefReader::readFrame3(QImage *image, FrameHeader &fh)
+{
+    if (!checkFrame(fh))
+        return false;
+
+    quint32 sizeFull = fh.widthFull * fh.heightFull;
+
+    quint8 *imageBuffer = new quint8[sizeFull];
+
+    //memset(imageBuffer, 0, sizeFull);
+    fillFrameBorders(fh, imageBuffer);
+
+
+    quint8 *buf = new quint8[fh.size];
+    if (dev->read((char*)buf, fh.size) != fh.size)
+        return false;
+
+    quint16 *offsets = (quint16*)&buf[0];
+
+    int offsetImageBuffer = fh.marginTop * fh.widthFull + fh.marginLeft;
+    quint8 *imageLine = imageBuffer + offsetImageBuffer;
+    quint32 curImageBufferLine = 0;
+    quint32 offsetImageLine = 0;
+
+    int countLines = fh.heightFrame * fh.widthFrame / 32;
+
+    for (int curLine = 0; curLine < countLines; curLine++)
+    {
+        if (offsetImageLine >= fh.widthFrame)
+        {
+            curImageBufferLine++;
+            if (curImageBufferLine > fh.heightFrame)
+                return false;
+
+            offsetImageBuffer = (fh.marginTop + curImageBufferLine) * fh.widthFull + fh.marginLeft;
+            imageLine = imageBuffer + offsetImageBuffer;
+            offsetImageLine = 0;
+        }
+
+        if (offsets[curLine] > fh.size)
+            return false;
+
+        quint8 *line = buf + offsets[curLine];
+
+        quint32 lenLine = 0;
+        if (curLine < countLines - 1)
+            lenLine = offsets[curLine + 1] - offsets[curLine];
+        else
+            lenLine = fh.size - offsets[curLine];
+
+        if (offsets[curLine] + lenLine > fh.size)
+            return false;
+
+        quint32 offset = 0;
+
+        while (offset < lenLine)
+        {
+            int typeSegment = line[offset] >> 5;
+            int lenSegment = (line[offset] & 0x1F) + 1;
+
+            if (offsetImageLine + lenSegment > fh.widthFrame)
+                return false;
+
+            if (typeSegment == 0x07)
+            {
+                offset++;
+                for (int k = 0; k < lenSegment; k++)
+                {
+                    imageLine[offsetImageLine++] = line[offset++];
+                }
+            }
+            else
+            {
+                for (int k = 0; k < lenSegment; k++)
+                {
+                    imageLine[offsetImageLine++] = typeSegment;
                 }
                 offset++;
             }
@@ -385,6 +584,14 @@ bool DefReader::read(QImage *image)
     {
         return readFrame1(image, fh);
     }
+    if (fh.type == 2)
+    {
+        return readFrame2(image, fh);
+    }
+    if (fh.type == 3)
+    {
+        return readFrame3(image, fh);
+    }
 
     *image = QImage();
     return false;
@@ -412,6 +619,7 @@ bool DefReader::canRead(QIODevice *device)
     device->seek(oldPos);
     return isProbablyDef;
 }
+
 
 
 hrDefHandler::hrDefHandler(QIODevice *device)
