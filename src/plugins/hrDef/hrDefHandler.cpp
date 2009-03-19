@@ -174,7 +174,7 @@ bool DefReader::readPalette()
     if (dev->read((char*)buf, 256 * 3) == 256 * 3)
     {
         QRgb rgb;
-        int gray;
+        int gray = 0;
         // first color is alpha
         rgb = qRgba(buf[0], buf[1], buf[2], 0);
         colors.append(rgb);
@@ -328,14 +328,13 @@ bool DefReader::readFrame1(QImage *image, FrameHeader & fh)
 
     for (quint32 curLine = 0; curLine < fh.heightFrame; curLine++)
     {
-        quint32 offsetImageBuffer = (fh.marginTop + curLine) * fh.widthFull + fh.marginLeft;
+        int offsetImageBuffer = (fh.marginTop + curLine) * fh.widthFull + fh.marginLeft;
 
         quint8 *imageLine = imageBuffer + offsetImageBuffer;
         quint32 offsetImageLine = 0;
 
         if (offsets[curLine] > fh.size)
         {
-            qWarning("offsets[curLine] > fh.size");
             return false;
         }
 
@@ -355,31 +354,25 @@ bool DefReader::readFrame1(QImage *image, FrameHeader & fh)
         while (offset < lenLine)
         {
             quint8 typeSegment = line[offset];
+            quint32 lenSegment = line[++offset] + 1;
+            if (offsetImageLine + lenSegment > fh.widthFrame)
+            {
+                return false;
+            }
+
             if (typeSegment == 0xFF)
             {
-                quint32 lenSegment = line[++offset] + 1;
-                if (offsetImageLine + lenSegment > fh.widthFrame)
-                {
-                    return false;
-                }
-
                 offset++;
                 for (quint32 k = 0; k < lenSegment; k++)
                 {
                     imageLine[offsetImageLine++] = line[offset++];
                 }
             }
-            else //if (typeSegment == 0x00)
+            else
             {
-                quint32 lenSegment = line[++offset] + 1;
-                if (offsetImageLine + lenSegment > fh.widthFrame)
-                {
-                    return false;
-                }
-
                 for (quint32 k = 0; k < lenSegment; k++)
                 {
-                    imageLine[offsetImageLine++] = typeSegment;//0;
+                    imageLine[offsetImageLine++] = typeSegment;
                 }
                 offset++;
             }
@@ -388,8 +381,6 @@ bool DefReader::readFrame1(QImage *image, FrameHeader & fh)
     QImage im(imageBuffer, fh.widthFull, fh.heightFull, fh.widthFull, QImage::Format_Indexed8);
     *image = im;
     image->setColorTable(colors);
-    //QImage mask = image->createMaskFromColor(colors[0], Qt::MaskOutColor);
-    //image->setAlphaChannel(mask);
     delete [] imageBuffer;
     delete [] buf;
     return true;
@@ -422,7 +413,6 @@ bool DefReader::readFrame2(QImage *image, FrameHeader & fh)
 
         if (offsets[curLine] > fh.size)
         {
-            qWarning("offsets[curLine] > fh.size");
             return false;
         }
 
@@ -468,8 +458,6 @@ bool DefReader::readFrame2(QImage *image, FrameHeader & fh)
     QImage im(imageBuffer, fh.widthFull, fh.heightFull, fh.widthFull, QImage::Format_Indexed8);
     *image = im;
     image->setColorTable(colors);
-    //QImage mask = image->createMaskFromColor(colors[0], Qt::MaskOutColor);
-    //image->setAlphaChannel(mask);
     delete [] imageBuffer;
     delete [] buf;
     return true;
@@ -503,7 +491,7 @@ bool DefReader::readFrame3(QImage *image, FrameHeader &fh)
 
     for (int curLine = 0; curLine < countLines; curLine++)
     {
-        if (offsetImageLine >= fh.widthFrame)
+        if (offsetImageLine == fh.widthFrame)
         {
             curImageBufferLine++;
             if (curImageBufferLine > fh.heightFrame)
@@ -608,7 +596,8 @@ bool DefReader::canRead(QIODevice *device)
     DefHeader dh;
     if (device->read((char*)&dh, sizeof(dh)) == sizeof(dh))
     {
-        if (dh.width <= 800
+        if (dh.type >= 64 && dh.type <= 73 // from tests
+            && dh.width <= 800
             && dh.height <= 600 // heroes 3 original resolution
             && dh.countBlocks < 0xFFFF // probably..
             )

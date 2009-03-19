@@ -14,18 +14,19 @@ MainWindow::MainWindow(QWidget *parent)
 
     QTreeWidget &treeFrames = *ui->treeWidgetFrames;
     treeFrames.setColumnCount(1);
-    treeFrames.setColumnWidth(0, 50);
     treeFrames.setHeaderLabels(QStringList("Frames"));
 
     //view.setOptimizationFlag(QGraphicsView::DontClipPainter, true);
 
-    delay = 10;
+    delay = 100;
     connect(&timer, SIGNAL(timeout()), this, SLOT(onJumpToImage()));
 
     QGraphicsView &view = *ui->graphicsView;
     //view.setViewport(new QGLWidget());
     view.resize(600, 400);
     view.setScene(&scene);
+
+    ui->label->setText("");
 }
 
 MainWindow::~MainWindow()
@@ -79,10 +80,9 @@ void MainWindow::LoadImage(QModelIndex index)
         label.setText(s);
         if (ir.read(&im))
         {
-            label.setText(s + QString(" width: %1 height %2").arg(im.rect().width()).arg(im.rect().height()));
+            label.setText(s + QString(" width: %1 height: %2").arg(im.rect().width()).arg(im.rect().height()));
 
             pix = QPixmap::fromImage(im);
-            //QPixmap pix(model.filePath(index));
             scene.clear();
             scene.setSceneRect(pix.rect());
             scene.addPixmap(pix);

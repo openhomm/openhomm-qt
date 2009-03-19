@@ -1,7 +1,7 @@
 /********************************************************************************
 ** Form generated from reading ui file 'mainwindow.ui'
 **
-** Created: Wed 18. Mar 20:08:00 2009
+** Created: Fri 20. Mar 00:55:16 2009
 **      by: Qt User Interface Compiler version 4.5.0
 **
 ** WARNING! All changes made in this file will be lost when recompiling ui file!
@@ -49,7 +49,7 @@ public:
     {
         if (MainWindowClass->objectName().isEmpty())
             MainWindowClass->setObjectName(QString::fromUtf8("MainWindowClass"));
-        MainWindowClass->resize(536, 291);
+        MainWindowClass->resize(536, 341);
         centralWidget = new QWidget(MainWindowClass);
         centralWidget->setObjectName(QString::fromUtf8("centralWidget"));
         gridLayout = new QGridLayout(centralWidget);
@@ -68,41 +68,51 @@ public:
 
         graphicsView = new QGraphicsView(centralWidget);
         graphicsView->setObjectName(QString::fromUtf8("graphicsView"));
+        QSizePolicy sizePolicy1(QSizePolicy::Expanding, QSizePolicy::Expanding);
+        sizePolicy1.setHorizontalStretch(0);
+        sizePolicy1.setVerticalStretch(0);
+        sizePolicy1.setHeightForWidth(graphicsView->sizePolicy().hasHeightForWidth());
+        graphicsView->setSizePolicy(sizePolicy1);
+        graphicsView->setMinimumSize(QSize(200, 200));
+        QBrush brush(QColor(0, 0, 0, 255));
+        brush.setStyle(Qt::NoBrush);
+        graphicsView->setBackgroundBrush(brush);
 
         gridLayout->addWidget(graphicsView, 0, 1, 4, 1);
 
         treeWidgetFrames = new QTreeWidget(centralWidget);
-        QTreeWidgetItem *__qtreewidgetitem = new QTreeWidgetItem();
-        __qtreewidgetitem->setText(0, QString::fromUtf8("1"));
-        treeWidgetFrames->setHeaderItem(__qtreewidgetitem);
         treeWidgetFrames->setObjectName(QString::fromUtf8("treeWidgetFrames"));
         sizePolicy.setHeightForWidth(treeWidgetFrames->sizePolicy().hasHeightForWidth());
         treeWidgetFrames->setSizePolicy(sizePolicy);
+        treeWidgetFrames->setMaximumSize(QSize(150, 16777215));
+        treeWidgetFrames->setColumnCount(0);
+        treeWidgetFrames->header()->setDefaultSectionSize(50);
 
         gridLayout->addWidget(treeWidgetFrames, 0, 5, 7, 1);
 
         label = new QLabel(centralWidget);
         label->setObjectName(QString::fromUtf8("label"));
-        QSizePolicy sizePolicy1(QSizePolicy::Fixed, QSizePolicy::Fixed);
-        sizePolicy1.setHorizontalStretch(0);
-        sizePolicy1.setVerticalStretch(0);
-        sizePolicy1.setHeightForWidth(label->sizePolicy().hasHeightForWidth());
-        label->setSizePolicy(sizePolicy1);
+        QSizePolicy sizePolicy2(QSizePolicy::Fixed, QSizePolicy::Fixed);
+        sizePolicy2.setHorizontalStretch(0);
+        sizePolicy2.setVerticalStretch(0);
+        sizePolicy2.setHeightForWidth(label->sizePolicy().hasHeightForWidth());
+        label->setSizePolicy(sizePolicy2);
 
         gridLayout->addWidget(label, 6, 1, 1, 1);
 
         checkBox = new QCheckBox(centralWidget);
         checkBox->setObjectName(QString::fromUtf8("checkBox"));
-        sizePolicy1.setHeightForWidth(checkBox->sizePolicy().hasHeightForWidth());
-        checkBox->setSizePolicy(sizePolicy1);
+        sizePolicy2.setHeightForWidth(checkBox->sizePolicy().hasHeightForWidth());
+        checkBox->setSizePolicy(sizePolicy2);
 
         gridLayout->addWidget(checkBox, 4, 1, 1, 1);
 
         horizontalSlider = new QSlider(centralWidget);
         horizontalSlider->setObjectName(QString::fromUtf8("horizontalSlider"));
-        horizontalSlider->setMinimum(1);
-        horizontalSlider->setMaximum(100);
-        horizontalSlider->setSliderPosition(10);
+        horizontalSlider->setMinimum(10);
+        horizontalSlider->setMaximum(300);
+        horizontalSlider->setValue(100);
+        horizontalSlider->setSliderPosition(100);
         horizontalSlider->setOrientation(Qt::Horizontal);
 
         gridLayout->addWidget(horizontalSlider, 5, 1, 1, 1);
