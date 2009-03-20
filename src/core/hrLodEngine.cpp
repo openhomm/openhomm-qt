@@ -39,10 +39,7 @@ hrLodEngine::hrLodEngine(const QString& path) : QAbstractFileEngine()
 
 hrLodEngine::~hrLodEngine()
 {
-    if ( _buffer->isOpen() )
-        _buffer->close();
-
-    delete _buffer;
+    this->close();
 }
 
 void hrLodEngine::setFileName(const QString &file)
@@ -76,8 +73,11 @@ bool hrLodEngine::close()
 {
     if ( _buffer != NULL )
     {
-        _buffer->close();
+        if ( _buffer->isOpen() )
+            _buffer->close();
+
         delete _buffer;
+        _buffer = NULL;
     }
     return true;
 }
@@ -136,7 +136,6 @@ bool hrLodEngine::remove()
 }
 bool hrLodEngine::copy(const QString &)
 {
-    qWarning("%s: not supported", Q_FUNC_INFO);
     return false;
 }
 bool hrLodEngine::rename(const QString &)
@@ -181,7 +180,6 @@ bool hrLodEngine::setSize(qint64 size)
 
 QStringList hrLodEngine::entryList(QDir::Filters filters, const QStringList &filterNames) const
 {
-    qWarning("%s: not supported", Q_FUNC_INFO);
     return QAbstractFileEngine::entryList(filters, filterNames);
 }
 
@@ -191,10 +189,17 @@ bool hrLodEngine::caseSensitive() const
     return false;
 }
 
-QAbstractFileEngine::FileFlags hrLodEngine::fileFlags(QAbstractFileEngine::FileFlags) const
+QAbstractFileEngine::FileFlags hrLodEngine::fileFlags(QAbstractFileEngine::FileFlags type) const
 {
-    qWarning("%s: not supported", Q_FUNC_INFO);
-    return 0;
+    QAbstractFileEngine::FileFlags ret = 0;
+
+    if(type & TypesMask)
+        ret |= FileType;
+
+    if(type & FlagsMask)
+        ret |= ExistsFlag;
+
+    return ret;
 }
 
 bool hrLodEngine::setPermissions(uint)
@@ -228,24 +233,20 @@ QDateTime hrLodEngine::fileTime(QAbstractFileEngine::FileTime) const
 
 QAbstractFileEngine::Iterator *hrLodEngine::beginEntryList(QDir::Filters filters, const QStringList &filterNames)
 {
-    qWarning("%s: not supported", Q_FUNC_INFO);
     return new hrLodEngineIterator(filters, filterNames);
 }
 QAbstractFileEngine::Iterator *hrLodEngine::endEntryList()
 {
-    qWarning("%s: not supported", Q_FUNC_INFO);
     return 0;
 }
 
 bool hrLodEngine::extension(Extension, const ExtensionOption *, ExtensionReturn *)
 {
-    qWarning("%s: not supported", Q_FUNC_INFO);
     return false;
 }
-bool hrLodEngine::supportsExtension(Extension) const
+bool hrLodEngine::supportsExtension(Extension ext) const
 {
-    qWarning("%s: not supported", Q_FUNC_INFO);
-    return false;
+    return ext == QAbstractFileEngine::AtEndExtension;
 }
 
 bool hrLodEngine::preload_fat()
