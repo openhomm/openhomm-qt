@@ -59,7 +59,8 @@ bool hrPcxHandler::read(QImage *image)
 
     if ( size == width * height )
     {
-        *image = QImage(data, width, height, width, QImage::Format_Indexed8);
+        QImage im(data, width, height, width, QImage::Format_Indexed8);
+        *image = im;
         this->readPallete();
         image->setColorTable(pallete);
     }
