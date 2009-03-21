@@ -1,0 +1,734 @@
+//--------------------------------------
+//--- 010 Editor v2.1.3 Binary Template
+//
+// File: H3M SoD Template
+// Author: CrackedMind
+// Revision: 019
+// Purpose: just for fun :D
+// 
+// History: 003 - add "player commands" interpretation
+//          004 - fix map identification
+//          005 - add "free heroes" block interpretation
+//          006 - add "artefacts" block interpretation
+//          007 - add "spells", "secondary skill" and "rumors" blocks
+//          008 - add "hero options" block
+//          009 - change some interpretation of some variables
+//                add landscape block 
+//          010 - add "objects" inerpretation
+//          011 - add "artefact", "monster", "grail", "pandora box" attributes
+//          012 - add "spell scroll", "resource" attributes
+//          013 - add "dwellings", "shipyard", "scientist", "random artefacts", "random monsters" attributes
+//                change many "if" blocks to one big switch :)
+//          014 - add "random dwellings", "shrines (1-3)"
+//          015 - some refactoring
+//                add "town", "event", attributes
+//          016 - some more refactoring (split to modules)
+//                add "ocean bottle", "sign", "prophet" (almost complete) attributes
+//          017 - add "hero", "prison", "random hero", "prophet" (complete) attributes
+//          018 - add "mine", "witch's hut", "hero placeholder" (almost complete) attributes
+//                fix "town", PLAYERS_ATTRIBUTES struct
+//          019 - add global events
+//                add "lighthouse", "quest guard", "abandoned mine" (2 types)
+//                add "garrison", "special dwellings" (all types of golems & elementals)
+//                fix "random dwellings"
+//--------------------------------------
+// TODO: hero placeholder (defined hero), take more info about "junk" bytes
+//
+#include "heroes3/hstring.bt"
+#include "heroes3/special_victory.bt"
+#include "heroes3/secondaryskills.bt"
+#include "heroes3/objects.bt"
+
+struct BASIC_PARAMETRES {
+    int	magic_header;
+    char	junk;
+    uint32	size;
+    char	under;
+
+    hstring name;
+    hstring description;
+
+    char	difficult;
+    char	levelLimit;
+};
+
+struct PLAYER_ATTRIBUTES {
+    char isHuman;
+    char isComputer;
+    char behavior;	// 0-Random, 1-Warrior, 2-Builder, 3-Explorer
+    char isCityTypesOpt;
+    short cityTypes <format=binary>;;
+    char randomCity;
+    char mainCity;
+
+    if ( mainCity == 1 ) {
+        char generateHero;
+        uchar city[4]; // 0 - city type, 1-3 coords
+    }
+
+    uchar random_hero;
+    uchar hero_type;
+
+
+    if ( hero_type != 0xFF ) {
+    uchar hero_portret;
+    hstring hero_name;
+    }
+        char junk;
+        uint heroes_count;
+        if ( heroes_count > 0 ) {
+            struct Hero_tag {
+                uchar portret;
+                hstring name;
+            };
+            Hero_tag hero[heroes_count] <optimize=false>;
+        }
+};
+
+struct SpecialLossConditions {
+    uchar id;
+
+    if ( id != 0xFF ) {
+        if ( id == 0x00 || id == 0x01 ) {
+            uchar coord[3];
+        }
+        else if ( id == 0x02 )
+            ushort days;
+    }
+};
+
+struct Teams {
+    uchar commands_count;
+
+    if ( commands_count > 0 ) {
+        uchar commands[8];
+    }
+};
+
+struct FreeHeroes {
+    uchar free_heroes[20];
+    uchar junk[4];
+    uchar heroes_count;
+    
+    if (heroes_count > 0) {
+        struct tuned_tag {
+            uchar heroID;
+            uchar heroPortrait;
+            hstring hero_name;
+
+            uchar players;
+        } tuned[heroes_count] <optimize=false>;
+    }
+
+    uchar junk2[31];
+};
+
+struct Artefacts {
+    uchar artefacts[18] <format=binary>;
+};
+
+struct Spells {
+    uchar spells[9] <format=binary>;
+};
+
+struct SecSkills {
+    uchar skills[4] <format=binary>;
+};
+
+struct Rumors {
+    uint32 total_rumors;
+
+    if ( total_rumors > 0 ) {
+        struct Rumor_tag {
+        
+            hstring rumor_name;
+
+            hstring rumor_text;
+        } rumors[total_rumors] <optimize=false>;
+    }
+};
+
+struct HeroOptions_enabled {
+    uchar isExp;
+    
+    if ( isExp == 1 )
+        uint32 exp;
+
+    uchar isSecSkill;
+
+    if ( isSecSkill == 1 ) {
+        uint32 skills_count;
+
+        secskill_tag secskills [skills_count];
+    }
+
+    uchar isArtefacts;
+
+    if ( isArtefacts == 1 ) {
+        ushort headID;
+        ushort shouldersID;
+        ushort neckID;
+        ushort rightHandID;
+        ushort leftHandID;
+        ushort trunkID;
+        ushort rightRingID;
+        ushort leftRingID;
+        ushort legsID;
+        ushort misc1ID;
+        ushort misc2ID;
+        ushort misc3ID;
+        ushort misc4ID;
+        ushort machine1ID;
+        ushort machine2ID;
+        ushort machine3ID;
+        ushort machine4ID;
+        ushort magicbook;
+        ushort misc5ID;
+
+        ushort knapsack_count;
+
+        if ( knapsack_count > 0 )
+            ushort knapsackID[knapsack_count];
+    }
+
+    uchar isBiography;
+    
+    if (isBiography == 1)
+        hstring biography;
+
+    uchar gender <read=genderRead>;
+
+    uchar isSpells;
+
+    if ( isSpells == 1 )
+        uchar spells[9] <format=binary>;
+
+    uchar isPrimarySkills;
+
+    if ( isPrimarySkills == 1 ) {
+        uchar attack;
+        uchar defence;
+        uchar power;
+        uchar knowledge;
+    }
+};
+
+struct HeroOptions {
+    local int i;
+
+    for (i = 0; i < 156; i++) {
+        uchar enable;
+        
+        if ( enable == 1 )
+            HeroOptions_enabled options;
+    }  
+};
+
+struct LandCell {
+    uchar surfaceID;
+    uchar surfacePattern;
+    uchar riverID;
+    uchar riverPattern;
+    uchar roadID;
+    uchar roadPattern;
+    uchar mirroring <format=binary>;
+};
+
+struct Object {
+    hstring filename;
+    uchar passability[6];
+    uchar actions[6];
+    ushort landscape;
+    ushort land_edit_groups; // for editor
+    uint32 object_class;
+    uint32 object_number;
+    uchar object_group;
+    uchar isOverlay;
+    uchar junk[16];
+};
+
+struct ObjectOptions {
+    uchar coord[3]; // x, y, z;
+    uint32 objectID;
+    uchar junk[5];
+};
+
+struct ObjectShrine {
+    uint32 spellID;
+};
+
+struct ObjectEvent {
+    ObjectPandora event;
+    uchar players;
+    uchar isAICan;
+    uchar disableAfterFirstDay;
+    uint32 junk;
+};
+
+struct ObjectSign {
+    hstring text;
+    uint32 junk;
+};
+
+struct ObjectProphet {
+   uchar quest;
+
+   switch(quest) {
+       case 0:
+           break;
+       case 1:
+           uint32 level;
+           break;
+       case 2:
+           uchar offence;
+           uchar defence;
+           uchar power;
+           uchar knowledge;
+           break;
+       case 3:
+           uint32 heroID;
+           break;
+       case 4:
+           uint32 monsterID;
+           break;
+       case 5:
+           uchar art_quantity;
+           ushort arts[art_quantity];
+           break;
+       case 6:
+           uchar creatures_quantity;
+           if ( creatures_quantity > 0 ) {
+               GuardTag creatures[creatures_quantity];
+           }
+           break;
+       case 7:
+           uint32 resources[7];
+           break;
+       case 8:
+           uchar heroID;
+           break;
+       case 9:
+           uchar player_color;
+           break;
+   };
+
+   uint32 time_limit; // FF FF FF FF - no limit
+   hstring quest_begin;
+   hstring quest_inprocess;
+   hstring quest_end;
+   
+   uchar reward;
+
+   switch(reward) {
+       case 0:
+           break;
+       case 1:
+           uint32 exp;
+           break;
+       case 2:
+           uint32 spell_points;
+           break;
+       case 3:
+           uchar morale;
+           break;
+       case 4:
+           uchar lucky;
+           break;
+       case 5:
+           uchar resID;
+           uint32 res_quantity;
+           break;
+       case 6:
+           uchar priSkillID;
+           uchar priSkillBonus;
+           break;
+       case 7:
+           uchar secSkillID;
+           uchar secSkillLevel;
+           break;
+       case 8:
+           ushort artID;
+           break;
+       case 9:
+           uchar spellID;
+           break;
+       case 10:
+           ushort creatureID;
+           ushort creatureQuantity;
+           break;
+    };
+
+    char junk[2];
+};
+
+struct ObjectHero {
+    uint32 heroID;
+    uchar color;
+    uchar hero; // FF - random
+
+    uchar isName;
+
+    if ( isName == 1 )
+        hstring name;
+
+    uchar isExp;
+
+    if ( isExp == 1 )
+        uint32 exp;
+
+    uchar isPortrait;
+
+    if ( isPortrait == 1)
+        uchar portrait;
+
+    uchar isSecondary;
+    
+    if ( isSecondary == 1 ) {
+         uint32 skills_quantity;
+         if ( skills_quantity > 0 )
+             secskill_tag skills[skills_quantity];
+         
+    }
+
+    uchar isCreature;
+    if ( isCreature == 1 )
+        GuardTag creatures[7];
+
+    uchar creaturesFormation;
+
+    uchar isArtefacts;
+
+    if ( isArtefacts == 1 ) {
+        ushort headID;
+        ushort shouldersID;
+        ushort neckID;
+        ushort rightHandID;
+        ushort leftHandID;
+        ushort trunkID;
+        ushort rightRingID;
+        ushort leftRingID;
+        ushort legsID;
+        ushort misc1ID;
+        ushort misc2ID;
+        ushort misc3ID;
+        ushort misc4ID;
+        ushort machine1ID;
+        ushort machine2ID;
+        ushort machine3ID;
+        ushort machine4ID;
+        ushort magicbook;
+        ushort misc5ID;
+
+        ushort knapsack_count;
+
+        if ( knapsack_count > 0 )
+            ushort knapsackID[knapsack_count];
+    }
+    uchar zoneRadius;
+    
+    uchar isBiography;
+
+    if ( isBiography == 1 )
+        hstring biography;
+
+    uchar gender <read=genderRead>;
+
+    uchar isSpells;
+    if ( isSpells == 1 ) {
+        uchar spells[9] <format=binary>;
+    }
+
+    uchar isPrimary;
+    if ( isPrimary == 1 ) {
+        uchar offence;
+        uchar defence;
+        uchar power;
+        uchar knowledge;
+    }
+
+    uint32 unknown[4];
+};
+
+struct ObjectHeroPlaceholder {
+    uchar color;
+    uchar type;
+};
+
+struct ObjectMine {
+    uint32 color;
+};
+
+struct ObjectWitchHut {
+    uint32 secskills <format=binary>;
+};
+
+struct globalEvent {
+    hstring name;
+    hstring text;
+
+    int32 resources[7];
+
+    uchar players_affected;
+    uchar human_affected;
+    uchar ai_affected;
+
+    ushort day_of_first_event;
+    ushort event_iteration;
+
+    char junk[16];
+};
+
+struct ObjectQuestionGuard {
+    uchar quest;
+
+    switch(quest) {
+        case 0:
+            break;
+        case 1:
+            uint32 level;
+            break;
+        case 2:
+           uchar offence;
+           uchar defence;
+           uchar power;
+           uchar knowledge;
+           break;
+        case 3:
+           uint32 heroID;
+           break;
+        case 4:
+           uint32 monsterID;
+           break;
+        case 5:
+           uchar art_quantity;
+           ushort arts[art_quantity];
+           break;
+        case 6:
+           uchar creatures_quantity;
+           if ( creatures_quantity > 0 ) {
+               GuardTag creatures[creatures_quantity];
+           }
+           break;
+        case 7:
+           uint32 resources[7];
+           break;
+        case 8:
+           uchar heroID;
+           break;
+        case 9:
+           uchar player_color;
+           break;
+    };
+
+    uint32 time_limit; // FF FF FF FF - no limit
+    hstring quest_begin;
+    hstring quest_inprocess;
+    hstring quest_end;
+};
+
+struct ObjectGarrison {
+    uint32 color;
+    GuardTag guards[7];
+    uchar undeleteSoldiers;
+    uint32 junk[2];
+};
+
+struct ObjectAbandonedMine {
+    uchar resources <format=binary>;
+    uchar junk[3];
+};
+
+string genderRead(uchar &gend) {
+    string s;
+    if ( gend == 0 )
+        SPrintf(s, "%s", "male");
+    else if ( gend == 1 )
+        SPrintf(s, "%s", "female");
+    else if ( gend == 0xFF )
+        SPrintf(s, "%s", "by default");
+    return s;
+}
+
+//
+// !!! entrypoint !!!
+//
+
+BASIC_PARAMETRES bp;
+
+// Check for header
+if( bp.magic_header != 0x0000001C )
+{
+    Warning( "File is not a Heroes III SoD Map. Template stopped." );
+    return -1;
+}
+
+PLAYER_ATTRIBUTES red;
+PLAYER_ATTRIBUTES blue;
+PLAYER_ATTRIBUTES tan;
+PLAYER_ATTRIBUTES green;
+PLAYER_ATTRIBUTES orange;
+PLAYER_ATTRIBUTES purple;
+PLAYER_ATTRIBUTES teal;
+PLAYER_ATTRIBUTES pink;
+
+SpecialVictoryConditions svc <optimize=false>;
+SpecialLossConditions slc <optimize=false>;
+
+Teams cmd;
+
+FreeHeroes fh;
+
+Artefacts arts;
+Spells sp;
+SecSkills ss;
+
+Rumors rumors;
+HeroOptions options;
+
+LandCell ground[bp.size*bp.size] <optimize=true>;
+
+if ( bp.under == 1 )
+    LandCell underground[bp.size*bp.size];
+
+uint32 objects_count;
+
+if ( objects_count > 0 )
+     Object objects[objects_count] <optimize=false>;
+
+uint32 tunedobj_count;
+local int i;
+if ( tunedobj_count > 0 ) {
+     for ( i = 0; i < tunedobj_count; i++ ) {
+         ObjectOptions obj;
+
+         switch(objects[obj.objectID].object_class)
+         {
+             case 5:
+             case 65:
+             case 66:
+             case 67:
+             case 68:
+             case 69:
+                 ObjectArtefact artefact;
+                 break;
+
+             case 6:
+                 ObjectPandora pandora;
+                 break;
+
+             case 17:
+             case 20:
+             case 42: //lighthouse
+                 ObjectDwelling dwelling;
+                 break;
+
+             case 26:
+                 ObjectEvent localevent;
+                 break;
+
+             case 33:
+             case 219:
+                 ObjectGarrison garrison;
+                 break;
+
+             case 34:
+             case 70:
+                 ObjectHero hero;
+                 break;
+             case 62:
+                 ObjectHero hero;
+                 break;
+
+             case 36:
+                 ObjectGrail grail;
+                 break;
+
+             case 53:
+                 switch(objects[obj.objectID].object_number) {
+                 case 7:
+                     ObjectAbandonedMine abandoned; // bit0 - mercury, 1 - ore, 2 - sulfur, 
+                     break;                         // bit3 - crystal, 4 - gem, 5 - gold
+                 default:
+                     ObjectMine mine;
+                     break;
+                 }
+                 break;
+
+             case 54:
+             case 71:
+             case 72:
+             case 73:
+             case 74:
+             case 75:
+             case 162:
+             case 163:
+             case 164:
+                 ObjectMonster monster;
+                 break;
+
+             case 76:
+             case 79:
+                 ObjectResource res;
+                 break;
+                 
+             case 81:
+                 ObjectScientist scientist;
+                 break;
+
+             case 83:
+                 ObjectProphet prophet;
+                 break;
+
+             case 87:
+                 ObjectShipyard shipyard;
+                 break;
+
+             case 88:
+             case 89:
+             case 90:
+                 ObjectShrine shrine;
+                 break;
+
+             case 91:
+             case 59:
+                 ObjectSign sign;
+                 break;
+
+             case 93:
+                 ObjectSpell spell;
+                 break;
+
+             case 98:
+             case 77:
+                 ObjectTown town;
+                 break;
+
+             case 113:
+                 ObjectWitchHut whut;
+                 break;
+
+             case 215:
+                 ObjectQuestionGuard qguard;
+                 break;
+
+             case 216:
+                 ObjectGeneralRandomDwelling dwelling;
+                 break;
+             case 217:
+                 ObjectLevelRandomDwelling dwelling;
+                 break;
+             case 218:
+                 ObjectTownRandomDwelling dwelling;
+                 break;
+             case 220:
+                 ObjectAbandonedMine abandoned;
+                 break;
+         };
+     }
+}
+
+uint32 gevents_quantity;
+
+globalEvent gevents[gevents_quantity] <optimize=false>;
+
+uchar main_junk[124];

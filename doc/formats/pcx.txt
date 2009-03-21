@@ -1,0 +1,11 @@
+struct PCXHEADER
+{
+  unsigned int size;  // image size
+  unsigned int width; // image width
+  unsigned int height;// image height
+}
+
+If size == width * height then image is 8-bit and has pallete
+If size == width * height then image is 24-bit (BGR)
+
+pallete offset - 256*3 from the end of the file.

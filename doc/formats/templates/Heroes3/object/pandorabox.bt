@@ -1,0 +1,44 @@
+struct ObjectPandora {
+    ObjectArtefact art;
+    uint32 exp;
+    int32 spell_points;
+    char morals;
+    char luck;
+
+    int32 wood;
+    int32 mercury;
+    int32 ore;
+    int32 sulfur;
+    int32 crystal;
+    int32 gem;
+    int32 gold;
+
+    uchar offence;
+    uchar defence;
+    uchar power;
+    uchar knowledge;
+
+    uchar secskills;
+
+    if ( secskills > 0 ) {
+        secskill_tag sec_skills [secskills];
+    }
+
+    uchar artefacts;
+
+    if ( artefacts > 0 ) {
+        ushort artID[artefacts];
+    }
+
+    uchar spells;
+    if ( spells > 0 ) {
+        uchar spellID[spells];
+    }
+
+    uchar monstres_count;
+
+    if ( monstres_count > 0 ) {
+        GuardTag monstres[monstres_count];
+    }
+    uchar junk3[8];
+};

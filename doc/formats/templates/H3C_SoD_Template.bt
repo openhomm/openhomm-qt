@@ -1,0 +1,143 @@
+//--------------------------------------
+//--- 010 Editor v2.1.3 Binary Template
+//
+// File: H3C SoD Template
+// Author: crackedmind
+// Revision: 001
+// Purpose: just for fun :)
+//--------------------------------------
+#include "heroes3/hstring.bt"
+#include "heroes3/secondaryskills.bt"
+
+struct Header {
+	uint32 magic;	// 05 00 00 00 - AB
+			// 06 00 00 00 - SoD
+			// ?? ?? ?? ?? - RoE
+
+	uchar map_number; // CampText.txt
+	hstring name;
+	hstring description;
+	uchar canPlayerChooseDifficult;
+	uchar whatMusic; // CmpMusic.txt, start from 0
+};
+
+struct ScenarioTravel {
+	uchar whatHeroKeep;	// bit 1 - expirience
+				// bit 2 - primary skills
+				// bit 3 - secondary skills
+				// bit 4 - spells
+				// bit 5 - artefacts
+
+	uchar whatMonstresHeroKeep[19];
+	uchar whatArtifactsHeroKeep[18];
+
+	uchar startOptions;	// 01 - start bonus
+				// 02 - traveling hero
+				// 03 - hero options
+
+	if ( startOptions == 1 ) {
+		uchar playerColor;
+		uchar bonusCount;
+		local int i;
+		for ( i = 0; i < bonusCount; i++ ) {
+			uchar bonusType;
+
+			switch(bonusType){
+			case 0: //spell
+				uint16 heroName;	//0xFDFF - most powerfull hero
+							// other names from hotraits.txt
+				uchar spell;
+				break;
+			case 1: // monster
+				uint16 heroName;	//0xFDFF - most powerfull hero
+							// other names from hotraits.txt
+
+				uint16 monsterType;
+				uint16 count;
+			case 2: // building
+				// TODO
+				break;
+			case 3:
+				uint16 heroName;	//0xFDFF - most powerfull hero
+							// other names from hotraits.txt
+
+				uint16 artefact;
+				break;
+			case 4: // spell scroll
+				uint16 heroName;	//0xFDFF - most powerfull hero
+							// other names from hotraits.txt
+
+				uchar  spell;
+				break;
+			case 5: // primary skills
+				uint16 heroName;	//0xFDFF - most powerfull hero
+							// other names from hotraits.txt
+
+				uchar primarySkills[4];
+				break;
+			case 6: // secondary skills
+				uint16 heroName;	//0xFDFF - most powerfull hero
+							// other names from hotraits.txt
+
+				secskill_tag secskill;
+				break;
+			case 7: // resource
+				uchar type;	// 0 - wood, 1 - Mercury
+						// 2 - ore, 3 - sulfur
+						// 4 - crystal, 5 - gem
+						// 6 - gold, FD - wood+ore
+						// FE - mercury+sulfur+crystal+gem
+				uint32 count;
+				break;
+			};
+		}
+	} else if ( startOptions == 2 ) {
+		uchar count;
+
+		local uchar i;
+		for ( i = 0; i < count; i++) {
+			uchar whichPlayer; // player color
+			uchar fromWhatScenario;
+		}
+	} else if ( startOptions == 3 ) {
+		uchar heroesCount; // max is 3
+		local uchar i;
+
+		for (i =0; i < heroesCount; i++ ) {
+			uchar playerColor;
+			uint16 hero; // FF FF is random
+		}
+	}
+};
+
+struct Scenario {
+	hstring map_name;
+	uint32 packedMapSize;
+	uchar preconditionRegion; // if equal to 0, then no region
+	uchar regionColor;
+	uchar difficult;
+
+	hstring regionText;
+
+	struct ScenarioProlog {
+		uchar isProlog;
+		if ( isProlog == 1 ) {
+			uchar prologVideo; // from CmpMovie.txt
+			uchar prologMusic; // from CmpMusic.txt
+			hstring prologText;
+		}
+	} prolog;
+	ScenarioProlog epilog;
+
+	ScenarioTravel travel;
+};
+
+Header header;
+
+if ( header.magic != 0x00000006 ) {
+	Warning( "File is not a Heroes III SoD Company file. Template stopped." );
+	return -1;
+}
+
+// here must be a loop, iterations == map regions number, but it's hardcoded feature :(
+Scenario scenario;

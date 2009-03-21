@@ -1,0 +1,4 @@
+struct ObjectGrail {
+    char radius;
+    uchar junk2[3];
+};

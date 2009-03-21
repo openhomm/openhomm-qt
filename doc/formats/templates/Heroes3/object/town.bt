@@ -1,0 +1,57 @@
+struct ObjectTown {
+    char junk[4];
+    uchar owner;
+
+    uchar isName;
+
+    if ( isName == 1 )
+        hstring name;
+    
+    uchar isGuard;
+
+    if (isGuard == 1 )
+         GuardTag guards[7];
+
+    uchar formation; // 00 - standalone, 01 - group
+
+    uchar isBuildings;
+
+    if ( isBuildings == 1 ) {
+        uchar built[6];
+        uchar active[6];
+    } else {
+        uchar isFort;
+    }
+
+    uchar mustSpells[9];
+    uchar canSpells[9];
+
+    uint32 event_quantity;
+
+    if ( event_quantity > 0 ) {
+        struct TownEvent {
+            hstring event_name;
+            hstring event_text;
+
+            int32 wood;
+            int32 mercury;
+            int32 ore;
+            int32 sulfur;
+            int32 crystal;
+            int32 gem;
+            int32 gold;
+
+            uchar players_affected;
+            uchar human_affected;
+            uchar ai_affected;
+
+            ushort day_of_first_event;
+            ushort event_iteration;
+            uint32 junk[4];
+            uchar buildings[6];
+            ushort creatures[7];
+            uint32 junk2;
+        } events[event_quantity] <optimize=false>;
+    }
+    uint32 junk3;
+};

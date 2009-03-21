@@ -1,0 +1,39 @@
+struct SpecialVictoryConditions {
+    uchar id;
+
+    if ( id != 0xFF ) {
+        char canStandardEnd;
+        char canComputer;
+    }
+    
+    if ( id == 0x00 ) {
+        struct svc_acqSpecArt_tag {
+            char artID;
+        } svc_acqSpecArt;
+    } else if ( id == 0x01 ) {
+        struct svc_accCreatures_tag {
+            ushort creatureID;
+            DWORD creatureCount;
+        }svc_accCreatures;
+    } else if ( id == 0x02 ) {
+        struct svc_accRes_tag {
+            char resID;
+            DWORD resCount;
+        } svc_accRes;
+    } else if ( id == 0x03 ) {
+        struct svc_upgSpecTown_tag {
+            uchar coord[3];
+            char hall_level;
+            char castle_level;
+        } svc_upgSpecTown;
+    } else if ( id == 0x04 || id == 0x05 || id == 0x06 || id == 0x07 ) {
+        uchar coord[3];
+    } else if ( id == 0x08 || id == 0x09) {
+        // no more data
+    } else if ( id == 0x0A ) {
+        struct svc_tranSpecArt_tag {
+            uchar artID;
+            uchar coord[3];
+        } svc_tranSpecArt;
+    }
+};

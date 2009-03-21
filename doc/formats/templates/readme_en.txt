@@ -1,0 +1,1 @@
+In this dir located Heroes Of Might And Magic III : Shadow Of Death H3M (map format) & H3C (company format) templates for 010 Editor 

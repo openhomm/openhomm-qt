@@ -1,0 +1,18 @@
+struct ObjectArtefact {
+    uchar isText;
+
+    if ( isText == 1 ) {
+        hstring text;
+
+
+        uchar isGuards;
+
+        if ( isGuards == 1 ) {
+            struct GuardTag {
+                ushort GuardID;
+                ushort GuardCount;
+            } Guards[7];
+        }
+        uchar junk[4];
+    }
+};

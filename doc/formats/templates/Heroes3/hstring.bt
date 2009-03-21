@@ -1,0 +1,15 @@
+typedef struct {
+    uint32 str_len;
+
+    if ( str_len > 0 )
+        char str[str_len];
+}hstring <read=hstringRead>;
+
+string hstringRead (hstring &str) {
+    string s;
+    if ( str.str_len > 0 )
+        SPrintf( s, "%s", str.str );
+    else
+        return "empty";
+    return s;
+}

@@ -1,0 +1,4 @@
+struct secskill_tag {
+    uchar skillID;
+    uchar skillLevel;
+};

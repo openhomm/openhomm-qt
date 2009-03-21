@@ -1,0 +1,5 @@
+struct ObjectResource {
+    ObjectArtefact res;
+    uint32 quantity;
+    uchar junk[4];
+};

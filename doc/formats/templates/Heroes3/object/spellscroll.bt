@@ -1,0 +1,4 @@
+struct ObjectSpell {
+    ObjectArtefact spell;
+    uint32 spellID;
+};

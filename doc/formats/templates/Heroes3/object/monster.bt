@@ -1,0 +1,24 @@
+struct ObjectMonster {
+    uint32 monsterID;
+    ushort monsters_count; // if 0, then random
+    uchar mood;
+    uchar isTreasureOrText;
+
+    if ( isTreasureOrText == 1 ) {
+        hstring text;
+
+        uint32 wood;
+        uint32 mercury;
+        uint32 ore;
+        uint32 sulfur;
+        uint32 crystal;
+        uint32 gem;
+        uint32 gold;
+        ushort artefactID;
+    }
+
+    uchar monsterNeverRunAway; // 1 - yes, 0 - no
+    uchar monsterDontGrowUp; // 1 - yes, 0 - no
+
+    uchar junk2[2];
+};

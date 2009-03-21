@@ -1,0 +1,9 @@
+struct ObjectScientist {
+    uchar bonus_type; // FF - Random
+    union {
+        uint32 primaryID;
+        uint32 secondaryID;
+        uint32 spellID;
+    } bonus;
+    uchar junk2[3];
+};

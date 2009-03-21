@@ -1,0 +1,30 @@
+struct ObjectDwelling {
+    uint32 owner; // FF - nobody
+};
+
+struct ObjectShipyard {
+    ObjectDwelling shipyard;
+};
+
+struct ObjectGeneralRandomDwelling {
+    uint32 owner;
+    uint32 junk;
+    if (junk == 0 )
+        ushort towns;
+
+    uchar minlevel;
+    uchar maxlevel;
+};
+
+struct ObjectLevelRandomDwelling {
+    uint32 owner;
+    uint32 junk;
+    if ( junk == 0 )
+        ushort towns;
+};
+
+struct ObjectTownRandomDwelling {
+    uint32 owner;
+    uchar minlevel;
+    uchar maxlevel;
+};
