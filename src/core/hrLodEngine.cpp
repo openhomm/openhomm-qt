@@ -31,10 +31,18 @@ QAbstractFileEngine* hrLodEngineHandler::create(const QString &filename) const
     return 0;
 }
 
-hrLodEngine::hrLodEngine(const QString& path) : QAbstractFileEngine()
+hrLodEngine::hrLodEngine(const QString& path) : QAbstractFileEngine(), _buffer(NULL), _lf(NULL)
 {
-    _buffer = NULL;
     this->setFileName(path);
+    if ( ! _archivename.isEmpty() )
+    {
+        if ( static_lodFiles.find ( _archivename ) == static_lodFiles.end())
+        {
+            static_lodFiles.insert(_archivename, new LodFile);
+        }
+        _lf = static_lodFiles[_archivename];
+        preload_fat();
+    }
 }
 
 hrLodEngine::~hrLodEngine()
@@ -45,9 +53,17 @@ hrLodEngine::~hrLodEngine()
 void hrLodEngine::setFileName(const QString &file)
 {
     int c = file.count('/');
-    _archivename = file.section('/', c-(c-1), c-1);
-    _archivename += ".lod";
-    _filename = file.section('/', c, c);
+
+    if ( file.endsWith(".lod", Qt::CaseInsensitive) )
+    {
+        _archivename = file.section('/', 1, c);
+        _filename = "";
+    }
+    else
+    {
+        _archivename = file.section('/', c-(c-1), c-1);
+        _filename = file.section('/', c, c);
+    }
 }
 
 bool hrLodEngine::open(QIODevice::OpenMode flags)
@@ -65,7 +81,12 @@ bool hrLodEngine::open(QIODevice::OpenMode flags)
     bool res = preload_fat();
 
     if ( res == true )
-        res = preload_file();
+    {
+        if ( !_filename.isEmpty() )
+            res = preload_file();
+        else
+            res = false;
+    }
 
     return res;
 }
@@ -83,7 +104,6 @@ bool hrLodEngine::close()
 }
 bool hrLodEngine::flush()
 {
-    qWarning("%s: not supported", Q_FUNC_INFO);
     return false;
 }
 qint64 hrLodEngine::size() const
@@ -121,12 +141,10 @@ qint64 hrLodEngine::read(char *data, qint64 maxlen)
 
     return 0;
 }
-qint64 hrLodEngine::write(const char *data, qint64 len)
+qint64 hrLodEngine::write(const char *, qint64)
 {
-    Q_UNUSED(data);
-    Q_UNUSED(len);
     qWarning("%s: not supported", Q_FUNC_INFO);
-    return 0;
+    return -1;
 }
 
 bool hrLodEngine::remove()
@@ -136,11 +154,12 @@ bool hrLodEngine::remove()
 }
 bool hrLodEngine::copy(const QString &)
 {
+    qWarning("Native %s: not supported. Using standart Qt implementation", Q_FUNC_INFO);
     return false;
 }
 bool hrLodEngine::rename(const QString &)
 {
-    qWarning("%s: not supported", Q_FUNC_INFO);
+    qWarning("Native %s: not supported. Using standart Qt implementation", Q_FUNC_INFO);
     return false;
 }
 bool hrLodEngine::link(const QString &)
@@ -171,26 +190,28 @@ bool hrLodEngine::rmdir(const QString &, bool) const
     return false;
 }
 
-bool hrLodEngine::setSize(qint64 size)
-{
-    Q_UNUSED(size);
-    qWarning("%s: not implemented", Q_FUNC_INFO);
-    return false;
-}
-
-QStringList hrLodEngine::entryList(QDir::Filters filters, const QStringList &filterNames) const
-{
-    return QAbstractFileEngine::entryList(filters, filterNames);
-}
-
-bool hrLodEngine::caseSensitive() const
+bool hrLodEngine::setSize(qint64)
 {
     qWarning("%s: not supported", Q_FUNC_INFO);
     return false;
 }
 
+QStringList hrLodEngine::entryList(QDir::Filters filters, const QStringList &filterNames) const
+{
+    if ( _lf != NULL )
+        return _lf->fat.keys();
+
+    return QAbstractFileEngine::entryList(filters, filterNames);
+}
+
+bool hrLodEngine::caseSensitive() const
+{
+    return false;
+}
+
 QAbstractFileEngine::FileFlags hrLodEngine::fileFlags(QAbstractFileEngine::FileFlags type) const
 {
+    qDebug() << type;
     QAbstractFileEngine::FileFlags ret = 0;
 
     if(type & TypesMask)
@@ -251,6 +272,7 @@ bool hrLodEngine::supportsExtension(Extension ext) const
 
 bool hrLodEngine::preload_fat()
 {
+    Q_ASSERT(_lf != NULL);
     if ( _lf->file != NULL )
     {
         if ( _lf->file->isOpen() )
