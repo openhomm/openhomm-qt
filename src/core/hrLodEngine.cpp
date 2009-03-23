@@ -24,6 +24,7 @@ static LodFiles static_lodFiles;
 
 QAbstractFileEngine* hrLodEngineHandler::create(const QString &filename) const
 {
+    qDebug() << Q_FUNC_INFO;
     if ( filename.size() > 0 && filename.startsWith("lod:/", Qt::CaseInsensitive) )
     {
         return new hrLodEngine(filename);
@@ -62,7 +63,7 @@ void hrLodEngine::setFileName(const QString &file)
     else
     {
         _archivename = file.section('/', c-(c-1), c-1);
-        _filename = file.section('/', c, c);
+        _filename = file.section('/', c, c).toLower();
     }
 }
 
@@ -211,7 +212,6 @@ bool hrLodEngine::caseSensitive() const
 
 QAbstractFileEngine::FileFlags hrLodEngine::fileFlags(QAbstractFileEngine::FileFlags type) const
 {
-    qDebug() << type;
     QAbstractFileEngine::FileFlags ret = 0;
 
     if(type & TypesMask)
@@ -229,9 +229,8 @@ bool hrLodEngine::setPermissions(uint)
     return false;
 }
 
-QString hrLodEngine::fileName(QAbstractFileEngine::FileName file) const
+QString hrLodEngine::fileName(QAbstractFileEngine::FileName) const
 {
-    Q_UNUSED(file);
     return _filename;
 }
 
@@ -303,7 +302,7 @@ bool hrLodEngine::preload_fat()
             {
                 LodEntry entry;
                 _lf->file->read((char *)&entry, sizeof(entry));
-                _lf->fat.insert(entry.name, entry);
+                _lf->fat.insert(QString(entry.name).toLower(), entry);
             }
 
             return true;
