@@ -74,13 +74,13 @@ private:
     bool readPalette();
     bool readBlockHeaders();
 
-    bool readFrame0(QImage *image, FrameHeader & fh);
-    bool readFrame1(QImage *image, FrameHeader & fh);
-    bool readFrame2(QImage *image, FrameHeader & fh);
-    bool readFrame3(QImage *image, FrameHeader & fh);
+    bool readFrame0(quint8 *imageBuffer, FrameHeader &fh);
+    bool readFrame1(quint8 *imageBuffer, quint8 *buf, FrameHeader &fh);
+    bool readFrame2(quint8 *imageBuffer, quint8 *buf, FrameHeader &fh);
+    bool readFrame3(quint8 *imageBuffer, quint8 *buf, FrameHeader &fh);
 
     bool checkFrame(FrameHeader &fh);
-    void fillFrameBorders(FrameHeader &fh, quint8 *imageBuffer);
+    void fillFrameBorders(quint8 *imageBuffer, FrameHeader &fh);
 
     QIODevice *dev;
 
@@ -213,6 +213,8 @@ bool DefReader::readBlockHeaders()
         if (dev->read((char*)&bh, sizeof(bh)) == sizeof(bh))
         {
             block.countFrames = bh.countFrames;
+            if (i == 0)
+                countFrames = bh.countFrames;
 
             if (!dev->seek(dev->pos() + bh.countFrames * 13)) // skip names
                 return false;
@@ -223,9 +225,8 @@ bool DefReader::readBlockHeaders()
             {
                 for (int j = 0; j < cnt; j++)
                     block.offsets.append(offsets[j]);
-                blocks.append(block);
 
-                countFrames = blocks[0].countFrames;
+                blocks.append(block);
             }
             else
             {
@@ -234,7 +235,6 @@ bool DefReader::readBlockHeaders()
             }
             delete [] offsets;
         }
-        else return false;
     }
     return true;
 }
@@ -253,25 +253,6 @@ bool DefReader::readHeader()
     return false;
 }
 
-bool DefReader::readFrame0(QImage *image, FrameHeader & fh)
-{
-    quint8 *imageBuffer = new quint8[fh.size];
-
-    if (dev->read((char*)imageBuffer, fh.size) == fh.size)
-    {
-        QImage im(imageBuffer, width, height, width, QImage::Format_Indexed8);
-        *image = im;
-        image->setColorTable(colors);
-    }
-    else
-    {
-        delete [] imageBuffer;
-        return false;
-    }
-    delete [] imageBuffer;
-    return true;
-}
-
 bool DefReader::checkFrame(FrameHeader &fh)
 {
     if (fh.marginLeft + fh.widthFrame <= fh.widthFull
@@ -281,7 +262,16 @@ bool DefReader::checkFrame(FrameHeader &fh)
         return false;
 }
 
-void DefReader::fillFrameBorders(FrameHeader &fh, quint8 *imageBuffer)
+bool DefReader::readFrame0(quint8 *imageBuffer, FrameHeader &fh)
+{
+    if (dev->read((char*)imageBuffer, fh.size) == fh.size)
+    {
+        return true;
+    }
+    return false;
+}
+
+void DefReader::fillFrameBorders(quint8 *imageBuffer, FrameHeader &fh)
 {
     if (fh.widthFrame == fh.widthFull
         && fh.heightFrame == fh.heightFull)
@@ -290,40 +280,26 @@ void DefReader::fillFrameBorders(FrameHeader &fh, quint8 *imageBuffer)
     quint32 i = 0;
     quint32 j = 0;
 
-    for (; j < fh.marginTop; j++)
-        for (i = 0; i < fh.widthFull; i++)
+    for (; i < fh.marginTop; i++)
+        for (j = 0; j < fh.widthFull; j++)
             *line++ = 0;
 
-    for (; j < fh.marginTop + fh.heightFrame; j++)
+    for (; i < fh.marginTop + fh.heightFrame; i++)
     {
-        for (i = 0; i < fh.marginLeft; i++)
+        for (j = 0; j < fh.marginLeft; j++)
             *line++ = 0;
         line += fh.widthFrame;
-        for (i += fh.widthFrame; i < fh.widthFull; i++)
+        for (j += fh.widthFrame; j < fh.widthFull; j++)
             *line++ = 0;
     }
 
-    for (; j < fh.heightFull; j++)
-        for (i = 0; i < fh.widthFull; i++)
+    for (; i < fh.heightFull; i++)
+        for (j = 0; j < fh.widthFull; j++)
             *line++ = 0;
 }
 
-bool DefReader::readFrame1(QImage *image, FrameHeader & fh)
+bool DefReader::readFrame1(quint8 *imageBuffer, quint8 *buf, FrameHeader & fh)
 {
-    if (!checkFrame(fh))
-        return false;
-
-    quint32 sizeFull = fh.widthFull * fh.heightFull;
-
-    quint8 *imageBuffer = new quint8[sizeFull];
-
-    //memset(imageBuffer, 0, sizeFull);
-    fillFrameBorders(fh, imageBuffer);
-
-    quint8 *buf = new quint8[fh.size];
-    if (dev->read((char*)buf, fh.size) != fh.size)
-        return false;
-
     quint32 *offsets = (quint32*)&buf[0];
 
     for (quint32 curLine = 0; curLine < fh.heightFrame; curLine++)
@@ -334,9 +310,7 @@ bool DefReader::readFrame1(QImage *image, FrameHeader & fh)
         quint32 offsetImageLine = 0;
 
         if (offsets[curLine] > fh.size)
-        {
             return false;
-        }
 
         quint8 *line = buf + offsets[curLine];
 
@@ -356,9 +330,7 @@ bool DefReader::readFrame1(QImage *image, FrameHeader & fh)
             quint8 typeSegment = line[offset];
             quint32 lenSegment = line[++offset] + 1;
             if (offsetImageLine + lenSegment > fh.widthFrame)
-            {
                 return false;
-            }
 
             if (typeSegment == 0xFF)
             {
@@ -378,30 +350,11 @@ bool DefReader::readFrame1(QImage *image, FrameHeader & fh)
             }
         }
     }
-    QImage im(imageBuffer, fh.widthFull, fh.heightFull, fh.widthFull, QImage::Format_Indexed8);
-    *image = im;
-    image->setColorTable(colors);
-    delete [] imageBuffer;
-    delete [] buf;
     return true;
 }
 
-bool DefReader::readFrame2(QImage *image, FrameHeader & fh)
+bool DefReader::readFrame2(quint8 *imageBuffer, quint8 *buf, FrameHeader & fh)
 {
-    if (!checkFrame(fh))
-        return false;
-
-    quint32 sizeFull = fh.widthFull * fh.heightFull;
-
-    quint8 *imageBuffer = new quint8[sizeFull];
-
-    //memset(imageBuffer, 0, sizeFull);
-    fillFrameBorders(fh, imageBuffer);
-
-    quint8 *buf = new quint8[fh.size];
-    if (dev->read((char*)buf, fh.size) != fh.size)
-        return false;
-
     quint16 *offsets = (quint16*)&buf[0];
 
     for (quint32 curLine = 0; curLine < fh.heightFrame; curLine++)
@@ -412,9 +365,7 @@ bool DefReader::readFrame2(QImage *image, FrameHeader & fh)
         quint32 offsetImageLine = 0;
 
         if (offsets[curLine] > fh.size)
-        {
             return false;
-        }
 
         quint8 *line = buf + offsets[curLine];
 
@@ -433,7 +384,6 @@ bool DefReader::readFrame2(QImage *image, FrameHeader & fh)
         {
             int typeSegment = line[offset] >> 5;
             int lenSegment = (line[offset] & 0x1F) + 1;
-
             if (offsetImageLine + lenSegment > fh.widthFrame)
                 return false;
 
@@ -455,31 +405,11 @@ bool DefReader::readFrame2(QImage *image, FrameHeader & fh)
             }
         }
     }
-    QImage im(imageBuffer, fh.widthFull, fh.heightFull, fh.widthFull, QImage::Format_Indexed8);
-    *image = im;
-    image->setColorTable(colors);
-    delete [] imageBuffer;
-    delete [] buf;
     return true;
 }
 
-bool DefReader::readFrame3(QImage *image, FrameHeader &fh)
+bool DefReader::readFrame3(quint8 *imageBuffer, quint8 *buf, FrameHeader &fh)
 {
-    if (!checkFrame(fh))
-        return false;
-
-    quint32 sizeFull = fh.widthFull * fh.heightFull;
-
-    quint8 *imageBuffer = new quint8[sizeFull];
-
-    //memset(imageBuffer, 0, sizeFull);
-    fillFrameBorders(fh, imageBuffer);
-
-
-    quint8 *buf = new quint8[fh.size];
-    if (dev->read((char*)buf, fh.size) != fh.size)
-        return false;
-
     quint16 *offsets = (quint16*)&buf[0];
 
     int offsetImageBuffer = fh.marginTop * fh.widthFull + fh.marginLeft;
@@ -522,7 +452,6 @@ bool DefReader::readFrame3(QImage *image, FrameHeader &fh)
         {
             int typeSegment = line[offset] >> 5;
             int lenSegment = (line[offset] & 0x1F) + 1;
-
             if (offsetImageLine + lenSegment > fh.widthFrame)
                 return false;
 
@@ -544,11 +473,6 @@ bool DefReader::readFrame3(QImage *image, FrameHeader &fh)
             }
         }
     }
-    QImage im(imageBuffer, fh.widthFull, fh.heightFull, fh.widthFull, QImage::Format_Indexed8);
-    *image = im;
-    image->setColorTable(colors);
-    delete [] imageBuffer;
-    delete [] buf;
     return true;
 }
 
@@ -562,27 +486,52 @@ bool DefReader::read(QImage *image)
         return false;
 
     FrameHeader fh;
-    dev->read((char*)&fh, sizeof(fh));
+    if (dev->read((char*)&fh, sizeof(fh)) != sizeof(fh))
+        return false;
 
-    if (fh.type == 0)
+    bool isFrameRead = false;
+    if (checkFrame(fh))
     {
-        return readFrame0(image, fh);
-    }
-    if (fh.type == 1)
-    {
-        return readFrame1(image, fh);
-    }
-    if (fh.type == 2)
-    {
-        return readFrame2(image, fh);
-    }
-    if (fh.type == 3)
-    {
-        return readFrame3(image, fh);
-    }
+        quint8 *imageBuffer = new quint8[fh.widthFull * fh.heightFull];
 
-    *image = QImage();
-    return false;
+        if (fh.type == 0)
+        {
+            isFrameRead = readFrame0(imageBuffer, fh);
+        }
+        else
+        {
+            fillFrameBorders(imageBuffer, fh);
+            quint8 *buf = new quint8[fh.size];
+            if (dev->read((char*)buf, fh.size) == fh.size)
+            {
+                if (fh.type == 1)
+                {
+                    isFrameRead = readFrame1(imageBuffer, buf, fh);
+                }
+                else if (fh.type == 2)
+                {
+                    isFrameRead = readFrame2(imageBuffer, buf, fh);
+                }
+                else if (fh.type == 3)
+                {
+                    isFrameRead = readFrame3(imageBuffer, buf, fh);
+                }
+            }
+            delete [] buf;
+        }
+        if (isFrameRead)
+        {
+            QImage im(imageBuffer, fh.widthFull, fh.heightFull, fh.widthFull, QImage::Format_Indexed8);
+            *image = im;
+            image->setColorTable(colors);
+        }
+        else
+        {
+            *image = QImage();
+        }
+        delete [] imageBuffer;
+    }
+    return isFrameRead;
 }
 
 bool DefReader::canRead(QIODevice *device)
