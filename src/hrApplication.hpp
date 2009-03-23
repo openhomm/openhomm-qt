@@ -19,9 +19,20 @@
 #include <QApplication>
 #include <QObject>
 
+class hrLodEngineHandler;
+class hrSndEngineHandler;
+
 class hrApplication : public QApplication
 {
     Q_OBJECT
 public:
     hrApplication(int argc, char **argv);
+    ~hrApplication();
+private:
+    void createFileEngineHandlers();
+    void destroyFileEngineHandlers();
+// data
+private:
+    hrLodEngineHandler *lodHandler;
+    hrSndEngineHandler *sndHandler;
 };

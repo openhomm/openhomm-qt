@@ -17,7 +17,32 @@
 #include "precompiled.hpp"
 #include "hrApplication.hpp"
 #include "hrPushButton.hpp"
+#include "hrLodEngine.hpp"
+#include "hrSndEngine.hpp"
 
-hrApplication::hrApplication(int argc, char **argv): QApplication(argc, argv)
+hrApplication::hrApplication(int argc, char **argv):
+        QApplication(argc, argv),
+        lodHandler(NULL),
+        sndHandler(NULL)
 {
+    this->createFileEngineHandlers();
+}
+
+hrApplication::~hrApplication()
+{
+    this->destroyFileEngineHandlers();
+}
+
+void hrApplication::createFileEngineHandlers()
+{
+    lodHandler = new hrLodEngineHandler;
+    sndHandler = new hrSndEngineHandler;
+}
+
+void hrApplication::destroyFileEngineHandlers()
+{
+    delete lodHandler;
+    lodHandler = NULL;
+    delete sndHandler;
+    sndHandler = NULL;
 }
