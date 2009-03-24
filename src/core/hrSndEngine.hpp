@@ -16,16 +16,24 @@
 //
 #pragma once
 
-typedef struct
+struct SndEntry
 {
     char    name[40];
     quint32 offset;
     quint32 size;
-} SndEntry;
+};
 
 typedef QHash<QString, SndEntry> SndFat;
-typedef QList<QString> SndFilesList;
 typedef QHashIterator<QString, SndEntry> SndFatIterator;
+
+struct SndFile
+{
+    QFile *file;
+    SndFat fat;
+    SndFile() : file(NULL){}
+};
+
+typedef QHash<QString, SndFile*> SndFiles;
 
 class hrSndEngine: public QAbstractFileEngine
 {
@@ -80,7 +88,12 @@ public:
     bool extension(Extension, const ExtensionOption *option = 0, ExtensionReturn *output = 0);
     bool supportsExtension(Extension) const;
 private:
-    QString _filename;
+    bool preload_fat();
+    bool preload_file();
+private:
+    SndFile * _sf;
+    QString _filename, _archivename;
+    QBuffer *_buffer;
 };
 
 class hrSndEngineHandler : public QAbstractFileEngineHandler

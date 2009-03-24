@@ -18,6 +18,8 @@
 #include "hrSndEngineIterator.hpp"
 #include "hrSndEngine.hpp"
 
+static SndFiles static_sndFiles;
+
 QAbstractFileEngine* hrSndEngineHandler::create(const QString &filename) const
 {
     if ( filename.size() > 0 && filename.startsWith("snd:/", Qt::CaseInsensitive) )
@@ -27,190 +29,330 @@ QAbstractFileEngine* hrSndEngineHandler::create(const QString &filename) const
     return 0;
 }
 
-hrSndEngine::hrSndEngine(const QString& path) : QAbstractFileEngine()
+hrSndEngine::hrSndEngine(const QString& path) : QAbstractFileEngine(), _sf(NULL), _buffer(NULL)
 {
-    qWarning("%s: not implemented", Q_FUNC_INFO);
     this->setFileName(path);
+    if ( ! _archivename.isEmpty() )
+    {
+        if ( static_sndFiles.find ( _archivename ) == static_sndFiles.end())
+        {
+            static_sndFiles.insert(_archivename, new SndFile);
+        }
+        _sf = static_sndFiles[_archivename];
+        preload_fat();
+    }
 }
 
 hrSndEngine::~hrSndEngine()
 {
-    qWarning("%s: not implemented", Q_FUNC_INFO);
+    this->close();
 }
 
 void hrSndEngine::setFileName(const QString &file)
 {
-    _filename = file;
+    int c = file.count('/');
+
+    if ( file.endsWith(".snd", Qt::CaseInsensitive) )
+    {
+        _archivename = file.section('/', 1, c);
+        _filename = "";
+    }
+    else
+    {
+        _archivename = file.section('/', c-(c-1), c-1);
+        _filename = file.section('/', c, c).toLower();
+    }
 }
 
 bool hrSndEngine::open(QIODevice::OpenMode flags)
 {
-    Q_UNUSED(flags);
-    qWarning("%s: not implemented", Q_FUNC_INFO);
-    return false;
+    if ( flags & QIODevice::WriteOnly )
+        qWarning("Write mode not supported. Ignored");
+
+    if ( static_sndFiles.find ( _archivename ) == static_sndFiles.end())
+    {
+        static_sndFiles.insert(_archivename, new SndFile);
+    }
+
+    _sf = static_sndFiles[_archivename];
+
+    bool res = preload_fat();
+
+    if ( res == true )
+    {
+        if ( !_filename.isEmpty() )
+            res = preload_file();
+        else
+            res = false;
+    }
+
+    return res;
 }
 bool hrSndEngine::close()
 {
-    qWarning("%s: not implemented", Q_FUNC_INFO);
-    return false;
+    if ( _buffer != NULL )
+    {
+        if ( _buffer->isOpen() )
+            _buffer->close();
+
+        delete _buffer;
+        _buffer = NULL;
+    }
+    return true;
 }
 bool hrSndEngine::flush()
 {
-    qWarning("%s: not implemented", Q_FUNC_INFO);
     return false;
 }
 qint64 hrSndEngine::size() const
 {
-    qWarning("%s: not implemented", Q_FUNC_INFO);
+    if ( _buffer != NULL )
+        return _buffer->size();
+
     return 0;
 }
 qint64 hrSndEngine::pos() const
 {
-    qWarning("%s: not implemented", Q_FUNC_INFO);
+    if ( _buffer != NULL )
+        return _buffer->pos();
+
     return 0;
 }
 bool hrSndEngine::atEnd() const
 {
-    qWarning("%s: not implemented", Q_FUNC_INFO);
-    return false;
+    if ( _buffer != NULL )
+        return _buffer->atEnd();
+
+    return true;
 }
-bool hrSndEngine::seek(qint64)
+bool hrSndEngine::seek(qint64 offset)
 {
-    qWarning("%s: not implemented", Q_FUNC_INFO);
+    if ( _buffer != NULL )
+        return _buffer->seek(offset);
+
     return false;
 }
 qint64 hrSndEngine::read(char *data, qint64 maxlen)
 {
-    Q_UNUSED(data);
-    Q_UNUSED(maxlen);
-    qWarning("%s: not implemented", Q_FUNC_INFO);
+    if ( _buffer != NULL )
+        return _buffer->read(data, maxlen);
+
     return 0;
 }
-qint64 hrSndEngine::write(const char *data, qint64 len)
+qint64 hrSndEngine::write(const char *, qint64)
 {
-    Q_UNUSED(data);
-    Q_UNUSED(len);
-    qWarning("%s: not implemented", Q_FUNC_INFO);
-    return 0;
+    qWarning("%s: not supported", Q_FUNC_INFO);
+    return -1;
 }
 
 bool hrSndEngine::remove()
 {
-    qWarning("%s: not implemented", Q_FUNC_INFO);
+    qWarning("%s: not supported", Q_FUNC_INFO);
     return false;
 }
 bool hrSndEngine::copy(const QString &)
 {
-    qWarning("%s: not implemented", Q_FUNC_INFO);
+    qWarning("Native %s: not supported. Using standart Qt implementation", Q_FUNC_INFO);
     return false;
 }
 bool hrSndEngine::rename(const QString &)
 {
-    qWarning("%s: not implemented", Q_FUNC_INFO);
+    qWarning("Native %s: not supported. Using standart Qt implementation", Q_FUNC_INFO);
     return false;
 }
 bool hrSndEngine::link(const QString &)
 {
-    qWarning("%s: not implemented", Q_FUNC_INFO);
+    qWarning("%s: not supported", Q_FUNC_INFO);
     return false;
 }
 
 bool hrSndEngine::isSequential() const
 {
-    qWarning("%s: not implemented", Q_FUNC_INFO);
     return false;
 }
 
 bool hrSndEngine::isRelativePath() const
 {
-    qWarning("%s: not implemented", Q_FUNC_INFO);
     return false;
 }
 
 bool hrSndEngine::mkdir(const QString &, bool) const
 {
-    qWarning("%s: not implemented", Q_FUNC_INFO);
+    qWarning("%s: not supported", Q_FUNC_INFO);
     return false;
 }
 bool hrSndEngine::rmdir(const QString &, bool) const
 {
-    qWarning("%s: not implemented", Q_FUNC_INFO);
+    qWarning("%s: not supported", Q_FUNC_INFO);
     return false;
 }
 
-bool hrSndEngine::setSize(qint64 size)
+bool hrSndEngine::setSize(qint64)
 {
-    Q_UNUSED(size);
-    qWarning("%s: not implemented", Q_FUNC_INFO);
+    qWarning("%s: not supported", Q_FUNC_INFO);
     return false;
 }
 
 QStringList hrSndEngine::entryList(QDir::Filters filters, const QStringList &filterNames) const
 {
-    qWarning("%s: not implemented", Q_FUNC_INFO);
+    if ( _sf != NULL )
+        return _sf->fat.keys();
+
     return QAbstractFileEngine::entryList(filters, filterNames);
 }
 
 bool hrSndEngine::caseSensitive() const
 {
-    qWarning("%s: not implemented", Q_FUNC_INFO);
     return false;
 }
 
-QAbstractFileEngine::FileFlags hrSndEngine::fileFlags(QAbstractFileEngine::FileFlags) const
+QAbstractFileEngine::FileFlags hrSndEngine::fileFlags(QAbstractFileEngine::FileFlags type) const
 {
-    qWarning("%s: not implemented", Q_FUNC_INFO);
-    return 0;
+    QAbstractFileEngine::FileFlags ret = 0;
+
+    if(type & TypesMask)
+        ret |= FileType;
+
+    if(type & FlagsMask)
+        ret |= ExistsFlag;
+
+    return ret;
 }
 
 bool hrSndEngine::setPermissions(uint)
 {
-    qWarning("%s: not implemented", Q_FUNC_INFO);
+    qWarning("%s: not supported", Q_FUNC_INFO);
     return false;
 }
 
 QString hrSndEngine::fileName(QAbstractFileEngine::FileName file) const
 {
     Q_UNUSED(file);
-    qWarning("%s: not implemented", Q_FUNC_INFO);
-    return "";
+    return _filename;
 }
 
 uint hrSndEngine::ownerId(QAbstractFileEngine::FileOwner) const
 {
-    qWarning("%s: not implemented", Q_FUNC_INFO);
+    qWarning("%s: not supported", Q_FUNC_INFO);
     return 0;
 }
 QString hrSndEngine::owner(QAbstractFileEngine::FileOwner) const
 {
-    qWarning("%s: not implemented", Q_FUNC_INFO);
+    qWarning("%s: not supported", Q_FUNC_INFO);
     return "";
 }
 
 QDateTime hrSndEngine::fileTime(QAbstractFileEngine::FileTime) const
 {
-    qWarning("%s: not implemented", Q_FUNC_INFO);
+    qWarning("%s: not supported", Q_FUNC_INFO);
     return QDateTime();
 }
 
 QAbstractFileEngine::Iterator *hrSndEngine::beginEntryList(QDir::Filters filters, const QStringList &filterNames)
 {
-    qWarning("%s: not implemented", Q_FUNC_INFO);
     return new hrSndEngineIterator(filters, filterNames);
 }
 QAbstractFileEngine::Iterator *hrSndEngine::endEntryList()
 {
-    qWarning("%s: not implemented", Q_FUNC_INFO);
     return 0;
 }
 
 bool hrSndEngine::extension(Extension, const ExtensionOption *, ExtensionReturn *)
 {
-    qWarning("%s: not implemented", Q_FUNC_INFO);
     return false;
 }
-bool hrSndEngine::supportsExtension(Extension) const
+bool hrSndEngine::supportsExtension(Extension ext) const
 {
-    qWarning("%s: not implemented", Q_FUNC_INFO);
+    return ext == QAbstractFileEngine::AtEndExtension;
+}
+
+bool hrSndEngine::preload_fat()
+{
+    Q_ASSERT(_sf != NULL);
+    if ( _sf->file != NULL )
+    {
+        if ( _sf->file->isOpen() )
+        {
+            if ( !_sf->fat.isEmpty() )
+            {
+                return true;
+            }
+        }
+    }
+    else
+    {
+        _sf->file = new QFile(_archivename);
+        QFile *file = _sf->file;
+
+        if ( file->open(QIODevice::ReadOnly) )
+        {
+            quint32 count;
+
+            if ( file->read( (char *) &count, 4) == 4)
+            {
+                for ( quint32 i = 0; i < count; ++i )
+                {
+                    SndEntry entry;
+                    memset(&entry,0,sizeof(entry));
+                    char temp;
+                    int len = 0;
+
+                    Q_FOREVER
+                    {
+                        file->getChar(&temp);
+                        if ( temp )
+                        {
+                            entry.name[len++] = temp;
+                        }
+                        else
+                        {
+                            entry.name[len++] = '.';
+                            break;
+                        }
+                    }
+
+                    Q_FOREVER
+                    {
+                        file->getChar(&temp);
+                        if ( temp )
+                            entry.name[len++] = temp;
+                        else
+                            break;
+                    }
+                    file->seek(file->pos() + 40-strlen(entry.name)-1);
+                    file->read( (char *) &entry.offset, 4);
+                    file->read( (char *) &entry.size, 4);
+
+                    _sf->fat.insert(QString(entry.name).toLower(), entry);
+                }
+            }
+
+            return true;
+        }
+        else
+        {
+            setError(QFile::OpenError, QString("Can't open: %1").arg(_archivename));
+            return false;
+        }
+    }
+    return false;
+}
+
+bool hrSndEngine::preload_file()
+{
+    if ( _buffer == NULL )
+        _buffer = new QBuffer;
+
+    SndEntry entry = _sf->fat.value(_filename);
+
+    if ( _sf->file->seek(entry.offset) == true)
+    {
+        QByteArray ba = _sf->file->read(entry.size);
+        _buffer->setData(ba);
+        _buffer->open(QIODevice::ReadOnly);
+
+        return true;
+    }
+
     return false;
 }
