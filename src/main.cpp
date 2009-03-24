@@ -17,13 +17,20 @@
 #include "precompiled.hpp"
 #include "hrApplication.hpp"
 
+#include "Window.h"
+
 int main(int argc, char** argv)
 {
     QT_REQUIRE_VERSION(argc, argv, "4.5.0");
     hrApplication app(argc, argv);
 
-    QFile f("lod:/data/h3bitmap.lod/advevent.txt");
+
+    /*QFile f("lod:/data/h3bitmap.lod/advevent.txt");
     f.copy("advevent.txt");
-    //QFile::copy("lod:/data/h3bitmap/advevent.txt", "advevent.txt");
+    //QFile::copy("lod:/data/h3bitmap/advevent.txt", "advevent.txt");*/
+
+    Window w;
+    w.show();
+
     return app.exec();
 }

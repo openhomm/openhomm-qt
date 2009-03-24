@@ -13,7 +13,11 @@ INCLUDEPATH += . \
 
 # PRECOMPILED_HEADER = precompiled.hpp
 SOURCES += main.cpp \
-    hrApplication.cpp
+    hrApplication.cpp \
+    GLWidget.cpp \
+    Window.cpp
 include(gui/gui.pri)
 include(core/core.pri)
-HEADERS += hrApplication.hpp
+HEADERS += hrApplication.hpp \
+    GLWidget.hpp \
+    Window.h
