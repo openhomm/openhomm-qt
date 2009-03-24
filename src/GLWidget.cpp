@@ -115,6 +115,7 @@ void GLWidget::animate()
 void GLWidget::textureFromImage(QImage *tx)
 {
     static bool init_extensions = true;
+    static bool generate_mipmaps = false;
 
     if (init_extensions)
     {
@@ -137,8 +138,9 @@ void GLWidget::textureFromImage(QImage *tx)
         }
         else
         {
-            qWarning("extension fail");
-            return;
+            qWarning("GL_TEXTURE_2D");
+            texture_rects = false;
+            q_gl_texture = GL_TEXTURE_2D;
         }
 
         init_extensions = false;
@@ -150,6 +152,20 @@ void GLWidget::textureFromImage(QImage *tx)
         glBindTexture(q_gl_texture, val);
         return;
     }
+
+    /*if (!texture_rects)
+    {
+        // Scale the pixmap if needed. GL textures needs to have the
+        // dimensions 2^n+2(border) x 2^m+2(border).
+        int tx_w = NearestGLTextureSize(im->width());
+        int tx_h = NearestGLTextureSize(im->height());
+        if (tx_w != im->width() || tx_h !=  im->height())
+            tx = QGLWidget::convertToGLFormat(im->scale(tx_w, tx_h));
+        else
+            tx = QGLWidget::convertToGLFormat(*im);
+    }
+    else
+        tx = QGLWidget::convertToGLFormat(*im);*/
 
 
     //QImage tx;
@@ -166,10 +182,10 @@ void GLWidget::textureFromImage(QImage *tx)
 
     glTexParameterf(q_gl_texture, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 
+
+
     glTexImage2D(q_gl_texture, 0, format, tx->width(), tx->height(), 0,
                  GL_RGBA, GL_UNSIGNED_BYTE, tx->bits());
-
-
 
     txImageIntMap[tx] = tx_id;
 

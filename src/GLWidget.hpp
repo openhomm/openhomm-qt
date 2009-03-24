@@ -38,6 +38,7 @@ private:
     void drawImage(const QRect &r, QImage *im, const QRect &src, int alpha);
 
     int q_gl_texture;
+    bool texture_rects;
 };
 
 #endif // GLWIDGET_H
