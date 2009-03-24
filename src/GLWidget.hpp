@@ -37,6 +37,7 @@ private:
     void textureFromImage(QImage *im);
     void drawImage(const QRect &r, QImage *im, const QRect &src, int alpha);
 
+    int NearestGLTextureSize(int v);
     int q_gl_texture;
     bool texture_rects;
 };

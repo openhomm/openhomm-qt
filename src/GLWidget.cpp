@@ -26,6 +26,9 @@ GLWidget::GLWidget(QWidget *parent)
     //setFixedSize(800, 600);
 
     QImage im("lod:/data/h3sprite.lod/grastl.def");
+    int tx_w = NearestGLTextureSize(im.width());
+    int tx_h = NearestGLTextureSize(im.height());
+    qWarning("w = %d h = %d", tx_w, tx_h);
     QImage tx;
     tx = QGLWidget::convertToGLFormat(im);
     tile.append(tx);
@@ -116,6 +119,34 @@ void GLWidget::animate()
     updateGL();
 }
 
+// returns the highest number closest to v, which is a power of 2
+// NB! assumes 32 bit ints
+int GLWidget::NearestGLTextureSize(int v)
+{
+    int n = 0, last = 0;
+    int s;
+
+    for (s = 0; s < 32; ++s)
+    {
+        if (((v >> s) & 1) == 1)
+        {
+            ++n;
+            last = s;
+        }
+    }
+
+    if (n > 1)
+        s = 1 << (last + 1);
+    else
+        s = 1 << last;
+
+    // todo
+    int maxTexDim = 512;
+    return qMin(s, maxTexDim);
+}
+
+
+
 void GLWidget::textureFromImage(QImage *tx)
 {
     static bool init_extensions = true;
@@ -171,13 +202,7 @@ void GLWidget::textureFromImage(QImage *tx)
         int tx_w = NearestGLTextureSize(im->width());
         int tx_h = NearestGLTextureSize(im->height());
         if (tx_w != im->width() || tx_h !=  im->height())
-            tx = QGLWidget::convertToGLFormat(im->scale(tx_w, tx_h));
-        else
-            tx = QGLWidget::convertToGLFormat(*im);
-    }
-    else
-        tx = QGLWidget::convertToGLFormat(*im);*/
-
+    }*/
 
     //QImage tx;
 
@@ -191,13 +216,13 @@ void GLWidget::textureFromImage(QImage *tx)
     glBindTexture(q_gl_texture, tx_id);
     glTexParameteri(q_gl_texture, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
-    if (generate_mipmaps)
+    /*if (generate_mipmaps)
     {
         glHint(GL_GENERATE_MIPMAP_HINT_SGIS, GL_NICEST);
         glTexParameteri(q_gl_texture, GL_GENERATE_MIPMAP_SGIS, GL_TRUE);
         glTexParameterf(q_gl_texture, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
     }
-    else
+    else*/
         glTexParameterf(q_gl_texture, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 
     glTexImage2D(q_gl_texture, 0, format, tx->width(), tx->height(), 0,
@@ -228,10 +253,20 @@ void GLWidget::drawImage(const QRect &r, QImage *im,
 
     glBegin(GL_QUADS);
     {
-        x1 = src.x();
-        x2 = src.width();
-        y1 = src.y();
-        y2 = src.height();
+        if (!texture_rects)
+        {
+            x1 = src.x() / (double)im->width();
+            x2 = x1 + src.width() / (double)im->width();
+            y1 = src.y() / (double)im->height();
+            y2 = y1 + src.height() / (double)im->height();
+        }
+        else
+        {
+            x1 = src.x();
+            x2 = src.width();
+            y1 = src.y();
+            y2 = src.height();
+        }
 
         glTexCoord2f(x1, y2); glVertex2f(r.x(), r.y());
         glTexCoord2f(x2, y2); glVertex2f(r.x() + r.width(), r.y());
