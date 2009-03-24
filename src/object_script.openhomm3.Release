@@ -1,0 +1,16 @@
+INPUT(
+./..\obj\release\main.o
+./..\obj\release\hrApplication.o
+./..\obj\release\GLWidget.o
+./..\obj\release\Window.o
+./..\obj\release\hrPushButton.o
+./..\obj\release\hrString.o
+./..\obj\release\hrLodEngine.o
+./..\obj\release\hrLodEngineIterator.o
+./..\obj\release\hrSndEngineIterator.o
+./..\obj\release\hrSndEngine.o
+./..\obj\release\moc_hrPushButton.o
+./..\obj\release\moc_hrApplication.o
+./..\obj\release\moc_GLWidget.o
+./..\obj\release\moc_Window.o
+);
