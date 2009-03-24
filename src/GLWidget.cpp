@@ -12,6 +12,10 @@
 #define GL_TEXTURE_RECTANGLE_NV 0x84F5
 #endif
 
+#ifndef GL_SGIS_generate_mipmap
+#define GL_GENERATE_MIPMAP_SGIS           0x8191
+#define GL_GENERATE_MIPMAP_HINT_SGIS      0x8192
+#endif
 
 
 GLWidget::GLWidget(QWidget *parent)
@@ -143,6 +147,13 @@ void GLWidget::textureFromImage(QImage *tx)
             q_gl_texture = GL_TEXTURE_2D;
         }
 
+        if (!texture_rects)
+            generate_mipmaps = extensions.contains("GL_SGIS_generate_mipmap");
+        else
+            generate_mipmaps = false;
+
+
+
         init_extensions = false;
     }
 
@@ -180,9 +191,14 @@ void GLWidget::textureFromImage(QImage *tx)
     glBindTexture(q_gl_texture, tx_id);
     glTexParameteri(q_gl_texture, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
-    glTexParameterf(q_gl_texture, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-
-
+    if (generate_mipmaps)
+    {
+        glHint(GL_GENERATE_MIPMAP_HINT_SGIS, GL_NICEST);
+        glTexParameteri(q_gl_texture, GL_GENERATE_MIPMAP_SGIS, GL_TRUE);
+        glTexParameterf(q_gl_texture, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+    }
+    else
+        glTexParameterf(q_gl_texture, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 
     glTexImage2D(q_gl_texture, 0, format, tx->width(), tx->height(), 0,
                  GL_RGBA, GL_UNSIGNED_BYTE, tx->bits());
