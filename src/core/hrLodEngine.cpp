@@ -24,7 +24,6 @@ static LodFiles static_lodFiles;
 
 QAbstractFileEngine* hrLodEngineHandler::create(const QString &filename) const
 {
-    qDebug() << Q_FUNC_INFO;
     if ( filename.size() > 0 && filename.startsWith("lod:/", Qt::CaseInsensitive) )
     {
         return new hrLodEngine(filename);
@@ -32,7 +31,7 @@ QAbstractFileEngine* hrLodEngineHandler::create(const QString &filename) const
     return 0;
 }
 
-hrLodEngine::hrLodEngine(const QString& path) : QAbstractFileEngine(), _buffer(NULL), _lf(NULL)
+hrLodEngine::hrLodEngine(const QString& path) : QAbstractFileEngine(), _lf(NULL), _buffer(NULL)
 {
     this->setFileName(path);
     if ( ! _archivename.isEmpty() )
@@ -176,7 +175,6 @@ bool hrLodEngine::isSequential() const
 
 bool hrLodEngine::isRelativePath() const
 {
-    qWarning("%s: not supported", Q_FUNC_INFO);
     return false;
 }
 
