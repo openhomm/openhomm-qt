@@ -17,5 +17,8 @@ private:
     GLWidget *w;
     QTimer timer;
 
+private slots:
+    void resizeEvent(QResizeEvent *event);
+
 };
 #endif // WINDOW_H

@@ -11,6 +11,7 @@ class GLWidget : public QGLWidget
 
 public:
     GLWidget(QWidget *parent);
+    void setScene();
 
 public slots:
     void animate();
@@ -28,14 +29,13 @@ private:
     QVector<QImage> obj;
     QVector<QImage> tile;
 
-    QMap<QImage *, GLuint> txImageIntMap;
-
     int curFrame;
+    int MaxTexDim;
 
-    void begin();
+    void Begin();
+    void End();
 
-    void textureFromImage(QImage *im);
-    void drawImage(const QRect &r, QImage *im, const QRect &src, int alpha);
+    //void LoadViewport();
 
     int NearestGLTextureSize(int v);
     int q_gl_texture;
