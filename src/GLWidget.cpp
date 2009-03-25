@@ -72,8 +72,6 @@ void GLWidget::initializeGL()
 void GLWidget::resizeGL(int w, int h)
 {
     glViewport(0, 0, w, h);
-    glMatrixMode(GL_PROJECTION);
-    glLoadIdentity();
 }
 
 void GLWidget::Begin()
@@ -174,11 +172,10 @@ void GLWidget::setScene()
 }
 
 // returns the highest number closest to v, which is a power of 2
-// NB! assumes 32 bit ints
-int GLWidget::NearestGLTextureSize(int v)
+qint32 GLWidget::NearestGLTextureSize(qint32 v)
 {
-    int n = 0, last = 0;
-    int s;
+    qint32 n = 0, last = 0;
+    qint32 s;
 
     for (s = 0; s < 32; ++s)
     {

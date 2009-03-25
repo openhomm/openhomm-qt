@@ -37,7 +37,7 @@ private:
 
     //void LoadViewport();
 
-    int NearestGLTextureSize(int v);
+    qint32 NearestGLTextureSize(qint32 v);
     int q_gl_texture;
     bool texture_rects;
 };
