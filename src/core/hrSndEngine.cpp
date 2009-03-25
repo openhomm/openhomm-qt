@@ -294,34 +294,17 @@ bool hrSndEngine::preload_fat()
                 {
                     SndEntry entry;
                     memset(&entry,0,sizeof(entry));
-                    char temp;
-                    int len = 0;
 
-                    Q_FOREVER
+                    file->read( (char *) &entry, sizeof(SndEntry));
+
+                    for ( int i = 0; i < 40; ++i)
                     {
-                        file->getChar(&temp);
-                        if ( temp )
+                        if ( entry.name[i] == '\0' )
                         {
-                            entry.name[len++] = temp;
-                        }
-                        else
-                        {
-                            entry.name[len++] = '.';
+                            entry.name[i] = '.';
                             break;
                         }
                     }
-
-                    Q_FOREVER
-                    {
-                        file->getChar(&temp);
-                        if ( temp )
-                            entry.name[len++] = temp;
-                        else
-                            break;
-                    }
-                    file->seek(file->pos() + 40-strlen(entry.name)-1);
-                    file->read( (char *) &entry.offset, 4);
-                    file->read( (char *) &entry.size, 4);
 
                     _sf->fat.insert(QString(entry.name).toLower(), entry);
                 }
