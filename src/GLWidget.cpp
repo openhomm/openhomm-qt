@@ -18,55 +18,49 @@ GLWidget::GLWidget(QWidget *parent)
 {
     //this->parent = parent;
     curFrame = 0;
-    MaxTexDim = 512;
 
-    initializeGL();
+    makeCurrent();
+    setAutoBufferSwap(true);
+
+    // todo: use it
+    GLint param;
+    glGetIntegerv(GL_MAX_TEXTURE_SIZE, &param);
+    qWarning("maxsize: %d", param);
+    if (param != 0)
+        MaxTexDim = param;
+    else
+        MaxTexDim = 512;
+
+    QString extensions(reinterpret_cast<const char *>(glGetString(GL_EXTENSIONS)));
+
+    texture_rects = true;
+
+    if (extensions.contains("GL_NV_texture_rectangle"))
+    {
+        qWarning("GL_NV_texture_rectangle");
+        q_gl_texture = GL_TEXTURE_RECTANGLE_NV;
+    }
+    else if (extensions.contains("GL_ARB_texture_rectangle"))
+    {
+        qWarning("GL_ARB_texture_rectangle");
+        q_gl_texture = GL_TEXTURE_RECTANGLE_ARB;
+    }
+    else if (extensions.contains("GL_EXT_texture_rectangle"))
+    {
+        qWarning("GL_EXT_texture_rectangle");
+        q_gl_texture = GL_TEXTURE_RECTANGLE_EXT;
+    }
+    else
+    {
+        qWarning("GL_TEXTURE_2D");
+        texture_rects = false;
+        q_gl_texture = GL_TEXTURE_2D;
+    }
 }
 
 void GLWidget::initializeGL()
 {
-    makeCurrent();
-    setAutoBufferSwap(true);
-
-    static bool init = true;
-    if (init)
-    {
-        // todo: use it
-        GLint param;
-        glGetIntegerv(GL_MAX_TEXTURE_SIZE, &param);
-        qWarning("maxsize: %d", param);
-        if (param != 0)
-            MaxTexDim = param;
-        else
-            MaxTexDim = 512;
-
-        QString extensions(reinterpret_cast<const char *>(glGetString(GL_EXTENSIONS)));
-
-        texture_rects = true;
-
-        if (extensions.contains("GL_NV_texture_rectangle"))
-        {
-            qWarning("GL_NV_texture_rectangle");
-            q_gl_texture = GL_TEXTURE_RECTANGLE_NV;
-        }
-        else if (extensions.contains("GL_ARB_texture_rectangle"))
-        {
-            qWarning("GL_ARB_texture_rectangle");
-            q_gl_texture = GL_TEXTURE_RECTANGLE_ARB;
-        }
-        else if (extensions.contains("GL_EXT_texture_rectangle"))
-        {
-            qWarning("GL_EXT_texture_rectangle");
-            q_gl_texture = GL_TEXTURE_RECTANGLE_EXT;
-        }
-        else
-        {
-            qWarning("GL_TEXTURE_2D");
-            texture_rects = false;
-            q_gl_texture = GL_TEXTURE_2D;
-        }
-        init = false;
-    }
+    Begin();
 }
 
 void GLWidget::resizeGL(int w, int h)
@@ -102,7 +96,7 @@ void GLWidget::End()
 
 void GLWidget::paintGL()
 {
-    Begin();
+    //Begin();
     QImage im = tile.at(0);
     GLuint id = 0;
     for (int i = 0, y = 0; i < 20; i++, y += 32)
@@ -122,7 +116,7 @@ void GLWidget::paintGL()
             drawTexture(QPoint(x, y), id, q_gl_texture);
         }
     glDisable(GL_BLEND);
-    End();
+    //End();
 }
 
 void GLWidget::animate()
