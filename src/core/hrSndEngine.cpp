@@ -100,10 +100,6 @@ bool hrSndEngine::close()
     }
     return true;
 }
-bool hrSndEngine::flush()
-{
-    return false;
-}
 qint64 hrSndEngine::size() const
 {
     if ( _buffer != NULL )
@@ -139,59 +135,6 @@ qint64 hrSndEngine::read(char *data, qint64 maxlen)
 
     return 0;
 }
-qint64 hrSndEngine::write(const char *, qint64)
-{
-    qWarning("%s: not supported", Q_FUNC_INFO);
-    return -1;
-}
-
-bool hrSndEngine::remove()
-{
-    qWarning("%s: not supported", Q_FUNC_INFO);
-    return false;
-}
-bool hrSndEngine::copy(const QString &)
-{
-    qWarning("Native %s: not supported. Using standart Qt implementation", Q_FUNC_INFO);
-    return false;
-}
-bool hrSndEngine::rename(const QString &)
-{
-    qWarning("Native %s: not supported. Using standart Qt implementation", Q_FUNC_INFO);
-    return false;
-}
-bool hrSndEngine::link(const QString &)
-{
-    qWarning("%s: not supported", Q_FUNC_INFO);
-    return false;
-}
-
-bool hrSndEngine::isSequential() const
-{
-    return false;
-}
-
-bool hrSndEngine::isRelativePath() const
-{
-    return false;
-}
-
-bool hrSndEngine::mkdir(const QString &, bool) const
-{
-    qWarning("%s: not supported", Q_FUNC_INFO);
-    return false;
-}
-bool hrSndEngine::rmdir(const QString &, bool) const
-{
-    qWarning("%s: not supported", Q_FUNC_INFO);
-    return false;
-}
-
-bool hrSndEngine::setSize(qint64)
-{
-    qWarning("%s: not supported", Q_FUNC_INFO);
-    return false;
-}
 
 QStringList hrSndEngine::entryList(QDir::Filters filters, const QStringList &filterNames) const
 {
@@ -199,11 +142,6 @@ QStringList hrSndEngine::entryList(QDir::Filters filters, const QStringList &fil
         return _sf->fat.keys();
 
     return QAbstractFileEngine::entryList(filters, filterNames);
-}
-
-bool hrSndEngine::caseSensitive() const
-{
-    return false;
 }
 
 QAbstractFileEngine::FileFlags hrSndEngine::fileFlags(QAbstractFileEngine::FileFlags type) const
@@ -219,48 +157,17 @@ QAbstractFileEngine::FileFlags hrSndEngine::fileFlags(QAbstractFileEngine::FileF
     return ret;
 }
 
-bool hrSndEngine::setPermissions(uint)
-{
-    qWarning("%s: not supported", Q_FUNC_INFO);
-    return false;
-}
-
 QString hrSndEngine::fileName(QAbstractFileEngine::FileName file) const
 {
     Q_UNUSED(file);
     return _filename;
 }
 
-uint hrSndEngine::ownerId(QAbstractFileEngine::FileOwner) const
-{
-    qWarning("%s: not supported", Q_FUNC_INFO);
-    return 0;
-}
-QString hrSndEngine::owner(QAbstractFileEngine::FileOwner) const
-{
-    qWarning("%s: not supported", Q_FUNC_INFO);
-    return "";
-}
-
-QDateTime hrSndEngine::fileTime(QAbstractFileEngine::FileTime) const
-{
-    qWarning("%s: not supported", Q_FUNC_INFO);
-    return QDateTime();
-}
-
 QAbstractFileEngine::Iterator *hrSndEngine::beginEntryList(QDir::Filters filters, const QStringList &filterNames)
 {
     return new hrSndEngineIterator(filters, filterNames);
 }
-QAbstractFileEngine::Iterator *hrSndEngine::endEntryList()
-{
-    return 0;
-}
 
-bool hrSndEngine::extension(Extension, const ExtensionOption *, ExtensionReturn *)
-{
-    return false;
-}
 bool hrSndEngine::supportsExtension(Extension ext) const
 {
     return ext == QAbstractFileEngine::AtEndExtension;
