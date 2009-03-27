@@ -14,17 +14,18 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
-#include "precompiled.hpp"
-#include "hrApplication.hpp"
-#include "hrH3MReader.hpp"
+#pragma once
 
-int main(int argc, char** argv)
+class hrH3MReader
 {
-    QT_REQUIRE_VERSION(argc, argv, "4.5.0");
-    hrApplication app(argc, argv);
+public:
+    hrH3MReader();
+    ~hrH3MReader();
 
-    hrH3MReader reader;
-    reader.load("maps/All for One.h3m");
+    bool load(const QString &name);
+protected:
+    QString loadString(QIODevice *device);
 
-    return app.exec();
-}
+// data
+    QByteArray* data;
+};
