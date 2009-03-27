@@ -1,20 +1,22 @@
 #ifndef GLWIDGET_H
 #define GLWIDGET_H
 
-#include <QPainter>
+#include "precompiled.hpp"
 #include <QGLWidget>
-#include <QImageReader>
 
-class GLWidget : public QGLWidget
+#include "hrScene.hpp"
+
+class hrGLWidget : public QGLWidget
 {
     Q_OBJECT
 
 public:
-    GLWidget(QWidget *parent);
-    void setScene();
+    hrGLWidget(QWidget *parent);
+    void setScene(/*hrScene &scene*/);
 
 public slots:
     void animate();
+    void scroll();
 
 protected:
     void initializeGL();
@@ -24,7 +26,16 @@ protected:
     //void paintEvent(QPaintEvent *event);
 
 private:
-    QWidget *parent;
+    //QWidget *parent;
+
+    hrScene scene;
+
+    QTimer scrollTimer;
+    int x0;
+    int y0;
+    int dx;
+    int dy;
+
     QImageReader ir;
     QVector<QImage> obj;
     QVector<QImage> tile;
@@ -40,6 +51,9 @@ private:
     qint32 NearestGLTextureSize(qint32 v);
     int q_gl_texture;
     bool texture_rects;
+
+private slots:
+    void mouseMoveEvent(QMouseEvent * event);
 };
 
 #endif // GLWIDGET_H

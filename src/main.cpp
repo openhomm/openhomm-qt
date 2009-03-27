@@ -17,7 +17,7 @@
 #include "precompiled.hpp"
 #include "hrApplication.hpp"
 
-#include "Window.h"
+#include "hrWindow.hpp"
 
 int main(int argc, char** argv)
 {
@@ -29,7 +29,7 @@ int main(int argc, char** argv)
     f.copy("advevent.txt");
     //QFile::copy("lod:/data/h3bitmap/advevent.txt", "advevent.txt");*/
 
-    Window w;
+    hrWindow w;
     w.show();
 
     return app.exec();

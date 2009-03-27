@@ -1,20 +1,19 @@
 #ifndef WINDOW_H
 #define WINDOW_H
 
-#include <QWidget>
-#include <QTimer>
-#include "GLWidget.hpp"
+#include "precompiled.hpp"
+#include "hrGLWidget.hpp"
 
-class Window : public QWidget
+class hrWindow : public QWidget
 {
     Q_OBJECT
 
 public:
-    Window();
-    ~Window();
+    hrWindow();
+    ~hrWindow();
 
 private:
-    GLWidget *w;
+    hrGLWidget *w;
     QTimer timer;
 
 private slots:

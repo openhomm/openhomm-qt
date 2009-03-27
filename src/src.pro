@@ -9,15 +9,14 @@ TEMPLATE = app
 DEPENDPATH += .
 INCLUDEPATH += . \
     gui \
+    render\
     core
 
 # PRECOMPILED_HEADER = precompiled.hpp
 SOURCES += main.cpp \
-    hrApplication.cpp \
-    GLWidget.cpp \
-    Window.cpp
+    hrApplication.cpp
 include(gui/gui.pri)
+include(render/render.pri)
 include(core/core.pri)
-HEADERS += hrApplication.hpp \
-    GLWidget.hpp \
-    Window.h
+HEADERS += hrApplication.hpp
+
