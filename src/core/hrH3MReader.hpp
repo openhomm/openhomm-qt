@@ -16,6 +16,19 @@
 //
 #pragma once
 
+struct BASIC_PARAMETRES {
+    quint32 version;
+    quint8  junk;
+    quint32 size;
+    quint8  under;
+
+    QString name;
+    QString description;
+
+    quint8  difficult;
+    quint8  levelLimit;
+};
+
 class hrH3MReader
 {
 public:
@@ -27,5 +40,5 @@ protected:
     QString loadString(QIODevice *device);
 
 // data
-    QByteArray* data;
+    BASIC_PARAMETRES basic;
 };

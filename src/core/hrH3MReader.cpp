@@ -17,7 +17,7 @@
 #include "precompiled.hpp"
 #include "hrH3MReader.hpp"
 
-hrH3MReader::hrH3MReader() : data(NULL)
+hrH3MReader::hrH3MReader()
 {
 }
 
@@ -27,43 +27,60 @@ hrH3MReader::~hrH3MReader()
 
 bool hrH3MReader::load(const QString &name)
 {
-    QFile map(name);
+    QByteArray data;
+    bool result = true;
 
+    {
+        QFile map(name);
+        if ( ! map.open(QIODevice::ReadOnly) )
+        {
+            qWarning("Can't open file: %s", qPrintable(name));
+            return false;
+        }
+
+        data = map.readAll();
+        map.close();
+    }
+
+    QBuffer map(&data);
     if ( !map.open(QIODevice::ReadOnly) )
+    {
+        qWarning() << map.errorString();
         return false;
+    }
 
-    quint32 real_size = 0;
-    map.seek(map.size() - 4);
-    map.read( ( char* ) &real_size, 4);
-    qDebug() << real_size;
-    QByteArray cData = map.read(map.size() - 4);
-    char *l = (char*)real_size;
+    map.read( (char *) &basic.version, 4);
+    if ( basic.version != 0x0000001C )
+    {
+        qWarning("File (%s) is not a Heroes III SoD Map. Template stopped.", qPrintable(name));
+        map.close();
+        return false;
+    }
 
-    cData.prepend(l[0]);
-    cData.prepend(l[1]);
-    cData.prepend(l[2]);
-    cData.prepend(l[3]);
+    map.read( (char *) &basic.junk, 1);
+    map.read( (char *) &basic.size, 4);
+    map.read( (char *) &basic.under, 1);
 
-    data = new QByteArray;
-    //*data = qUncompress(cData);
-    //qDebug() << data->size();
+    basic.name = this->loadString(&map);
+    basic.description = this->loadString(&map);
 
-//    quint32 mapVersion;
-//
-//    map.read( (char *) &mapVersion, 4);
-//
-//    if ( mapVersion != 0x0000001C )
-//    {
-//        qWarning("File is not a Heroes III SoD Map.");
-//        return false;
-//    }
+    map.read( (char *) &basic.difficult, 1);
+    map.read( (char *) &basic.levelLimit, 1);
 
-    map.close();
-
-    return false;
+    return true;
 }
 
 QString hrH3MReader::loadString(QIODevice *device)
 {
-    return QString();
+
+    quint32 len = 0;
+    device->read( (char *) &len, 4);
+
+    if ( len > 0)
+    {
+        QByteArray str = device->read(len);
+        return QString(str);
+    }
+
+    return QString("");
 }
