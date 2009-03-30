@@ -16,6 +16,7 @@
 //
 #include "precompiled.hpp"
 #include "hrH3MReader.hpp"
+#include "hrString.hpp"
 
 hrH3MReader::hrH3MReader()
 {
@@ -49,38 +50,34 @@ bool hrH3MReader::load(const QString &name)
         return false;
     }
 
-    map.read( (char *) &basic.version, 4);
-    if ( basic.version != 0x0000001C )
+    if ( basic.load(&map) == false )
     {
-        qWarning("File (%s) is not a Heroes III SoD Map. Template stopped.", qPrintable(name));
         map.close();
         return false;
     }
 
-    map.read( (char *) &basic.junk, 1);
-    map.read( (char *) &basic.size, 4);
-    map.read( (char *) &basic.under, 1);
-
-    basic.name = this->loadString(&map);
-    basic.description = this->loadString(&map);
-
-    map.read( (char *) &basic.difficult, 1);
-    map.read( (char *) &basic.levelLimit, 1);
-
     return true;
 }
 
-QString hrH3MReader::loadString(QIODevice *device)
+bool BasicParametres_t::load(QIODevice *device)
 {
+    device->read( (char *) &version, 4);
 
-    quint32 len = 0;
-    device->read( (char *) &len, 4);
-
-    if ( len > 0)
+    if ( version != 0x0000001C )
     {
-        QByteArray str = device->read(len);
-        return QString(str);
+        qWarning("File is not a HoMM III : SoD Map.");
+        return false;
     }
 
-    return QString("");
+    device->read( (char *) &junk, 1);
+    device->read( (char *) &size, 4);
+    device->read( (char *) &under, 1);
+
+    name = hrString::deserialize(device);
+    description = hrString::deserialize(device);
+
+    device->read( (char *) &difficult, 1);
+    device->read( (char *) &levelLimit, 1);
+
+    return true;
 }

@@ -16,7 +16,7 @@
 //
 #pragma once
 
-struct BASIC_PARAMETRES {
+struct BasicParametres_t {
     quint32 version;
     quint8  junk;
     quint32 size;
@@ -27,6 +27,8 @@ struct BASIC_PARAMETRES {
 
     quint8  difficult;
     quint8  levelLimit;
+
+    bool load(QIODevice *device);
 };
 
 class hrH3MReader
@@ -37,8 +39,7 @@ public:
 
     bool load(const QString &name);
 protected:
-    QString loadString(QIODevice *device);
 
 // data
-    BASIC_PARAMETRES basic;
+    BasicParametres_t basic;
 };
