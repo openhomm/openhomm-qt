@@ -16,3 +16,32 @@
 //
 #include "precompiled.hpp"
 #include "hrString.hpp"
+
+QString hrString::deserialize(QIODevice *device)
+{
+    Q_ASSERT(device != NULL);
+
+    quint32 len = 0;
+    device->read( (char *) &len, 4);
+
+    if ( len > 0)
+    {
+        QByteArray str = device->read(len);
+        return QString(str);
+    }
+
+    return QString("");
+}
+
+void hrString::serialize(const QString &str, QIODevice *device)
+{
+    Q_ASSERT(device != NULL);
+
+    quint32 len = str.size();
+    device->write( (char* ) &len, 4);
+
+    if ( len > 0 )
+    {
+        device->write( str.toAscii().data(), str.length() );
+    }
+}
