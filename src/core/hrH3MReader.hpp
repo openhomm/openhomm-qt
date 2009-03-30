@@ -31,6 +31,48 @@ struct BasicParametres_t {
     bool load(QIODevice *device);
 };
 
+struct Hero {
+    quint8 portret;
+    QString name;
+};
+
+struct PlayerAttributes_t {
+    PlayerAttributes_t();
+    ~PlayerAttributes_t();
+
+    quint8 isHuman;
+    quint8 isComputer;
+    quint8 behavior;	// 0-Random, 1-Warrior, 2-Builder, 3-Explorer
+    quint8 isCityTypesOpt;
+    quint16 cityTypes;
+    quint8 randomCity;
+    quint8 mainCity;
+
+//  if mainCity == 1 {
+    quint8 generateHero;
+    quint8 city[4]; // 0 - city type, 1-3 coords
+// }
+
+    quint8 randomHero;
+    quint8 heroType;
+
+
+//  if ( heroType != 0xFF ) {
+    quint8 heroPortret;
+    QString heroName;
+//  }
+
+    quint8 junk; // ??? get more info
+    quint32 heroesCount;
+
+//  if ( heroesCount > 0 ) {
+    QVector<Hero> heroes;
+//  }
+
+    bool load(QIODevice *device);
+    void dump();
+};
+
 class hrH3MReader
 {
 public:
@@ -42,4 +84,5 @@ protected:
 
 // data
     BasicParametres_t basic;
+    PlayerAttributes_t players[8];
 };

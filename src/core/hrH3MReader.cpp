@@ -29,7 +29,6 @@ hrH3MReader::~hrH3MReader()
 bool hrH3MReader::load(const QString &name)
 {
     QByteArray data;
-    bool result = true;
 
     {
         QFile map(name);
@@ -56,11 +55,18 @@ bool hrH3MReader::load(const QString &name)
         return false;
     }
 
+    for ( int i = 0; i < 8; ++i )
+    {
+        players[i].load(&map);
+        players[i].dump();
+    }
     return true;
 }
 
 bool BasicParametres_t::load(QIODevice *device)
 {
+    Q_ASSERT(device != NULL);
+
     device->read( (char *) &version, 4);
 
     if ( version != 0x0000001C )
@@ -73,11 +79,94 @@ bool BasicParametres_t::load(QIODevice *device)
     device->read( (char *) &size, 4);
     device->read( (char *) &under, 1);
 
-    name = hrString::deserialize(device);
+    name        = hrString::deserialize(device);
     description = hrString::deserialize(device);
 
-    device->read( (char *) &difficult, 1);
+    device->read( (char *) &difficult,  1);
     device->read( (char *) &levelLimit, 1);
 
     return true;
+}
+
+PlayerAttributes_t::PlayerAttributes_t()
+{
+}
+
+PlayerAttributes_t::~PlayerAttributes_t()
+{
+    heroes.clear();
+}
+
+bool PlayerAttributes_t::load(QIODevice *device)
+{
+    Q_ASSERT(device != NULL);
+
+    device->read( (char *) &isHuman,    sizeof(isHuman)     );
+    device->read( (char *) &isComputer, sizeof(isComputer)  );
+    device->read( (char *) &behavior,   sizeof(behavior)    );
+    device->read( (char *) &isCityTypesOpt, sizeof(isCityTypesOpt) );
+    device->read( (char *) &cityTypes,  sizeof(cityTypes)   );
+    device->read( (char *) &randomCity, sizeof(randomCity)  );
+    device->read( (char *) &mainCity,   sizeof(mainCity)    );
+
+    if ( mainCity == 1 )
+    {
+        device->read( (char *) &generateHero,   sizeof(generateHero) );
+        device->read( (char *) city,            sizeof(city)         );
+    }
+
+    device->read( (char *) &randomHero, sizeof(randomHero)  );
+    device->read( (char *) &heroType,   sizeof(heroType)    );
+
+    if ( heroType != 0xFF )
+    {
+        device->read( (char *) &heroPortret, sizeof(heroPortret) );
+        heroName = hrString::deserialize(device);
+    }
+
+    device->read( (char *) &junk, sizeof(junk) );
+    device->read( (char *) &heroesCount, sizeof(heroesCount) );
+
+    for ( quint32 i = 0; i < heroesCount; ++i )
+    {
+        Hero hero;
+        device->read( (char *) &hero.portret, sizeof(hero.portret) );
+        hero.name = hrString::deserialize(device);
+        heroes.push_back(hero);
+    }
+
+    return true;
+}
+
+void PlayerAttributes_t::dump()
+{
+    qDebug("isHuman: %d", isHuman);
+    qDebug("isComputer: %d", isComputer);
+    qDebug("behavior: %d", behavior);
+    qDebug("isCityTypesOpt: %d", isCityTypesOpt);
+    qDebug("cityTypes: %d", cityTypes);
+    qDebug("randomCity: %d", randomCity);
+    qDebug("mainCity: %d", mainCity);
+    if ( mainCity == 1 )
+    {
+        qDebug("\tgenerateHero: %d", generateHero);
+        qDebug("\tcity %d {%d.%d.%d}", city[0], city[1], city[2], city[3]);
+    }
+    qDebug("randomHero: %d", randomHero);
+    qDebug("heroType: %d", heroType);
+
+    if ( heroType != 0xFF )
+    {
+        qDebug("\theroPortret: %d", heroPortret);
+        qDebug() << "\theroName: " << heroName;
+    }
+    qDebug("junk: %d", junk);
+    qDebug("heroesCount: %d", heroesCount);
+
+    for ( quint32 i = 0; i < heroesCount; i++ )
+    {
+        qDebug("\tHero::portret : %d", heroes[i].portret);
+        qDebug() << "\tHero::name : " << heroes[i].name;
+    }
+    qDebug() << "===================";
 }
