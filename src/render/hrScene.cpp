@@ -1,66 +1,124 @@
 #include "hrScene.hpp"
 
-hrScene::hrScene()
+void hrScene::addItem(QString name)
 {
+    if (!items.contains(name))
+    {
+        hrGraphicsItem *item = new hrGraphicsItem(name);
+        QImageReader ir("lod:/data/h3sprite.lod/" + name);
+        QImage im;
+        for (int i = 0; ir.jumpToImage(i); i++)
+            if (ir.read(&im))
+                item->addImage(im);
+
+        items[name] = item;
+    }
+}
+
+hrScene::hrScene(QRect size) : size(size)
+{
+    tiles.append(QVector<hrTile>());
 }
 
 hrScene::~hrScene()
 {
+    items.clear();
 }
 
-void hrScene::addTile(QString name)
+void hrScene::addTile(QString name, int frame)
 {
-    tiles.append(name);
+    addItem(name);
+
+    static int i = 0;
+    static int j = 0;
+    if (j == size.width() - 1)
+    {
+        tiles.append(QVector<hrTile>());
+        i++;
+        j = 0;
+    }
+    else
+        j++;
+    tiles[i].append(hrTile(name, frame));
 }
 
-void hrScene::addObject(int x, int y, QString name)
+void hrScene::addObject(QString name, int x, int y)
 {
-    objects.append(new hrObject(x, y, name));
+    addItem(name);
+
+    QRect r = items.value(name)->getRect();
+    objects.append( hrObject(name, x, y
+                             , coord::toCell(r.width())
+                             , coord::toCell(r.height())
+                             )
+                   );
 }
 
 void hrScene::removeObject(int x, int y)
 {
-    //for (int i = 0; objects.at(i)->x == x && objects.at(i)->y == y; i++);
-    //objects.removeAt(i);
+    ;
 }
 
-QVector<QString> hrScene::getViewportTiles()
+QImage hrScene::getItem(QString name, int frame) const
 {
-    QVector<QString> v;
+    if (items.contains(name))
+        return items.value(name)->getFrame(frame);
+    return QImage();
+}
+
+QImage hrScene::getItem(hrTile &tile) const
+{
+    return getItem(tile.getName(), tile.getFrame());
+}
+
+QImage hrScene::getItem(hrObject &object) const
+{
+    if (items.contains(object.getName()))
+        return items.value(object.getName())->getFrame();
+    return QImage();
+}
+
+void hrScene::setItemNextFrame(hrObject &object) const
+{
+    if (items.contains(object.getName()))
+       items.value(object.getName())->nextFrame();
+}
+
+QVector<hrTile> hrScene::getViewportTiles() const
+{
+    QVector<hrTile> v;
+
     for (int i = 0; i < viewport.height(); i++)
         for (int j = 0; j < viewport.width(); j++)
         {
-            v.append(tiles.at((viewport.y() + i) * size.width() + (viewport.x() + j)));
+            v.append(tiles.at(viewport.y() + i).at(viewport.x() + j));
         }
     return v;
 }
 
 
-QLinkedList<hrObject*> hrScene::getViewportObjects()
+QLinkedList<hrObject> hrScene::getViewportObjects() const
 {
-    QLinkedList<hrObject*> l;
-    QLinkedListIterator<hrObject*> it(objects);
-    hrObject *obj = NULL;
+    QLinkedList<hrObject> l;
+    QLinkedListIterator<hrObject> it(objects);
+    hrObject obj;
     while (it.hasNext())
     {
         obj = it.next();
-        if (viewport.contains(obj->point))
-        {
-            l.append(new hrObject(obj->x - viewport.topLeft().x()
-                                  , obj->y - viewport.topLeft().y()
-                                  , obj->name)
+        if (viewport.intersects(obj.getRect()))
+        {            
+            l.append(hrObject(obj.getName()
+                              , obj.x() - viewport.x()
+                              , obj.y() - viewport.y()
+                              )
                      );
         }
     }
     return l;
 }
 
-void hrScene::setSize(QRect r)
-{
-    size = r;
-}
 
-QRect hrScene::getSize()
+QRect hrScene::getSize() const
 {
     return size;
 }
@@ -70,18 +128,13 @@ void hrScene::setViewport(QRect r)
     viewport = r;
 }
 
-QRect hrScene::getViewport()
+QRect hrScene::getViewport() const
 {
     return viewport;
 }
 
-void hrScene::setSizeWindow(QRect r)
+void hrScene::moveViewportCenter(QPoint center)
 {
-    ;
+    qDebug() << "center:" << center
+            << "vp:" << viewport << "size:" << size;
 }
-
-QRect hrScene::getSizeWindow()
-{
-    return QRect();
-}
-

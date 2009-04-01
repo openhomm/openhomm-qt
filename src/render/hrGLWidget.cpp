@@ -16,11 +16,10 @@
 hrGLWidget::hrGLWidget(QWidget *parent)
  : QGLWidget(QGLFormat(QGL::SampleBuffers), parent)
 {
-    //this->parent = parent;
-    curFrame = 0;
-    x0 = 0; y0 = 0;
+    isAnimate = true;
     dx = 0; dy = 0;
     connect(&scrollTimer, SIGNAL(timeout()), this, SLOT(scroll()));
+    connect(&animateTimer, SIGNAL(timeout()), this, SLOT(animate()));
 
     setMouseTracking(true);
 
@@ -63,6 +62,18 @@ hrGLWidget::hrGLWidget(QWidget *parent)
     }
 }
 
+void hrGLWidget::setScene(hrScene *scene)
+{
+    this->scene = scene;
+    tiles = scene->getViewportTiles();
+    objects = scene->getViewportObjects();
+}
+
+void hrGLWidget::startAnimate(int delay)
+{
+    animateTimer.start(delay);
+}
+
 void hrGLWidget::initializeGL()
 {
     Begin();
@@ -75,6 +86,7 @@ void hrGLWidget::resizeGL(int w, int h)
 
 void hrGLWidget::Begin()
 {
+    viewport = rect();
     glViewport(0, 0, width(), height());
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
@@ -103,78 +115,93 @@ void hrGLWidget::paintGL()
 {
     //Begin();
     glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
-    QImage im = tile.at(0);
     GLuint id = 0;
-    for (int i = 0, y = y0; i < 20; i++, y += 32)
-        for (int j = 0, x = x0; j < 20; j++, x += 32)
+
+    //QVector<hrTile> tiles = scene->getViewportTiles();
+    QRect r = scene->getViewport();
+
+    for (int i = 0; i < r.height(); i++)
+        for (int j = 0; j < r.width(); j++)
         {
-            id = bindTexture(im, q_gl_texture, GL_RGBA8);
-            drawTexture(QPoint(x, y), id, q_gl_texture);
+            hrTile tile = tiles.at(i * (r.width() - 1) + j);
+            QImage im = scene->getItem(tile);
+            if (im.isNull()) continue;
+            id = bindTexture(im, q_gl_texture, GL_RGBA8 );
+            drawTexture(coord::toPix(QPoint(i, j)), id, q_gl_texture);
         }
+
 
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     glEnable(GL_BLEND);
 
-    for (int i = 0, y = y0; i < 10; i++, y += 64)
-        for (int j = 0, x = x0; j < 10; j++, x += 64)
+    //QLinkedList<hrObject> objects = scene->getViewportObjects();
+    QLinkedListIterator<hrObject> it(objects);
+
+    if (isAnimate)
+    {
+        while (it.hasNext())
         {
-            id = bindTexture(obj.at(curFrame), q_gl_texture, GL_RGBA8);
-            drawTexture(QPoint(x, y), id, q_gl_texture);
+            hrObject obj = it.next();
+            scene->setItemNextFrame(obj);
         }
+        it.toFront();
+    }
+
+    while (it.hasNext())
+    {
+        hrObject obj = it.next();
+        QImage im = scene->getItem(obj);
+        if (im.isNull()) continue;
+        ImageToRect(im);
+        id = bindTexture(im, q_gl_texture, GL_RGBA8);
+        drawTexture(coord::toPix(obj.getPoint()), id, q_gl_texture);
+    }
+
     glDisable(GL_BLEND);
     //End();
 }
 
 void hrGLWidget::animate()
 {
-    curFrame < ir.imageCount() - 1 ? curFrame++ : curFrame = 0;
+    isAnimate = true;
     updateGL();
 }
 
 void hrGLWidget::scroll()
 {
-    //qWarning("repaint");
-    x0 += dx;
-    y0 += dy;
+    isAnimate = false;
+    QRect r = coord::toPix(scene->getViewport());
+    QRect sceneViewport(0, 0, r.width(), r.height());
+
+    QPoint oldPos = viewport.topLeft();
+    QPoint newPos = oldPos - QPoint(dx, dy);
+
+    viewport.moveTo(newPos);
+    if (sceneViewport.contains(viewport))
+    {
+        glTranslatef(dx, dy, 0);
+    }
+    else
+    {
+        viewport.moveTo(oldPos);
+    }
     updateGL();
 }
 
-void hrGLWidget::setScene(/*hrScene &scene*/)
+void hrGLWidget::ImageToRect(QImage &im)
 {
-    this->scene = scene;
-    QImage im("lod:/data/h3sprite.lod/grastl.def");
-    tile.append(im);
-
-    ir.setFileName("lod:/data/h3sprite.lod/advmwind.def");
-    for (int i = 0; ir.jumpToImage(i); i++)
+    if (!texture_rects)
     {
-        if (ir.read(&im))
+        int s = NearestGLTextureSize(qMax(im.width(), im.height()));
+        if (im.height() < s || im.width() < s)
         {
-            if (!texture_rects)
-            {
-                int s = NearestGLTextureSize(qMax(im.width(), im.height()));
-                if (im.height() < s || im.width() < s)
-                {
-                    QImage tmp = im.copy(0, 0, s, s);
-                    obj.append(tmp);
-                }
-                else if (im.height() > s || im.width() > s)
-                {
-                    // todo
-                    for (int j = 0; j < im.width() / s + 1; j++)
-                        for (int k = 0; k < im.height() / s + 1; k++)
-                        {
-                            QImage tmp = im.copy(j * s, k * s, s, s);
-                            obj.append(tmp);
-                        }
-                }
-                else
-                    obj.append(im);
-            }
-            else
-            {
-                obj.append(im);
-            }
+            im = im.copy(0, 0, s, s);
+        }
+        else if (im.height() > s || im.width() > s)
+        {
+            // todo
+            qWarning("too big texture");
+            im = im.copy(0, 0, s, s);
         }
     }
 }
@@ -208,63 +235,65 @@ void hrGLWidget::mouseMoveEvent(QMouseEvent * event)
     const int border = 25;
     const int c = 15;
     const int delay = 20;
+    bool startScrollTimer = true;
+
 
     if (pos.x() < border && pos.y() < border)
     {
-        //qWarning("top left");
+        // top left
         dx = c; dy = c;
-        scrollTimer.start(delay);
     }
     else if (pos.x() > width() - border && pos.y() < border)
     {
-        //qWarning("top right");
+        // top right
         dx = -c; dy = c;
-        scrollTimer.start(delay);
     }
     else if (pos.x() > width() - border && pos.y() > height() - border)
     {
-        //qWarning("bottom right");
+        // bottom right
         dx = -c; dy = -c;
-        scrollTimer.start(delay);
     }
     else if (pos.x() < border && pos.y() > height() - border)
     {
-        //qWarning("bottom left");
+        // bottom left
         dx = c; dy = -c;
-        scrollTimer.start(delay);
     }
     else if (pos.x() < border)
     {
-        //qWarning("left");
+        // left
         dx = c; dy = 0;
-        scrollTimer.start(delay);
     }
     else if (pos.x() > width() - border)
     {
-        //qWarning("right");
+        // right
         dx = -c; dy = 0;
-        scrollTimer.start(delay);
     }
     else if (pos.y() < border)
     {
-        //qWarning("up");
+        // up
         dx = 0; dy = c;
-        scrollTimer.start(delay);
     }
     else if (pos.y() > height() - border)
     {
-        //qWarning("down");
+        // down
         dx = 0; dy = -c;
+    }
+    else
+    {
+        // stop
+        dx = 0; dy = 0;
+        startScrollTimer = false;
+    }
+
+    if (startScrollTimer)
+    {
         scrollTimer.start(delay);
     }
     else
     {
         if (scrollTimer.isActive())
         {
-            //qWarning("stop");
-            dx = 0; dy = 0;
             scrollTimer.stop();
         }
     }
-
 }

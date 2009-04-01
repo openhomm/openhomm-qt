@@ -9,7 +9,7 @@ TEMPLATE = app
 DEPENDPATH += .
 INCLUDEPATH += . \
     gui \
-    render\
+    render \
     core
 
 # PRECOMPILED_HEADER = precompiled.hpp
@@ -19,4 +19,3 @@ include(gui/gui.pri)
 include(render/render.pri)
 include(core/core.pri)
 HEADERS += hrApplication.hpp
-

@@ -3,6 +3,7 @@
 
 #include "precompiled.hpp"
 #include "hrGLWidget.hpp"
+#include "hrScene.hpp"
 
 class hrWindow : public QWidget
 {
@@ -14,7 +15,7 @@ public:
 
 private:
     hrGLWidget *w;
-    QTimer timer;
+    hrScene *scene;
 
 private slots:
     void resizeEvent(QResizeEvent *event);

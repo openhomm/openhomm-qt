@@ -5,6 +5,7 @@
 #include <QGLWidget>
 
 #include "hrScene.hpp"
+#include "hrCoord.hpp"
 
 class hrGLWidget : public QGLWidget
 {
@@ -12,7 +13,8 @@ class hrGLWidget : public QGLWidget
 
 public:
     hrGLWidget(QWidget *parent);
-    void setScene(/*hrScene &scene*/);
+    void setScene(hrScene *scene);
+    void startAnimate(int delay);
 
 public slots:
     void animate();
@@ -24,30 +26,26 @@ protected:
     void paintGL();
 
     //void paintEvent(QPaintEvent *event);
-
 private:
-    //QWidget *parent;
+    hrScene *scene;
 
-    hrScene scene;
+    QVector<hrTile> tiles;
+    QLinkedList<hrObject> objects;
 
     QTimer scrollTimer;
-    int x0;
-    int y0;
+    QTimer animateTimer;
+    QRect viewport;
     int dx;
     int dy;
 
-    QImageReader ir;
-    QVector<QImage> obj;
-    QVector<QImage> tile;
+    bool isAnimate;
 
-    int curFrame;
     int MaxTexDim;
 
     void Begin();
     void End();
 
-    //void LoadViewport();
-
+    void ImageToRect(QImage &image);
     qint32 NearestGLTextureSize(qint32 v);
     int q_gl_texture;
     bool texture_rects;
