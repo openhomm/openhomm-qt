@@ -16,9 +16,7 @@
 //
 #pragma once
 
-class hrString
-{
-public:
-    static void serialize(const QString& str, QIODevice *device);
-    static QString deserialize(QIODevice *device);
-};
+typedef QString hrString;
+
+QDataStream &operator<<(QDataStream &, const hrString &);
+QDataStream &operator>>(QDataStream &, hrString &);

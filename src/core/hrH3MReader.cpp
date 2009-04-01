@@ -49,45 +49,84 @@ bool hrH3MReader::load(const QString &name)
         return false;
     }
 
-    if ( basic.load(&map) == false )
-    {
-        map.close();
-        return false;
-    }
+    QDataStream m(&map);
+    m.setByteOrder(QDataStream::LittleEndian);
 
-    for ( int i = 0; i < 8; ++i )
+    m >> basic;
+
+    qDebug() << basic.version;
+    qDebug() << basic.under;
+    qDebug() << basic.size;
+    qDebug() << basic.under;
+    qDebug() << basic.name;
+    qDebug() << basic.description;
+    qDebug() << basic.difficult;
+    qDebug() << basic.levelLimit;
+
+    for ( int i = 0; i < 8; i++ )
     {
-        players[i].load(&map);
+        qDebug() << "===" << i << "===";
+        m >> players[i];
         players[i].dump();
     }
+
     return true;
 }
 
-bool BasicParametres_t::load(QIODevice *device)
+QDataStream &operator<<(QDataStream &out, const BasicParametres_t &)
 {
-    Q_ASSERT(device != NULL);
-
-    device->read( (char *) &version, 4);
-
-    if ( version != 0x0000001C )
-    {
-        qWarning("File is not a HoMM III : SoD Map.");
-        return false;
-    }
-
-    device->read( (char *) &junk, 1);
-    device->read( (char *) &size, 4);
-    device->read( (char *) &under, 1);
-
-    name        = hrString::deserialize(device);
-    description = hrString::deserialize(device);
-
-    device->read( (char *) &difficult,  1);
-    device->read( (char *) &levelLimit, 1);
-
-    return true;
+    qWarning("%s is not yet implemented", Q_FUNC_INFO);
+    return out;
 }
+QDataStream &operator>>(QDataStream &in, BasicParametres_t &b)
+{
+    in >> b.version;
 
+    if ( b.version == 0x0000001C )
+        in >> b.junk >> b.size >> b.under >> b.name >> b.description >> b.difficult >> b.levelLimit;
+    else
+        qWarning("File is not a HoMM III : SoD Map.");
+
+    return in;
+}
+QDataStream &operator<<(QDataStream &out, const Hero_t &)
+{
+    qWarning("%s is not yet implemented", Q_FUNC_INFO);
+    return out;
+}
+QDataStream &operator>>(QDataStream &in, Hero_t &h)
+{
+    in >> h.portret >> h.portret;
+    return in;
+}
+QDataStream &operator<<(QDataStream &out, const PlayerAttributes_t &)
+{
+    qWarning("%s is not yet implemented", Q_FUNC_INFO);
+    return out;
+}
+QDataStream &operator>>(QDataStream &in, PlayerAttributes_t &p)
+{
+    in >> p.isHuman >> p.isComputer >> p.behavior >> p.isCityTypesOpt;
+    in >> p.cityTypes >> p.randomCity >> p.mainCity;
+
+    if ( p.mainCity == 1 )
+        in >> p.generateHero >> p.city[0] >> p.city[1] >> p.city[2] >> p.city[3];
+
+    in >> p.randomHero >> p.heroType;
+
+    if ( p.heroType != 0xFF )
+        in >> p.heroPortret >> p.heroName;
+
+    in >> p.junk >> p.heroesCount;
+
+    for ( quint32 i = 0; i < p.heroesCount; ++i )
+    {
+        Hero_t hero;
+        in >> hero;
+        p.heroes.push_back(hero);
+    }
+    return in;
+}
 PlayerAttributes_t::PlayerAttributes_t()
 {
 }
@@ -95,47 +134,6 @@ PlayerAttributes_t::PlayerAttributes_t()
 PlayerAttributes_t::~PlayerAttributes_t()
 {
     heroes.clear();
-}
-
-bool PlayerAttributes_t::load(QIODevice *device)
-{
-    Q_ASSERT(device != NULL);
-
-    device->read( (char *) &isHuman,    sizeof(isHuman)     );
-    device->read( (char *) &isComputer, sizeof(isComputer)  );
-    device->read( (char *) &behavior,   sizeof(behavior)    );
-    device->read( (char *) &isCityTypesOpt, sizeof(isCityTypesOpt) );
-    device->read( (char *) &cityTypes,  sizeof(cityTypes)   );
-    device->read( (char *) &randomCity, sizeof(randomCity)  );
-    device->read( (char *) &mainCity,   sizeof(mainCity)    );
-
-    if ( mainCity == 1 )
-    {
-        device->read( (char *) &generateHero,   sizeof(generateHero) );
-        device->read( (char *) city,            sizeof(city)         );
-    }
-
-    device->read( (char *) &randomHero, sizeof(randomHero)  );
-    device->read( (char *) &heroType,   sizeof(heroType)    );
-
-    if ( heroType != 0xFF )
-    {
-        device->read( (char *) &heroPortret, sizeof(heroPortret) );
-        heroName = hrString::deserialize(device);
-    }
-
-    device->read( (char *) &junk, sizeof(junk) );
-    device->read( (char *) &heroesCount, sizeof(heroesCount) );
-
-    for ( quint32 i = 0; i < heroesCount; ++i )
-    {
-        Hero hero;
-        device->read( (char *) &hero.portret, sizeof(hero.portret) );
-        hero.name = hrString::deserialize(device);
-        heroes.push_back(hero);
-    }
-
-    return true;
 }
 
 void PlayerAttributes_t::dump()

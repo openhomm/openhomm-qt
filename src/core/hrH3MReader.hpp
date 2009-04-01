@@ -16,6 +16,8 @@
 //
 #pragma once
 
+#include "hrString.hpp"
+
 struct BasicParametres_t {
     quint32 version;
     quint8  junk;
@@ -27,14 +29,16 @@ struct BasicParametres_t {
 
     quint8  difficult;
     quint8  levelLimit;
-
-    bool load(QIODevice *device);
 };
+QDataStream &operator<<(QDataStream &, const BasicParametres_t &);
+QDataStream &operator>>(QDataStream &, BasicParametres_t &);
 
-struct Hero {
+struct Hero_t {
     quint8 portret;
-    QString name;
+    hrString name;
 };
+QDataStream &operator<<(QDataStream &, const Hero_t &);
+QDataStream &operator>>(QDataStream &, Hero_t &);
 
 struct PlayerAttributes_t {
     PlayerAttributes_t();
@@ -59,19 +63,19 @@ struct PlayerAttributes_t {
 
 //  if ( heroType != 0xFF ) {
     quint8 heroPortret;
-    QString heroName;
+    hrString heroName;
 //  }
 
     quint8 junk; // ??? get more info
     quint32 heroesCount;
 
 //  if ( heroesCount > 0 ) {
-    QVector<Hero> heroes;
+    QVector<Hero_t> heroes;
 //  }
-
-    bool load(QIODevice *device);
     void dump();
 };
+QDataStream &operator<<(QDataStream &, const PlayerAttributes_t &);
+QDataStream &operator>>(QDataStream &, PlayerAttributes_t &);
 
 class hrH3MReader
 {

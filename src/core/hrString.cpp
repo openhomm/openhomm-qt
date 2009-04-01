@@ -17,31 +17,36 @@
 #include "precompiled.hpp"
 #include "hrString.hpp"
 
-QString hrString::deserialize(QIODevice *device)
+QDataStream &operator<<(QDataStream &out, const hrString &str)
 {
-    Q_ASSERT(device != NULL);
-
-    quint32 len = 0;
-    device->read( (char *) &len, 4);
-
-    if ( len > 0)
+    if ( str.isEmpty() || str.isNull() )
     {
-        QByteArray str = device->read(len);
-        return QString(str);
+        out << (quint32)0x00;
     }
-
-    return QString("");
+    else
+    {
+        out << (quint32)str.length();
+        out.writeRawData(str.toLocal8Bit().data(), str.length());
+    }
+    return out;
 }
 
-void hrString::serialize(const QString &str, QIODevice *device)
+QDataStream &operator>>(QDataStream &in, hrString &str)
 {
-    Q_ASSERT(device != NULL);
+    quint32 len = 0;
+    in >> len;
 
-    quint32 len = str.size();
-    device->write( (char* ) &len, 4);
-
-    if ( len > 0 )
+    if ( len == 0 )
     {
-        device->write( str.toAscii().data(), str.length() );
+        str.clear();
     }
+    else if ( len > 0 )
+    {
+        char *b = new char[len];
+        in.readRawData(b, len);
+        str = QString::fromLocal8Bit(b, len);
+        delete [] b;
+    }
+
+    return in;
 }
