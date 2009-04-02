@@ -32,9 +32,15 @@ QImage hrGraphicsItem::getFrame()
     return frames.at(curFrame);
 }
 
-void hrGraphicsItem::addImage(QImage &image)
+void hrGraphicsItem::addImage(QImage im)
 {
-    frames.append(image);
+    rect = im.rect();
+    frames.append(im);
+}
+
+void hrGraphicsItem::modifyFrame(QImage im)
+{
+    frames[curFrame] = im;
 }
 
 QString hrGraphicsItem::getName() const
@@ -44,7 +50,8 @@ QString hrGraphicsItem::getName() const
 
 QRect hrGraphicsItem::getRect() const
 {
-    if (!frames.isEmpty())
+    /*if (!frames.isEmpty())
         return frames.at(0).rect();
-    return QRect();
+    return QRect();*/
+    return rect;
 }

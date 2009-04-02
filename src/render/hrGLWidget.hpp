@@ -43,7 +43,7 @@ private:
     void Begin();
     void End();
 
-    QImage ImageToRect(QImage image);
+    void ImageToRect(QImage im, hrObject &obj);
     qint32 NearestGLTextureSize(qint32 v);
     int q_gl_texture;
     bool texture_rects;

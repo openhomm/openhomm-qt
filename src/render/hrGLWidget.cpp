@@ -113,7 +113,6 @@ void hrGLWidget::paintGL()
     //Begin();
     glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
     GLuint tx_id = 0;
-    QImage im;
 
     QRect r = scene->getSceneViewport();
 
@@ -121,7 +120,7 @@ void hrGLWidget::paintGL()
         for (int x = r.x(); x < r.x() + r.width(); x++)
         {
             hrTile tile = scene->getTile(x, y);
-            im = scene->getItem(tile);
+            QImage im = scene->getItem(tile);
             if (im.isNull()) continue;
             tx_id = bindTexture(im, q_gl_texture, GL_RGBA8 );
             drawTexture(coord::toPix(QPoint(x, y)), tx_id , q_gl_texture);
@@ -146,15 +145,54 @@ void hrGLWidget::paintGL()
     while (it.hasNext())
     {
         hrObject obj = it.next();
-        im = scene->getItem(obj);
+        QImage im = scene->getItem(obj);
         if (im.isNull()) continue;
-        im = ImageToRect(im);
+        if (!texture_rects)
+            ImageToRect(im, obj);
         tx_id = bindTexture(im, q_gl_texture, GL_RGBA8);
         drawTexture(coord::toPix(obj.getPoint()), tx_id, q_gl_texture);
     }
 
     glDisable(GL_BLEND);
     //End();
+}
+
+void hrGLWidget::ImageToRect(QImage im, hrObject &obj)
+{
+    int s = NearestGLTextureSize(qMax(im.width(), im.height()));
+    if (im.height() < s || im.width() < s)
+    {
+        scene->modifyItem(obj, im.copy(0, 0, s, s));
+    }
+    else if (im.height() > s || im.width() > s)
+    {
+        // todo
+        qWarning("too big texture");
+        scene->modifyItem(obj, im.copy(0, 0, s, s));
+    }
+}
+
+// returns the highest number closest to v, which is a power of 2
+qint32 hrGLWidget::NearestGLTextureSize(qint32 v)
+{
+    qint32 n = 0, last = 0;
+    qint32 s;
+
+    for (s = 0; s < 32; ++s)
+    {
+        if (((v >> s) & 1) == 1)
+        {
+            ++n;
+            last = s;
+        }
+    }
+
+    if (n > 1)
+        s = 1 << (last + 1);
+    else
+        s = 1 << last;
+
+    return qMin(s, MaxTexDim);
 }
 
 void hrGLWidget::animate()
@@ -191,47 +229,6 @@ void hrGLWidget::scroll()
     }
 }
 
-QImage hrGLWidget::ImageToRect(QImage im)
-{
-    if (!texture_rects)
-    {
-        int s = NearestGLTextureSize(qMax(im.width(), im.height()));
-        if (im.height() < s || im.width() < s)
-        {
-            im = im.copy(0, 0, s, s);
-        }
-        else if (im.height() > s || im.width() > s)
-        {
-            // todo
-            qWarning("too big texture");
-            im = im.copy(0, 0, s, s);
-        }
-    }
-    return im;
-}
-
-// returns the highest number closest to v, which is a power of 2
-qint32 hrGLWidget::NearestGLTextureSize(qint32 v)
-{
-    qint32 n = 0, last = 0;
-    qint32 s;
-
-    for (s = 0; s < 32; ++s)
-    {
-        if (((v >> s) & 1) == 1)
-        {
-            ++n;
-            last = s;
-        }
-    }
-
-    if (n > 1)
-        s = 1 << (last + 1);
-    else
-        s = 1 << last;
-
-    return qMin(s, MaxTexDim);
-}
 
 void hrGLWidget::mouseMoveEvent(QMouseEvent * event)
 {

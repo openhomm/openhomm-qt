@@ -84,6 +84,7 @@ public:
     QImage getItem(hrTile &tile) const;
     QImage getItem(hrObject &object) const;
     void setItemNextFrame(hrObject &object) const;
+    void modifyItem(hrObject &object, QImage im);
     QVector<hrTile> getViewportTiles() const;
     hrTile getViewportTile(int x, int y) const;
     hrTile getTile(int x, int y) const;

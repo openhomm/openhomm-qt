@@ -85,6 +85,12 @@ void hrScene::setItemNextFrame(hrObject &object) const
        items.value(object.getName())->nextFrame();
 }
 
+void hrScene::modifyItem(hrObject &object, QImage im)
+{
+    if (items.contains(object.getName()))
+        items.value(object.getName())->modifyFrame(im);
+}
+
 QVector<hrTile> hrScene::getViewportTiles() const
 {
     QVector<hrTile> v;
