@@ -25,4 +25,11 @@ QRect coord::toCell(QRect r)
 {
     return QRect(toCell(r.x()), toCell(r.y()), toCell(r.width()), toCell(r.height()));
 }
-
+QRect coord::toPixRectSize(QRect r)
+{
+    return QRect(0, 0, toPix(r.width()), toPix(r.height()));
+}
+QRect coord::toCellRectSize(QRect r)
+{
+    return QRect(0, 0, toCell(r.width()), toCell(r.height()));
+}

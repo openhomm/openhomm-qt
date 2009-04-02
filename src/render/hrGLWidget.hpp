@@ -12,8 +12,7 @@ class hrGLWidget : public QGLWidget
     Q_OBJECT
 
 public:
-    hrGLWidget(QWidget *parent);
-    void setScene(hrScene *scene);
+    hrGLWidget(QWidget *parent, hrScene *scene);
     void startAnimate(int delay);
 
 public slots:
@@ -29,7 +28,6 @@ protected:
 private:
     hrScene *scene;
 
-    QVector<hrTile> tiles;
     QLinkedList<hrObject> objects;
 
     QTimer scrollTimer;

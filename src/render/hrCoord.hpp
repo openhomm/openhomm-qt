@@ -11,6 +11,8 @@ namespace coord
     QPoint toCell(QPoint p);
     QRect toPix(QRect r);
     QRect toCell(QRect r);
+    QRect toPixRectSize(QRect r);
+    QRect toCellRectSize(QRect r);
 }
 
 #endif // HRCOORD_H

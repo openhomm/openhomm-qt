@@ -69,7 +69,7 @@ private:
 
     void addItem(QString name);
 public:
-    hrScene(QRect size);
+    hrScene(int width, int height);
     ~hrScene();
 
     void addTile(QString name, int frame = 0);
@@ -77,19 +77,18 @@ public:
     void removeObject(int x, int y);
 
     QRect getSize() const;
-    void setViewport(QRect r);
-    QRect getViewport() const;
-    void moveViewportCenter(QPoint center);
+    void setSceneViewport(QRect r);
+    QRect getSceneViewport() const;
 
     QImage getItem(QString name, int frame) const;
     QImage getItem(hrTile &tile) const;
     QImage getItem(hrObject &object) const;
     void setItemNextFrame(hrObject &object) const;
     QVector<hrTile> getViewportTiles() const;
+    hrTile getViewportTile(int x, int y) const;
+    hrTile getTile(int x, int y) const;
     QLinkedList<hrObject> getViewportObjects() const;
 
-    void setSizeWindow(QRect);
-    QRect getSizeWindow() const;
 
 public slots:
 //mouseClick()

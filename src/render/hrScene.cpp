@@ -15,8 +15,9 @@ void hrScene::addItem(QString name)
     }
 }
 
-hrScene::hrScene(QRect size) : size(size)
+hrScene::hrScene(int width, int height)
 {
+    size.setRect(0, 0, width, height);
     tiles.append(QVector<hrTile>());
 }
 
@@ -96,6 +97,15 @@ QVector<hrTile> hrScene::getViewportTiles() const
     return v;
 }
 
+hrTile hrScene::getViewportTile(int x, int y) const
+{
+    return tiles.at(viewport.y() + y).at(viewport.x() + x);
+}
+
+hrTile hrScene::getTile(int x, int y) const
+{
+    return tiles.at(y).at(x);
+}
 
 QLinkedList<hrObject> hrScene::getViewportObjects() const
 {
@@ -108,8 +118,8 @@ QLinkedList<hrObject> hrScene::getViewportObjects() const
         if (viewport.intersects(obj.getRect()))
         {            
             l.append(hrObject(obj.getName()
-                              , obj.x() - viewport.x()
-                              , obj.y() - viewport.y()
+                              , obj.x()
+                              , obj.y()
                               )
                      );
         }
@@ -123,18 +133,18 @@ QRect hrScene::getSize() const
     return size;
 }
 
-void hrScene::setViewport(QRect r)
+void hrScene::setSceneViewport(QRect r)
 {
-    viewport = r;
+    viewport.setRect(r.x() - 2, r.y() - 2, r.width() + 4, r.height() + 4);
+    viewport = size.intersected(viewport);
+    if (viewport.x() + viewport.width() == size.width())
+        viewport.setWidth(viewport.width() - 1);
+    if (viewport.y() + viewport.height() == size.height())
+        viewport.setHeight(viewport.height() - 1);
 }
 
-QRect hrScene::getViewport() const
+QRect hrScene::getSceneViewport() const
 {
     return viewport;
 }
 
-void hrScene::moveViewportCenter(QPoint center)
-{
-    qDebug() << "center:" << center
-            << "vp:" << viewport << "size:" << size;
-}
