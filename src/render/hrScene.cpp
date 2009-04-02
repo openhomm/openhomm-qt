@@ -17,7 +17,7 @@ void hrScene::addItem(QString name)
 
 hrScene::hrScene(int width, int height)
 {
-    size.setRect(0, 0, width, height);
+    size.setRect(0, 0, width - 1, height - 1);
     tiles.append(QVector<hrTile>());
 }
 
@@ -30,17 +30,23 @@ void hrScene::addTile(QString name, int frame)
 {
     addItem(name);
 
-    static int i = 0;
-    static int j = 0;
-    if (j == size.width() - 1)
+    static int x = 0;
+    static int y = 0;
+
+    if (x < size.width())
     {
-        tiles.append(QVector<hrTile>());
-        i++;
-        j = 0;
+        tiles[y].append(hrTile(name, frame));
+        x++;
     }
     else
-        j++;
-    tiles[i].append(hrTile(name, frame));
+    {
+        x = 0;
+        if (y < size.height())
+        {
+            tiles.append(QVector<hrTile>());
+        }
+        y++;
+    }
 }
 
 void hrScene::addObject(QString name, int x, int y)
@@ -143,10 +149,6 @@ void hrScene::setSceneViewport(QRect r)
 {
     viewport.setRect(r.x() - 2, r.y() - 2, r.width() + 4, r.height() + 4);
     viewport = size.intersected(viewport);
-    if (viewport.x() + viewport.width() == size.width())
-        viewport.setWidth(viewport.width() - 1);
-    if (viewport.y() + viewport.height() == size.height())
-        viewport.setHeight(viewport.height() - 1);
 }
 
 QRect hrScene::getSceneViewport() const

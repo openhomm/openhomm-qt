@@ -205,8 +205,6 @@ void hrGLWidget::scroll()
 {
     isAnimate = false;
     QRect size = coord::toPix(scene->getSize());
-    size.setWidth(size.width() - coord::toPix(1));
-    size.setHeight(size.height() - coord::toPix(1));
     QRect sceneViewport = coord::toPix(scene->getSceneViewport());
 
     QPoint oldPos = viewport.topLeft();
