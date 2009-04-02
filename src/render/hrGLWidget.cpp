@@ -112,7 +112,7 @@ void hrGLWidget::paintGL()
 {
     //Begin();
     glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
-    GLuint id = 0;
+    GLuint tx_id = 0;
     QImage im;
 
     QRect r = scene->getSceneViewport();
@@ -123,8 +123,8 @@ void hrGLWidget::paintGL()
             hrTile tile = scene->getTile(x, y);
             im = scene->getItem(tile);
             if (im.isNull()) continue;
-            id = bindTexture(im, q_gl_texture, GL_RGBA8 );
-            drawTexture(coord::toPix(QPoint(x, y)), id , q_gl_texture);
+            tx_id = bindTexture(im, q_gl_texture, GL_RGBA8 );
+            drawTexture(coord::toPix(QPoint(x, y)), tx_id , q_gl_texture);
         }
 
 
@@ -148,9 +148,9 @@ void hrGLWidget::paintGL()
         hrObject obj = it.next();
         im = scene->getItem(obj);
         if (im.isNull()) continue;
-        ImageToRect(im);
-        id = bindTexture(im, q_gl_texture, GL_RGBA8);
-        drawTexture(coord::toPix(obj.getPoint()), id, q_gl_texture);
+        im = ImageToRect(im);
+        tx_id = bindTexture(im, q_gl_texture, GL_RGBA8);
+        drawTexture(coord::toPix(obj.getPoint()), tx_id, q_gl_texture);
     }
 
     glDisable(GL_BLEND);
@@ -167,6 +167,8 @@ void hrGLWidget::scroll()
 {
     isAnimate = false;
     QRect size = coord::toPix(scene->getSize());
+    size.setWidth(size.width() - coord::toPix(1));
+    size.setHeight(size.height() - coord::toPix(1));
     QRect sceneViewport = coord::toPix(scene->getSceneViewport());
 
     QPoint oldPos = viewport.topLeft();
@@ -189,7 +191,7 @@ void hrGLWidget::scroll()
     }
 }
 
-void hrGLWidget::ImageToRect(QImage &im)
+QImage hrGLWidget::ImageToRect(QImage im)
 {
     if (!texture_rects)
     {
@@ -205,6 +207,7 @@ void hrGLWidget::ImageToRect(QImage &im)
             im = im.copy(0, 0, s, s);
         }
     }
+    return im;
 }
 
 // returns the highest number closest to v, which is a power of 2
