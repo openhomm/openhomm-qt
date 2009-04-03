@@ -5,7 +5,7 @@ hrGraphicsItem::hrGraphicsItem()
     isNextFrame = false;
 }
 
-hrGraphicsItem::hrGraphicsItem(QString name) : name(name), curFrame(0)
+hrGraphicsItem::hrGraphicsItem(int id) : id(id), curFrame(0)
 {
 }
 
@@ -43,9 +43,9 @@ void hrGraphicsItem::modifyFrame(QImage im)
     frames[curFrame] = im;
 }
 
-QString hrGraphicsItem::getName() const
+int hrGraphicsItem::getId() const
 {
-    return name;
+    return id;
 }
 
 QRect hrGraphicsItem::getRect() const

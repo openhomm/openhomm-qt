@@ -1,17 +1,17 @@
 #include "hrScene.hpp"
 
-void hrScene::addItem(QString name)
+void hrScene::addItem(int id, QString name)
 {
-    if (!items.contains(name))
+    if (!items.contains(id))
     {
-        hrGraphicsItem *item = new hrGraphicsItem(name);
+        hrGraphicsItem *item = new hrGraphicsItem(id);
         QImageReader ir("lod:/data/h3sprite.lod/" + name);
         QImage im;
         for (int i = 0; ir.jumpToImage(i); i++)
             if (ir.read(&im))
                 item->addImage(im);
 
-        items[name] = item;
+        items[id] = item;
     }
 }
 
@@ -26,16 +26,16 @@ hrScene::~hrScene()
     items.clear();
 }
 
-void hrScene::addTile(QString name, int frame)
+void hrScene::addTile(int id, QString name, int frame)
 {
-    addItem(name);
+    addItem(id, name);
 
     static int x = 0;
     static int y = 0;
 
     if (x < size.width())
     {
-        tiles[y].append(hrTile(name, frame));
+        tiles[y].append(hrTile(id, frame));
         x++;
     }
     else
@@ -49,14 +49,14 @@ void hrScene::addTile(QString name, int frame)
     }
 }
 
-void hrScene::addObject(QString name, int x, int y)
+void hrScene::addObject(int id, QString name, int x, int y)
 {
-    addItem(name);
+    addItem(id, name);
 
-    QRect r = items.value(name)->getRect();
-    objects.append( hrObject(name, x, y
-                             , coord::toCell(r.width())
-                             , coord::toCell(r.height())
+    QRect r = items.value(id)->getRect();
+    objects.append( hrObject(id, name, x, y
+                             , toCell(r.width())
+                             , toCell(r.height())
                              )
                    );
 }
@@ -66,45 +66,39 @@ void hrScene::removeObject(int x, int y)
     ;
 }
 
-QImage hrScene::getItem(QString name, int frame) const
+QImage hrScene::getItem(int id, int frame) const
 {
-    if (items.contains(name))
-        return items.value(name)->getFrame(frame);
-    return QImage();
+    return items.value(id)->getFrame(frame);
 }
 
 QImage hrScene::getItem(hrTile &tile) const
 {
-    return getItem(tile.getName(), tile.getFrame());
+    return getItem(tile.getId(), tile.getFrame());
 }
 
 QImage hrScene::getItem(hrObject &object) const
 {
-    if (items.contains(object.getName()))
-        return items.value(object.getName())->getFrame();
-    return QImage();
+    return items.value(object.getId())->getFrame();
 }
 
 void hrScene::setItemNextFrame(hrObject &object) const
 {
-    if (items.contains(object.getName()))
-       items.value(object.getName())->nextFrame();
+    items.value(object.getId())->nextFrame();
 }
 
-void hrScene::modifyItem(hrObject &object, QImage im)
+void hrScene::modifyItem(hrObject &object, QImage im) const
 {
-    if (items.contains(object.getName()))
-        items.value(object.getName())->modifyFrame(im);
+    items.value(object.getId())->modifyFrame(im);
 }
 
 QVector<hrTile> hrScene::getViewportTiles() const
 {
     QVector<hrTile> v;
 
-    for (int i = 0; i < viewport.height(); i++)
-        for (int j = 0; j < viewport.width(); j++)
+    for (int y = 0; y < viewport.height(); y++)
+        for (int x = 0; x < viewport.width(); x++)
         {
-            v.append(tiles.at(viewport.y() + i).at(viewport.x() + j));
+            v.append(tiles.at(viewport.y() + y).at(viewport.x() + x));
         }
     return v;
 }
@@ -129,11 +123,7 @@ QLinkedList<hrObject> hrScene::getViewportObjects() const
         obj = it.next();
         if (viewport.intersects(obj.getRect()))
         {            
-            l.append(hrObject(obj.getName()
-                              , obj.x()
-                              , obj.y()
-                              )
-                     );
+            l.append(obj);
         }
     }
     return l;

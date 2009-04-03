@@ -6,14 +6,14 @@
 
 class hrTile
 {
-    QString name;
+    int id;
     int frame;
 public:
     hrTile() {}
-    hrTile(QString name, int frame = 0) : name(name), frame(frame) {}
-    QString getName() const
+    hrTile(int id, int frame = 0) : id(id), frame(frame) {}
+    int getId() const
     {
-        return name;
+        return id;
     }
     int getFrame() const
     {
@@ -23,18 +23,24 @@ public:
 
 class hrObject
 {
+    int id;
     QString name;
     QRect rect;
 public:
     hrObject() {}
-    hrObject(QString name, QRect rect) : name(name), rect(rect) {}
-    hrObject(QString name, int x, int y) : name(name)
-    {
-        rect.setRect(x, y, 0, 0);
-    }
-    hrObject(QString name, int x, int y, int width, int height) : name(name)
+    hrObject(int id, QString name, QRect rect) : id(id), name(name), rect(rect) {}
+    hrObject(int id, QString name, int x, int y, int width, int height) : id(id), name(name)
     {
         rect.setRect(x, y, width, height);
+    }
+    hrObject(int id, QString name, int x, int y) : id(id), name(name)
+    {
+        rect.setX(x);
+        rect.setY(y);
+    }
+    int getId() const
+    {
+        return id;
     }
     QString getName() const
     {
@@ -63,28 +69,28 @@ class hrScene
 private:
     QVector< QVector<hrTile> > tiles;
     QLinkedList<hrObject> objects;
-    QMap<QString, hrGraphicsItem*> items;
+    QMap<int, hrGraphicsItem*> items;
     QRect viewport;
     QRect size;
 
-    void addItem(QString name);
+    void addItem(int id, QString name);
 public:
     hrScene(int width, int height);
     ~hrScene();
 
-    void addTile(QString name, int frame = 0);
-    void addObject(QString name, int x, int y);
+    void addTile(int id, QString name, int frame = 0);
+    void addObject(int id, QString name, int x, int y);
     void removeObject(int x, int y);
 
     QRect getSize() const;
     void setSceneViewport(QRect r);
     QRect getSceneViewport() const;
 
-    QImage getItem(QString name, int frame) const;
+    QImage getItem(int id, int frame) const;
     QImage getItem(hrTile &tile) const;
     QImage getItem(hrObject &object) const;
     void setItemNextFrame(hrObject &object) const;
-    void modifyItem(hrObject &object, QImage im);
+    void modifyItem(hrObject &object, QImage im) const;
     QVector<hrTile> getViewportTiles() const;
     hrTile getViewportTile(int x, int y) const;
     hrTile getTile(int x, int y) const;

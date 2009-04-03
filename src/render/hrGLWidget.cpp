@@ -75,7 +75,7 @@ void hrGLWidget::initializeGL()
 void hrGLWidget::resizeGL(int w, int h)
 {
     viewport = rect();
-    scene->setSceneViewport(coord::toCell(viewport));
+    scene->setSceneViewport(coord::toCellRect(viewport));
     objects = scene->getViewportObjects();
 
     Begin();
@@ -94,9 +94,9 @@ void hrGLWidget::Begin()
     glLoadIdentity();*/
 
     // Make sure depth testing and lighting are disabled for 2D rendering
-    /*glPushAttrib(GL_DEPTH_BUFFER_BIT | GL_LIGHTING_BIT);
+    //glPushAttrib(GL_DEPTH_BUFFER_BIT | GL_LIGHTING_BIT);
     glDisable(GL_DEPTH_TEST);
-    glDisable(GL_LIGHTING);*/
+    glDisable(GL_LIGHTING);
 }
 
 void hrGLWidget::End()
@@ -111,7 +111,7 @@ void hrGLWidget::End()
 void hrGLWidget::paintGL()
 {
     //Begin();
-    glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
+    glClear(GL_COLOR_BUFFER_BIT);
     GLuint tx_id = 0;
 
     QRect r = scene->getSceneViewport();
@@ -122,8 +122,8 @@ void hrGLWidget::paintGL()
             hrTile tile = scene->getTile(x, y);
             QImage im = scene->getItem(tile);
             if (im.isNull()) continue;
-            tx_id = bindTexture(im, q_gl_texture, GL_RGBA8 );
-            drawTexture(coord::toPix(QPoint(x, y)), tx_id , q_gl_texture);
+            tx_id = bindTexture(im, q_gl_texture, GL_RGB8);
+            drawTexture(coord::toPixPoint(QPoint(x, y)), tx_id , q_gl_texture);
         }
 
 
@@ -150,7 +150,7 @@ void hrGLWidget::paintGL()
         if (!texture_rects)
             ImageToRect(im, obj);
         tx_id = bindTexture(im, q_gl_texture, GL_RGBA8);
-        drawTexture(coord::toPix(obj.getPoint()), tx_id, q_gl_texture);
+        drawTexture(coord::toPixPoint(obj.getPoint()), tx_id, q_gl_texture);
     }
 
     glDisable(GL_BLEND);
@@ -204,8 +204,8 @@ void hrGLWidget::animate()
 void hrGLWidget::scroll()
 {
     isAnimate = false;
-    QRect size = coord::toPix(scene->getSize());
-    QRect sceneViewport = coord::toPix(scene->getSceneViewport());
+    QRect size = coord::toPixRect(scene->getSize());
+    QRect sceneViewport = coord::toPixRect(scene->getSceneViewport());
 
     QPoint oldPos = viewport.topLeft();
     QPoint newPos = oldPos - QPoint(dx, dy);
@@ -215,7 +215,7 @@ void hrGLWidget::scroll()
     {
         if (!sceneViewport.contains(viewport))
         {
-            scene->setSceneViewport(coord::toCell(viewport));
+            scene->setSceneViewport(coord::toCellRect(viewport));
             objects = scene->getViewportObjects();
         }
         glTranslatef(dx, dy, 0);
@@ -231,11 +231,10 @@ void hrGLWidget::scroll()
 void hrGLWidget::mouseMoveEvent(QMouseEvent * event)
 {
     QPoint pos = event->pos();
-    const int border = 25;
+    const int border = 50;
     const int c = 16;
     const int delay = 20;
     bool startScrollTimer = true;
-
 
     if (pos.x() < border && pos.y() < border)
     {
@@ -294,5 +293,13 @@ void hrGLWidget::mouseMoveEvent(QMouseEvent * event)
         {
             scrollTimer.stop();
         }
+    }
+}
+
+void hrGLWidget::leaveEvent(QEvent * event)
+{
+    if (scrollTimer.isActive())
+    {
+        scrollTimer.stop();
     }
 }

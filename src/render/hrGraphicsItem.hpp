@@ -6,17 +6,17 @@
 class hrGraphicsItem
 {
 private:
-    QString name;
+    int id;
+    //QString name;
     QVector<QImage> frames;
     int curFrame;
     bool isNextFrame;
     QRect rect;
-    qint32 NearestGLTextureSize(qint32 v);
 public:
     hrGraphicsItem();
-    hrGraphicsItem(QString name);
+    hrGraphicsItem(int id);
 
-    QString getName() const;
+    int getId() const;
     void nextFrame();
     QImage getFrame(int frame) const;
     QImage getFrame();

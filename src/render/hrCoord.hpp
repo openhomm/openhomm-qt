@@ -3,16 +3,17 @@
 
 #include "precompiled.hpp"
 
+#define toPix(x) x * 32
+#define toCell(x) x / 32
+
 namespace coord
 {
-    int toPix(int x);
-    int toCell(int x);
-    QPoint toPix(QPoint p);
-    QPoint toCell(QPoint p);
-    QRect toPix(QRect r);
-    QRect toCell(QRect r);
-    QRect toPixRectSize(QRect r);
-    QRect toCellRectSize(QRect r);
+    //int toPix(int x);
+    //int toCell(int x);
+    QPoint toPixPoint(const QPoint &p);
+    QPoint toCellPoint(const QPoint &p);
+    QRect toPixRect(const QRect &r);
+    QRect toCellRect(const QRect &r);
 }
 
 #endif // HRCOORD_H

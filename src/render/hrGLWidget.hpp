@@ -50,6 +50,7 @@ private:
 
 private slots:
     void mouseMoveEvent(QMouseEvent * event);
+    void leaveEvent(QEvent * event);
 };
 
 #endif // GLWIDGET_H
