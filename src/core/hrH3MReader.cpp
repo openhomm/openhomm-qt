@@ -70,6 +70,9 @@ bool hrH3MReader::load(const QString &name)
         players[i].dump();
     }
 
+    m >> svc >> slc >> teams;
+    m >> fh;
+    m >> artefacts >> spells >> secSkills >> rumors;
     return true;
 }
 
@@ -167,4 +170,184 @@ void PlayerAttributes_t::dump()
         qDebug() << "\tHero::name : " << heroes[i].name;
     }
     qDebug() << "===================";
+}
+
+QDataStream &operator<<(QDataStream &out, const SpecialVictoryCondition_t &)
+{
+    qWarning("%s is not yet implemented", Q_FUNC_INFO);
+    return out;
+}
+QDataStream &operator>>(QDataStream &in, SpecialVictoryCondition_t &s)
+{
+    in >> s.id;
+
+    if ( s.id == 0xFF )
+        return in;
+
+    in >> s.canStandardEnd >> s.canComputer;
+    switch(s.id)
+    {
+    case 0x00:
+        in >> s.artId;
+        break;
+    case 0x01:
+        in >> s.creatureId >> s.creatureCount;
+        break;
+    case 0x02:
+        in >> s.resId >> s.resCount;
+        break;
+    case 0x03:
+        in >> s.townCoord[0] >> s.townCoord[1] >> s.townCoord[2] >> s.townCoord[3];
+        in >> s.hallLevel >> s.castleLevel;
+        break;
+    case 0x04:
+    case 0x05:
+    case 0x06:
+    case 0x07:
+        in >> s.coord[0] >> s.coord[1] >> s.coord[2];
+        break;
+    case 0x08:
+    case 0x09:
+        break;
+    case 0x0A:
+        in >> s.artType >> s.artCoord[0] >> s.artCoord[1] >> s.artCoord[2];
+        break;
+    default:
+        qWarning("SpecialVictoryCondition ID: %d is unkonwn", s.id);
+        break;
+    };
+    return in;
+}
+
+QDataStream &operator<<(QDataStream &out, const SpecialLossConditions_t &)
+{
+    qWarning("%s is not yet implemented", Q_FUNC_INFO);
+    return out;
+}
+QDataStream &operator>>(QDataStream &in, SpecialLossConditions_t &s)
+{
+    in >> s.id;
+
+    if ( s.id == 0xFF )
+        return in;
+
+    if ( s.id == 0x00 || s.id == 0x01 )
+        in >> s.coord[0] >> s.coord[1] >> s.coord[2];
+    else if ( s.id == 0x02 )
+        in >> s.days;
+    else
+        qWarning("SpecialLossConditions ID: %d is unkown", s.id);
+
+    return in;
+}
+
+QDataStream &operator<<(QDataStream &out, const Teams_t &)
+{
+    qWarning("%s is not yet implemented", Q_FUNC_INFO);
+    return out;
+}
+QDataStream &operator>>(QDataStream &in, Teams_t &t)
+{
+    in >> t.quantity;
+
+    if ( t.quantity > 0 )
+        in.readRawData((char*)t.commands, 8);
+
+    return in;
+}
+
+QDataStream &operator<<(QDataStream &out, const TunedHero_t &)
+{
+    qWarning("%s is not yet implemented", Q_FUNC_INFO);
+    return out;
+}
+QDataStream &operator>>(QDataStream &in, TunedHero_t &t)
+{
+    in >> t.id >> t.portrait >> t.name >> t.players;
+    return in;
+}
+
+QDataStream &operator<<(QDataStream &out, const FreeHeroes_t &)
+{
+    qWarning("%s is not yet implemented", Q_FUNC_INFO);
+    return out;
+}
+QDataStream &operator>>(QDataStream &in, FreeHeroes_t &f)
+{
+    in.readRawData( (char *)f.heroes, sizeof(f.heroes) );
+    in.readRawData( (char *)f.junk, sizeof(f.junk) );
+
+    in >> f.heroesQuantity;
+
+    for ( quint8 i = 0; i < f.heroesQuantity; ++i )
+    {
+        TunedHero_t tuned;
+        in >> tuned;
+        f.tunedHeroes.push_back(tuned);
+    }
+
+    in.readRawData( (char *) f.junk2, sizeof(f.junk2) );
+
+    return in;
+}
+
+QDataStream &operator<<(QDataStream &out, const Artefacts_t &)
+{
+    qWarning("%s is not yet implemented", Q_FUNC_INFO);
+    return out;
+}
+QDataStream &operator>>(QDataStream &in, Artefacts_t &a)
+{
+    in.readRawData( (char *) a.artefacts, sizeof(a.artefacts) );
+    return in;
+}
+
+QDataStream &operator<<(QDataStream &out, const Spells_t &)
+{
+    qWarning("%s is not yet implemented", Q_FUNC_INFO);
+    return out;
+}
+QDataStream &operator>>(QDataStream &in, Spells_t &s)
+{
+    in.readRawData( (char *) s.spells, sizeof(s.spells) );
+    return in;
+}
+
+QDataStream &operator<<(QDataStream &out, const SecSkills_t &)
+{
+    qWarning("%s is not yet implemented", Q_FUNC_INFO);
+    return out;
+}
+QDataStream &operator>>(QDataStream &in, SecSkills_t &s)
+{
+    in.readRawData( (char *) s.skills, sizeof(s.skills) );
+    return in;
+}
+
+QDataStream &operator<<(QDataStream &out, const Rumor_t &)
+{
+    qWarning("%s is not yet implemented", Q_FUNC_INFO);
+    return out;
+}
+QDataStream &operator>>(QDataStream &in, Rumor_t &r)
+{
+    in >> r.rumor_name >> r.rumor_text;
+    return in;
+}
+
+QDataStream &operator<<(QDataStream &out, const Rumors_t &)
+{
+    qWarning("%s is not yet implemented", Q_FUNC_INFO);
+    return out;
+}
+QDataStream &operator>>(QDataStream &in, Rumors_t &r)
+{
+    in >> r.quantity;
+    for ( quint32 i = 0; i < r.quantity; i++ )
+    {
+        Rumor_t rumor;
+        in >> rumor;
+        r.rumors.push_back(rumor);
+    }
+    return in;
 }
