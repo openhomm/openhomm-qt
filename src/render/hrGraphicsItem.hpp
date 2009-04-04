@@ -7,8 +7,10 @@ class hrGraphicsItem
 {
 private:
     int id;
-    //QString name;
     QVector<QImage> frames;
+    QVector<QImage> framesH;
+    QVector<QImage> framesV;
+    QVector<QImage> framesHV;
     int curFrame;
     bool isNextFrame;
     QRect rect;
@@ -17,13 +19,16 @@ public:
     hrGraphicsItem(int id);
 
     int getId() const;
+    int getFramesCount() const;
     void nextFrame();
-    QImage getFrame(int frame) const;
+    QImage getNextFrame();
+    QImage getFrame(int frame, bool horizontal = false, bool vertical = false) const;
     QImage getFrame();
     QRect getRect() const;
     void modifyFrame(QImage im);
 
     void addImage(QImage im);
+    void addImageMirrored(QImage im);
 };
 
 #endif // HRGRAPHICSITEM_H

@@ -19,6 +19,7 @@ private:
 
 private slots:
     void resizeEvent(QResizeEvent *event);
+    void keyPressEvent(QKeyEvent *event);
 
 };
 #endif // WINDOW_H

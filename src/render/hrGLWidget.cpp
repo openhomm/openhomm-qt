@@ -16,12 +16,13 @@
 hrGLWidget::hrGLWidget(QWidget *parent, hrScene *scene)
  : QGLWidget(QGLFormat(QGL::SampleBuffers), parent), scene(scene)
 {
-    isAnimate = true;
+    isAnimate = false;
     dx = 0; dy = 0;
     connect(&scrollTimer, SIGNAL(timeout()), this, SLOT(scroll()));
     connect(&animateTimer, SIGNAL(timeout()), this, SLOT(animate()));
 
     setMouseTracking(true);
+    setCursor(QCursor(scene->getCursor(0), 0, 0));
 
     makeCurrent();
     setAutoBufferSwap(true);
@@ -31,40 +32,42 @@ hrGLWidget::hrGLWidget(QWidget *parent, hrScene *scene)
     glGetIntegerv(GL_MAX_TEXTURE_SIZE, &param);
     qWarning("maxsize: %d", param);
     if (param != 0)
-        MaxTexDim = param;
+        maxTexDim = param;
     else
-        MaxTexDim = 512;
+        maxTexDim = 512;
 
-    QString extensions(reinterpret_cast<const char *>(glGetString(GL_EXTENSIONS)));
+    textureTarget = getTextureTarget();
+    if (textureTarget == GL_TEXTURE_2D)
+    {
+        objects = scene->getAllObjects();
+        QLinkedListIterator<hrObject> it(objects);
+        while (it.hasNext())
+        {
+            hrGraphicsItem* item = scene->getItem(it.next());
+            QImage im;
+            int cnt = item->getFramesCount();
+            for (int i = 0; i < cnt; i++)
+            {
+                im = item->getNextFrame();
+                ImageToPOT(item, im);
+            }
+        }
+    }
+}
 
-    texture_rects = true;
-
-    if (extensions.contains("GL_NV_texture_rectangle"))
-    {
-        qWarning("GL_NV_texture_rectangle");
-        q_gl_texture = GL_TEXTURE_RECTANGLE_NV;
-    }
-    else if (extensions.contains("GL_ARB_texture_rectangle"))
-    {
-        qWarning("GL_ARB_texture_rectangle");
-        q_gl_texture = GL_TEXTURE_RECTANGLE_ARB;
-    }
-    else if (extensions.contains("GL_EXT_texture_rectangle"))
-    {
-        qWarning("GL_EXT_texture_rectangle");
-        q_gl_texture = GL_TEXTURE_RECTANGLE_EXT;
-    }
-    else
-    {
-        qWarning("GL_TEXTURE_2D");
-        texture_rects = false;
-        q_gl_texture = GL_TEXTURE_2D;
-    }
+hrGLWidget::~hrGLWidget()
+{
 }
 
 void hrGLWidget::startAnimate(int delay)
 {
     animateTimer.start(delay);
+}
+
+void hrGLWidget::stopAnimate()
+{
+    if (animateTimer.isActive())
+        animateTimer.stop();
 }
 
 void hrGLWidget::initializeGL()
@@ -77,6 +80,7 @@ void hrGLWidget::resizeGL(int w, int h)
     viewport = rect();
     scene->setSceneViewport(coord::toCellRect(viewport));
     objects = scene->getViewportObjects();
+    tilesSecondLayer = scene->getViewportTilesSecondLayer();
 
     Begin();
     //glViewport(0, 0, w, h);
@@ -89,30 +93,20 @@ void hrGLWidget::Begin()
     glLoadIdentity();
     glOrtho(0, width(), height(), 0, -999999, 999999);
 
-    /*glMatrixMode(GL_MODELVIEW);
-    glPushMatrix();
-    glLoadIdentity();*/
-
-    // Make sure depth testing and lighting are disabled for 2D rendering
-    //glPushAttrib(GL_DEPTH_BUFFER_BIT | GL_LIGHTING_BIT);
+     // Make sure depth testing and lighting are disabled for 2D rendering
     glDisable(GL_DEPTH_TEST);
     glDisable(GL_LIGHTING);
 }
 
 void hrGLWidget::End()
 {
-    /*glPopAttrib();
-    glMatrixMode(GL_PROJECTION);
-    glPopMatrix();
-    glMatrixMode(GL_MODELVIEW);
-    glPopMatrix();*/
 }
 
 void hrGLWidget::paintGL()
 {
     //Begin();
     glClear(GL_COLOR_BUFFER_BIT);
-    GLuint tx_id = 0;
+    GLuint id = 0;
 
     QRect r = scene->getSceneViewport();
 
@@ -120,15 +114,26 @@ void hrGLWidget::paintGL()
         for (int x = r.x(); x < r.x() + r.width(); x++)
         {
             hrTile tile = scene->getTile(x, y);
-            QImage im = scene->getItem(tile);
+            QImage im = scene->getImage(tile);
             if (im.isNull()) continue;
-            tx_id = bindTexture(im, q_gl_texture, GL_RGB8);
-            drawTexture(coord::toPixPoint(QPoint(x, y)), tx_id , q_gl_texture);
+            id = bindTexture(im, textureTarget, GL_RGBA8);
+            drawTexture(coord::toPixPoint(QPoint(x, y)), id , textureTarget);
         }
 
 
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     glEnable(GL_BLEND);
+
+    QLinkedListIterator<hrTile> itTiles(tilesSecondLayer);
+
+    while (itTiles.hasNext())
+    {
+        hrTile tile = itTiles.next();
+        QImage im = scene->getImage(tile);
+        if (im.isNull()) continue;
+        id = bindTexture(im, textureTarget, GL_RGBA8);
+        drawTexture(coord::toPixPoint(tile.getPoint()), id, textureTarget);
+    }
 
     QLinkedListIterator<hrObject> it(objects);
 
@@ -136,8 +141,8 @@ void hrGLWidget::paintGL()
     {
         while (it.hasNext())
         {
-            hrObject obj = it.next();
-            scene->setItemNextFrame(obj);
+            hrGraphicsItem *item = scene->getItem(it.next());
+            item->nextFrame();
         }
         it.toFront();
     }
@@ -145,30 +150,28 @@ void hrGLWidget::paintGL()
     while (it.hasNext())
     {
         hrObject obj = it.next();
-        QImage im = scene->getItem(obj);
+        QImage im = scene->getImage(obj);
         if (im.isNull()) continue;
-        if (!texture_rects)
-            ImageToRect(im, obj);
-        tx_id = bindTexture(im, q_gl_texture, GL_RGBA8);
-        drawTexture(coord::toPixPoint(obj.getPoint()), tx_id, q_gl_texture);
+        id = bindTexture(im, textureTarget, GL_RGBA8);
+        drawTexture(coord::toPixPoint(obj.getPoint()), id, textureTarget);
     }
 
     glDisable(GL_BLEND);
     //End();
 }
 
-void hrGLWidget::ImageToRect(QImage im, hrObject &obj)
+void hrGLWidget::ImageToPOT(hrGraphicsItem *item, QImage im)
 {
     int s = NearestGLTextureSize(qMax(im.width(), im.height()));
     if (im.height() < s || im.width() < s)
     {
-        scene->modifyItem(obj, im.copy(0, 0, s, s));
+        item->modifyFrame(im.copy(0, 0, s, s));
     }
     else if (im.height() > s || im.width() > s)
     {
         // todo
         qWarning("too big texture");
-        scene->modifyItem(obj, im.copy(0, 0, s, s));
+        item->modifyFrame(im.copy(0, 0, s, s));
     }
 }
 
@@ -192,7 +195,7 @@ qint32 hrGLWidget::NearestGLTextureSize(qint32 v)
     else
         s = 1 << last;
 
-    return qMin(s, MaxTexDim);
+    return qMin(s, maxTexDim);
 }
 
 void hrGLWidget::animate()
@@ -217,6 +220,7 @@ void hrGLWidget::scroll()
         {
             scene->setSceneViewport(coord::toCellRect(viewport));
             objects = scene->getViewportObjects();
+            tilesSecondLayer = scene->getViewportTilesSecondLayer();
         }
         glTranslatef(dx, dy, 0);
         updateGL();
@@ -232,60 +236,70 @@ void hrGLWidget::mouseMoveEvent(QMouseEvent * event)
 {
     QPoint pos = event->pos();
     const int border = 50;
-    const int c = 16;
-    const int delay = 20;
+    const int c = 20;
+    const int delay = 30;
     bool startScrollTimer = true;
 
     if (pos.x() < border && pos.y() < border)
     {
         // top left
         dx = c; dy = c;
+        setCursor(QCursor(scene->getCursor(39), 0, 0));
     }
     else if (pos.x() > width() - border && pos.y() < border)
     {
         // top right
         dx = -c; dy = c;
+        setCursor(QCursor(scene->getCursor(33), 0, 0));
     }
     else if (pos.x() > width() - border && pos.y() > height() - border)
     {
         // bottom right
         dx = -c; dy = -c;
+        setCursor(QCursor(scene->getCursor(35), 0, 0));
     }
     else if (pos.x() < border && pos.y() > height() - border)
     {
         // bottom left
         dx = c; dy = -c;
+        setCursor(QCursor(scene->getCursor(37), 0, 0));
     }
     else if (pos.x() < border)
     {
         // left
         dx = c; dy = 0;
+        setCursor(QCursor(scene->getCursor(38), 0, 0));
     }
     else if (pos.x() > width() - border)
     {
         // right
         dx = -c; dy = 0;
+        setCursor(QCursor(scene->getCursor(34), 0, 0));
     }
     else if (pos.y() < border)
     {
         // up
         dx = 0; dy = c;
+        setCursor(QCursor(scene->getCursor(32), 0, 0));
     }
     else if (pos.y() > height() - border)
     {
         // down
         dx = 0; dy = -c;
+        setCursor(QCursor(scene->getCursor(36), 0, 0));
     }
     else
     {
         // stop
         dx = 0; dy = 0;
         startScrollTimer = false;
+        setCursor(QCursor(scene->getCursor(0), 0, 0));
     }
 
     if (startScrollTimer)
     {
-        scrollTimer.start(delay);
+        if (!scrollTimer.isActive())
+            scrollTimer.start(delay);
     }
     else
     {
@@ -303,3 +317,30 @@ void hrGLWidget::leaveEvent(QEvent * event)
         scrollTimer.stop();
     }
 }
+
+int hrGLWidget::getTextureTarget()
+{
+    QString extensions(reinterpret_cast<const char *>(glGetString(GL_EXTENSIONS)));
+
+    if (extensions.contains("GL_NV_texture_rectangle"))
+    {
+        qWarning("GL_NV_texture_rectangle");
+        return GL_TEXTURE_RECTANGLE_NV;
+    }
+    else if (extensions.contains("GL_ARB_texture_rectangle"))
+    {
+        qWarning("GL_ARB_texture_rectangle");
+        return GL_TEXTURE_RECTANGLE_ARB;
+    }
+    else if (extensions.contains("GL_EXT_texture_rectangle"))
+    {
+        qWarning("GL_EXT_texture_rectangle");
+        return GL_TEXTURE_RECTANGLE_EXT;
+    }
+    else
+    {
+        qWarning("GL_TEXTURE_2D");
+        return GL_TEXTURE_2D;
+    }
+}
+

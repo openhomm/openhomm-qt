@@ -13,7 +13,9 @@ class hrGLWidget : public QGLWidget
 
 public:
     hrGLWidget(QWidget *parent, hrScene *scene);
+    ~hrGLWidget();
     void startAnimate(int delay);
+    void stopAnimate();
 
 public slots:
     void animate();
@@ -29,6 +31,7 @@ private:
     hrScene *scene;
 
     QLinkedList<hrObject> objects;
+    QLinkedList<hrTile> tilesSecondLayer;
 
     QTimer scrollTimer;
     QTimer animateTimer;
@@ -38,15 +41,15 @@ private:
 
     bool isAnimate;
 
-    int MaxTexDim;
-
     void Begin();
     void End();
 
-    void ImageToRect(QImage im, hrObject &obj);
+    void ImageToPOT(hrGraphicsItem *item, QImage im);
     qint32 NearestGLTextureSize(qint32 v);
-    int q_gl_texture;
-    bool texture_rects;
+
+    int getTextureTarget();
+    int maxTexDim;
+    int textureTarget;
 
 private slots:
     void mouseMoveEvent(QMouseEvent * event);
