@@ -123,7 +123,7 @@ public:
     void removeObject(int x, int y);
 
     void setCursor(QString path);
-    QPixmap getCursor(int frame);
+    const QCursor& getCursor(int frame);
 
     QRect getSize() const;
     void setSceneViewport(QRect r);
@@ -149,7 +149,7 @@ private:
     QLinkedList<hrObject> objects;
     QLinkedList<hrTile> tilesSecondLayer;
     QMap<int, hrGraphicsItem*> items;
-    QVector<QPixmap> cursor;
+    QVector<QCursor> cursor;
     QRect viewport;
     QRect size;
 

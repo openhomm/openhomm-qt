@@ -102,14 +102,18 @@ void hrScene::setCursor(QString path)
     QImage im;
     for (int i = 0; ir.jumpToImage(i); i++)
         if (ir.read(&im))
-            cursor.append(QPixmap::fromImage(im.copy(0, 0, 64, 64)));
+            cursor.append(QCursor(QPixmap::fromImage(im.copy(0, 0, 32, 32))
+                                  , 0
+                                  , 0
+                                  )
+                          );
 }
 
-QPixmap hrScene::getCursor(int frame)
+const QCursor& hrScene::getCursor(int frame)
 {
     if (frame < cursor.size())
         return cursor.at(frame);
-    return QPixmap();
+    return cursor.at(0);
 }
 
 QImage hrScene::getImage(const hrTile &tile) const

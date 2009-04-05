@@ -38,7 +38,7 @@ hrGLWidget::hrGLWidget(QWidget *parent, hrScene *scene)
     connect(&animateTimer, SIGNAL(timeout()), this, SLOT(animate()));
 
     setMouseTracking(true);
-    setCursor(QCursor(scene->getCursor(0), 0, 0));
+    setCursor(scene->getCursor(0));
 
     makeCurrent();
     setAutoBufferSwap(true);
@@ -260,56 +260,56 @@ void hrGLWidget::mouseMoveEvent(QMouseEvent * event)
     {
         // top left
         dx = c; dy = c;
-        setCursor(QCursor(scene->getCursor(39), 0, 0));
+        setCursor(scene->getCursor(39));
     }
     else if (pos.x() > width() - border && pos.y() < border)
     {
         // top right
         dx = -c; dy = c;
-        setCursor(QCursor(scene->getCursor(33), 0, 0));
+        setCursor(scene->getCursor(33));
     }
     else if (pos.x() > width() - border && pos.y() > height() - border)
     {
         // bottom right
         dx = -c; dy = -c;
-        setCursor(QCursor(scene->getCursor(35), 0, 0));
+        setCursor(scene->getCursor(35));
     }
     else if (pos.x() < border && pos.y() > height() - border)
     {
         // bottom left
         dx = c; dy = -c;
-        setCursor(QCursor(scene->getCursor(37), 0, 0));
+        setCursor(scene->getCursor(37));
     }
     else if (pos.x() < border)
     {
         // left
         dx = c; dy = 0;
-        setCursor(QCursor(scene->getCursor(38), 0, 0));
+        setCursor(scene->getCursor(38));
     }
     else if (pos.x() > width() - border)
     {
         // right
         dx = -c; dy = 0;
-        setCursor(QCursor(scene->getCursor(34), 0, 0));
+        setCursor(scene->getCursor(34));
     }
     else if (pos.y() < border)
     {
         // up
         dx = 0; dy = c;
-        setCursor(QCursor(scene->getCursor(32), 0, 0));
+        setCursor(scene->getCursor(32));
     }
     else if (pos.y() > height() - border)
     {
         // down
         dx = 0; dy = -c;
-        setCursor(QCursor(scene->getCursor(36), 0, 0));
+        setCursor(scene->getCursor(36));
     }
     else
     {
         // stop
         dx = 0; dy = 0;
         startScrollTimer = false;
-        setCursor(QCursor(scene->getCursor(0), 0, 0));
+        setCursor(scene->getCursor(0));
     }
 
     if (startScrollTimer)
