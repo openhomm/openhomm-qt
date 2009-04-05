@@ -217,6 +217,91 @@ struct Rumors_t
 QDataStream &operator<<(QDataStream &, const Rumors_t &);
 QDataStream &operator>>(QDataStream &, Rumors_t &);
 
+struct SecondarySkill_t {
+    quint8 skillID;
+    quint8 skillLevel;
+};
+QDataStream &operator<<(QDataStream &, const SecondarySkill_t &);
+QDataStream &operator>>(QDataStream &, SecondarySkill_t &);
+
+struct HeroOptions_enabled {
+    quint8 isExp;
+
+//if ( isExp == 1 )
+    quint32 exp;
+
+    quint8 isSecSkill;
+
+//if ( isSecSkill == 1 ) {
+    quint32 secSkillsQuantity;
+    QVector<SecondarySkill_t> secSkills;
+//}
+
+    quint8 isArtefacts;
+
+//if ( isArtefacts == 1 ) {
+    quint16 headID;
+    quint16 shouldersID;
+    quint16 neckID;
+    quint16 rightHandID;
+    quint16 leftHandID;
+    quint16 trunkID;
+    quint16 rightRingID;
+    quint16 leftRingID;
+    quint16 legsID;
+    quint16 misc1ID;
+    quint16 misc2ID;
+    quint16 misc3ID;
+    quint16 misc4ID;
+    quint16 machine1ID;
+    quint16 machine2ID;
+    quint16 machine3ID;
+    quint16 machine4ID;
+    quint16 magicbook;
+    quint16 misc5ID;
+
+    quint16 knapsack_count;
+
+//if ( knapsack_count > 0 )
+    QVector<quint16> knapsackID;
+//}
+    quint8 isBiography;
+
+//if (isBiography == 1)
+    hrString biography;
+
+    quint8 gender;
+
+    quint8 isSpells;
+
+//if ( isSpells == 1 )
+    quint8 spells[9];
+
+    quint8 isPrimarySkills;
+
+//if ( isPrimarySkills == 1 ) {
+    quint8 attack;
+    quint8 defence;
+    quint8 power;
+    quint8 knowledge;
+//}
+};
+QDataStream &operator<<(QDataStream &, const HeroOptions_enabled &);
+QDataStream &operator>>(QDataStream &, HeroOptions_enabled &);
+
+//struct HeroOptions_t {
+//    int i;
+//
+//    for (i = 0; i < 156; i++) {
+//        quint8 enable;
+//
+//        if ( enable == 1 )
+//            HeroOptions_enabled options;
+//    }
+//    quint8 enable[156];
+//    HeroOptions_enabled options[156];
+//};
+
 class hrH3MReader
 {
 public:
@@ -237,4 +322,6 @@ protected:
     Spells_t spells;
     SecSkills_t secSkills;
     Rumors_t rumors;
+    quint8 enable[156];
+    HeroOptions_enabled heroOptions[156];
 };

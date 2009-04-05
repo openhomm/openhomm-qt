@@ -54,25 +54,23 @@ bool hrH3MReader::load(const QString &name)
 
     m >> basic;
 
-    qDebug() << basic.version;
-    qDebug() << basic.under;
-    qDebug() << basic.size;
-    qDebug() << basic.under;
-    qDebug() << basic.name;
-    qDebug() << basic.description;
-    qDebug() << basic.difficult;
-    qDebug() << basic.levelLimit;
-
     for ( int i = 0; i < 8; i++ )
     {
-        qDebug() << "===" << i << "===";
         m >> players[i];
-        players[i].dump();
     }
 
     m >> svc >> slc >> teams;
     m >> fh;
     m >> artefacts >> spells >> secSkills >> rumors;
+
+    for ( int i = 0; i < 156; i++ )
+    {
+        m >> enable[i];
+
+        if ( enable[i] == 1 )
+            m >> heroOptions[i];
+    }
+
     return true;
 }
 
@@ -349,5 +347,81 @@ QDataStream &operator>>(QDataStream &in, Rumors_t &r)
         in >> rumor;
         r.rumors.push_back(rumor);
     }
+    return in;
+}
+
+QDataStream &operator<<(QDataStream &out, const SecondarySkill_t &)
+{
+    qWarning("%s is not yet implemented", Q_FUNC_INFO);
+    return out;
+}
+QDataStream &operator>>(QDataStream &in, SecondarySkill_t &s)
+{
+    in >> s.skillID >> s.skillLevel;
+    return in;
+}
+
+QDataStream &operator<<(QDataStream &out, const HeroOptions_enabled &)
+{
+    qWarning("%s is not yet implemented", Q_FUNC_INFO);
+    return out;
+}
+QDataStream &operator>>(QDataStream &in, HeroOptions_enabled &h)
+{
+    in >> h.isExp;
+
+    if ( h.isExp == 1 )
+        in >> h.exp;
+
+    if ( h.isSecSkill == 1 )
+    {
+        in >> h.secSkillsQuantity;
+        for ( quint32 i = 0; i < h.secSkillsQuantity; i++ )
+        {
+            SecondarySkill_t skill;
+            in >> skill;
+            h.secSkills.push_back(skill);
+        }
+    }
+
+    in >> h.isArtefacts;
+
+    if ( h.isArtefacts == 1 )
+    {
+        in >> h.headID >> h.shouldersID >> h.neckID >> h.rightHandID >> h.leftHandID;
+        in >> h.trunkID >> h.rightRingID >> h.leftRingID >> h.legsID;
+        in >> h.misc1ID >> h.misc2ID >> h.misc3ID >> h.misc4ID;
+        in >> h.machine1ID >> h.machine2ID >> h.machine3ID >> h.machine4ID;
+        in >> h.magicbook >> h.misc5ID;
+
+        in >> h.knapsack_count;
+
+        for ( quint16 i = 0; i << h.knapsack_count; i++ )
+        {
+            quint16 knap;
+            in >> knap;
+            h.knapsackID.push_back(knap);
+        }
+    }
+
+    in >> h.isBiography;
+
+    if ( h.isBiography == 1 )
+        in >> h.biography;
+
+    in >> h.gender >> h.isSpells;
+
+    if ( h.isSpells == 1 )
+    {
+        in.readRawData( (char *) h.spells, sizeof(h.spells) );
+    }
+
+    in >> h.isPrimarySkills;
+
+    if ( h.isPrimarySkills == 1 )
+    {
+        in >> h.attack >> h.defence >> h.power >> h.knowledge;
+    }
+
     return in;
 }
