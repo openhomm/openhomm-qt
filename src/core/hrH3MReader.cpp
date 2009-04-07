@@ -18,12 +18,16 @@
 #include "hrH3MReader.hpp"
 #include "hrString.hpp"
 
-hrH3MReader::hrH3MReader()
+hrH3MReader::hrH3MReader() : ground(NULL), underground(NULL)
 {
 }
 
 hrH3MReader::~hrH3MReader()
 {
+    delete [] ground;
+    ground = NULL;
+    delete [] underground;
+    underground = NULL;
 }
 
 bool hrH3MReader::load(const QString &name)
@@ -66,10 +70,21 @@ bool hrH3MReader::load(const QString &name)
     for ( int i = 0; i < 156; i++ )
     {
         m >> enable[i];
-
         if ( enable[i] == 1 )
+        {
             m >> heroOptions[i];
+        }
     }
+
+    ground = new hrTile[basic.size*basic.size];
+    m.readRawData( (char *) ground, sizeof(hrTile)*basic.size*basic.size );
+
+    if ( basic.under == 1 )
+    {
+        underground = new hrTile[basic.size * basic.size];
+        m.readRawData( (char *) underground, sizeof(hrTile)*basic.size*basic.size );
+    }
+
 
     return true;
 }
@@ -137,39 +152,6 @@ PlayerAttributes_t::~PlayerAttributes_t()
     heroes.clear();
 }
 
-void PlayerAttributes_t::dump()
-{
-    qDebug("isHuman: %d", isHuman);
-    qDebug("isComputer: %d", isComputer);
-    qDebug("behavior: %d", behavior);
-    qDebug("isCityTypesOpt: %d", isCityTypesOpt);
-    qDebug("cityTypes: %d", cityTypes);
-    qDebug("randomCity: %d", randomCity);
-    qDebug("mainCity: %d", mainCity);
-    if ( mainCity == 1 )
-    {
-        qDebug("\tgenerateHero: %d", generateHero);
-        qDebug("\tcity %d {%d.%d.%d}", city[0], city[1], city[2], city[3]);
-    }
-    qDebug("randomHero: %d", randomHero);
-    qDebug("heroType: %d", heroType);
-
-    if ( heroType != 0xFF )
-    {
-        qDebug("\theroPortret: %d", heroPortret);
-        qDebug() << "\theroName: " << heroName;
-    }
-    qDebug("junk: %d", junk);
-    qDebug("heroesCount: %d", heroesCount);
-
-    for ( quint32 i = 0; i < heroesCount; i++ )
-    {
-        qDebug("\tHero::portret : %d", heroes[i].portret);
-        qDebug() << "\tHero::name : " << heroes[i].name;
-    }
-    qDebug() << "===================";
-}
-
 QDataStream &operator<<(QDataStream &out, const SpecialVictoryCondition_t &)
 {
     qWarning("%s is not yet implemented", Q_FUNC_INFO);
@@ -217,12 +199,12 @@ QDataStream &operator>>(QDataStream &in, SpecialVictoryCondition_t &s)
     return in;
 }
 
-QDataStream &operator<<(QDataStream &out, const SpecialLossConditions_t &)
+QDataStream &operator<<(QDataStream &out, const SpecialLossCondition_t &)
 {
     qWarning("%s is not yet implemented", Q_FUNC_INFO);
     return out;
 }
-QDataStream &operator>>(QDataStream &in, SpecialLossConditions_t &s)
+QDataStream &operator>>(QDataStream &in, SpecialLossCondition_t &s)
 {
     in >> s.id;
 
@@ -372,6 +354,8 @@ QDataStream &operator>>(QDataStream &in, HeroOptions_enabled &h)
 
     if ( h.isExp == 1 )
         in >> h.exp;
+
+    in >> h.isSecSkill;
 
     if ( h.isSecSkill == 1 )
     {
