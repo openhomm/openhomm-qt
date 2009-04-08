@@ -18,32 +18,39 @@
 
 hrWindow::hrWindow(): QWidget()
 {
-    setWindowTitle("OpenHOMM, fullscreen - F11");
+    setWindowTitle("OpenHoMM, fullscreen - F11");
 
     scene = new hrScene(128, 128);
-    QString path = "lod:/data/h3sprite.lod/";
-    QString s = path + "grastl.def";
+
+    hrTile tile;
     for (int i = 0; i < 128 * 128; i++)
-        i % 2 == 0 ? scene->addTile(0, 0, s)
-                   : scene->addTile(0, 1, s, true);
+    {
+        if (i % 2 == 0)
+        {
+            tile.terrainId = 0;
+            scene->addTile(tile);
+        }
+        else
+        {
+            tile.terrainId = 2;
+            scene->addTile(tile);
+        }
+    }
 
-    s = path + "cobbrd.def";
-    scene->addTileSecondLayer(4, 0, 9, 9, s);
-
-    s = path + "adcfra.def";
     for (int i = 0; i < 128; i += 2)
         for (int j = 0; j < 128; j += 2)
-            scene->addObject(3, i, j, s);
+        {
+            hrObject object("adcfra.def", i, j);
+            scene->addObject(object);
+        }
 
-    s = path + "advmwind.def";
-    scene->addObject(2, 0, 0, s);
-    scene->addObject(2, 15, 15, s);
-    scene->addObject(2, 30, 15, s);
-    scene->addObject(2, 15, 30, s);
-    scene->addObject(2, 30, 30, s);
+    scene->addObject(hrObject("advmwind.def", 0, 0));
+    scene->addObject(hrObject("advmwind.def", 15, 15));
+    scene->addObject(hrObject("advmwind.def", 30, 15));
+    scene->addObject(hrObject("advmwind.def", 15, 30));
+    scene->addObject(hrObject("advmwind.def", 30, 30));
 
-    s = path + "cradvntr.def";
-    scene->setCursor(s);
+    scene->setCursor("cradvntr.def");
 
     w = new hrGLWidget(this, scene);
     w->resize(800, 600);

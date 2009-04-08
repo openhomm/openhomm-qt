@@ -22,72 +22,42 @@
 
 class hrTile
 {
-    int id;
-    int frame;
-    QPoint point;
-    bool horizontal;
-    bool vertical;
 public:
-    hrTile() {}
-
-    hrTile(int id, int frame = 0, bool horizontal = false, bool vertical = false)
-        : id(id), frame(frame), horizontal(horizontal), vertical(vertical) {}
-
-    hrTile(int id, int frame, int x, int y)
-        : id(id), frame(frame), horizontal(false), vertical(false)
-    {
-        point.setX(x);
-        point.setY(y);
-    }
-    int getId() const
-    {
-        return id;
-    }
-    int getFrame() const
-    {
-        return frame;
-    }
-    QPoint getPoint() const
-    {
-        return point;
-    }
-    int x() const
-    {
-        return point.x();
-    }
-    int y() const
-    {
-        return point.y();
-    }
-    bool getHorizontal() const
-    {
-        return horizontal;
-    }
-    bool getVertical() const
-    {
-        return vertical;
-    }
+    int terrainId;
+    quint8 terrainFrame;
+    quint8 riverId;
+    quint8 riverFrame;
+    quint8 roadId;
+    quint8 roadFrame;
+    bool riverHorizontal;
+    bool riverVertical;
+    bool roadHorizontal;
+    bool roadVertical;
+    bool terrainHorizontal;
+    bool terrainVertical;
+    hrTile() : terrainId(-1), terrainFrame(0), riverId(0), roadId(0) {}
 };
+
 
 class hrObject
 {
-    int id;
+    QString name;
     QRect rect;
 public:
-    hrObject() {}
-    hrObject(int id, QRect rect) : id(id), rect(rect) {}
-    hrObject(int id, int x, int y, int width, int height) : id(id)
+    hrObject() { name = "default.def"; }
+    hrObject(QString name, QRect rect) : name(name), rect(rect) {}
+    hrObject(QString name, int x, int y, int width, int height) : name(name)
     {
         rect.setRect(x, y, width, height);
     }
-    hrObject(int id, int x, int y) : id(id)
+    hrObject(QString name, int x, int y) : name(name)
     {
         rect.setX(x);
         rect.setY(y);
     }
-    int getId() const
+    QString getName() const
     {
-        return id;
+        return name;
     }
     QPoint getPoint() const
     {
@@ -113,29 +83,29 @@ public:
     hrScene(int width, int height);
     ~hrScene();
 
-    void addTile(int id
-                 , int frame
-                 , QString path
-                 , bool horizontal = false
-                 , bool vertical = false);
-    void addTileSecondLayer(int id, int frame, int x, int y, QString path);
-    void addObject(int id, int x, int y, QString path);
+    void addTile(hrTile tile);
+    void addObject(hrObject object);
     void removeObject(int x, int y);
 
-    void setCursor(QString path);
+    void setCursor(QString name);
     const QCursor& getCursor(int frame);
 
     QRect getSize() const;
     void setSceneViewport(QRect r);
     QRect getSceneViewport() const;
 
-    QImage getImage(const hrTile &tile) const;
+    QImage getImage(int id
+                   , int frame
+                   , bool horizontal = false
+                   , bool vertical = false) const;
+    QImage getImageTerrain(hrTile tile) const;
+    QImage getImageRiver(hrTile tile) const;
+    QImage getImageRoad(hrTile tile) const;
     QImage getImage(const hrObject &object) const;
     hrGraphicsItem* getItem(const hrObject &object) const;
 
     QVector<hrTile> getViewportTiles() const;
     hrTile getTile(int x, int y) const;
-    QLinkedList<hrTile> getViewportTilesSecondLayer() const;
     QLinkedList<hrObject> getViewportObjects() const;
     QLinkedList<hrObject> getAllObjects() const;
 
@@ -147,13 +117,14 @@ public slots:
 private:
     QVector< QVector<hrTile> > tiles;
     QLinkedList<hrObject> objects;
-    QLinkedList<hrTile> tilesSecondLayer;
     QMap<int, hrGraphicsItem*> items;
+    QHash<QString, hrGraphicsItem*> items_obj;
     QVector<QCursor> cursor;
     QRect viewport;
     QRect size;
 
     void addItem(int id, QString name, bool mirrored = false);
+    void addItem(QString name);
 };
 
 #endif // HRSCENE_H

@@ -16,12 +16,12 @@
 //
 #include "hrScene.hpp"
 
-void hrScene::addItem(int id, QString path, bool mirrored)
+void hrScene::addItem(int id, QString name, bool mirrored)
 {
     if (!items.contains(id))
     {
-        hrGraphicsItem *item = new hrGraphicsItem(id);
-        QImageReader ir(path);
+        hrGraphicsItem *item = new hrGraphicsItem();
+        QImageReader ir("lod:/data/h3sprite.lod/" + name);
         QImage im;
         for (int i = 0; ir.jumpToImage(i); i++)
             if (ir.read(&im))
@@ -33,10 +33,28 @@ void hrScene::addItem(int id, QString path, bool mirrored)
     }
 }
 
+void hrScene::addItem(QString name)
+{
+    if (!items_obj.contains(name))
+    {
+        hrGraphicsItem *item = new hrGraphicsItem();
+        QImageReader ir("lod:/data/h3sprite.lod/" + name);
+        QImage im;
+        for (int i = 0; ir.jumpToImage(i); i++)
+            if (ir.read(&im))
+            {
+               item->addImage(im);
+            }
+
+        items_obj[name] = item;
+    }
+}
+
 hrScene::hrScene(int width, int height)
 {
     size.setRect(0, 0, width - 1, height - 1);
     tiles.append(QVector<hrTile>());
+    addItem(-1, "default.def");
 }
 
 hrScene::~hrScene()
@@ -44,20 +62,89 @@ hrScene::~hrScene()
     items.clear();
 }
 
-void hrScene::addTile(int id
-                     , int frame
-                     , QString path
-                     , bool horizontal
-                     , bool vertical)
+void hrScene::addTile(hrTile tile)
 {
-    addItem(id, path, true);
+    QString name;
+    switch (tile.terrainId)
+    {
+        case 0:
+            name = "dirttl.def";
+            break;
+        case 1:
+            name = "sandtl.def";
+            break;
+        case 2:
+            name = "grastl.def";
+            break;
+        case 3:
+            name = "snowtl.def";
+            break;
+        case 4:
+            name = "swmptl.def";
+            break;
+        case 5:
+            name = "rougtl.def";
+            break;
+        case 6:
+            name = "subbtl.def";
+            break;
+        case 7:
+            name = "lavatl.def";
+            break;
+        case 8:
+            name = "watrtl.def";
+            break;
+        case 9:
+            name = "rocktl.def";
+            break;
+    }
+
+    addItem(tile.terrainId, name, true);
+
+    if (tile.riverId != 0)
+    {
+        switch (tile.riverId)
+        {
+            case 1:
+                name = "clrrvr.def";
+                break;
+            case 2:
+                name = "icyrvr.def";
+                break;
+            case 3:
+                name = "mudrvr.def";
+                break;
+            case 4:
+                name = "lavrvr.def";
+                break;
+        }
+        addItem(tile.riverId, name, true);
+    }
+
+    if (tile.roadId != 0)
+    {
+        switch (tile.roadId)
+        {
+            case 1:
+                name = "dirtrd.def";
+                break;
+            case 2:
+                name = "gravrd.def";
+                break;
+            case 3:
+                name = "cobbrd.def";
+                break;
+        }
+        addItem(tile.roadId, name, true);
+    }
+
 
     static int x = 0;
     static int y = 0;
 
     if (x < size.width())
     {
-        tiles[y].append(hrTile(id, frame, horizontal, vertical));
+        tiles[y].append(tile);
         x++;
     }
     else
@@ -71,19 +158,14 @@ void hrScene::addTile(int id
     }
 }
 
-void hrScene::addTileSecondLayer(int id, int frame, int x, int y, QString path)
+void hrScene::addObject(hrObject object)
 {
-    addItem(id, path);
+    addItem(object.getName());
 
-    tilesSecondLayer.append(hrTile(id, frame, x, y));
-}
-
-void hrScene::addObject(int id, int x, int y, QString path)
-{
-    addItem(id, path);
-
-    QRect r = items.value(id)->getRect();
-    objects.append( hrObject(id, x, y
+    QRect r = items_obj.value(object.getName())->getRect();
+    objects.append( hrObject(object.getName()
+                             , object.x()
+                             , object.y()
                              , toCell(r.width())
                              , toCell(r.height())
                              )
@@ -96,9 +178,9 @@ void hrScene::removeObject(int x, int y)
     ;
 }
 
-void hrScene::setCursor(QString path)
+void hrScene::setCursor(QString name)
 {
-    QImageReader ir(path);
+    QImageReader ir("lod:/data/h3sprite.lod/" + name);
     QImage im;
     for (int i = 0; ir.jumpToImage(i); i++)
         if (ir.read(&im))
@@ -116,22 +198,37 @@ const QCursor& hrScene::getCursor(int frame)
     return cursor.at(0);
 }
 
-QImage hrScene::getImage(const hrTile &tile) const
+QImage hrScene::getImage(int id
+                         , int frame
+                         , bool horizontal
+                         , bool vertical) const
 {
-    return items.value(tile.getId())->getFrame(tile.getFrame()
-                                               , tile.getHorizontal()
-                                               , tile.getVertical()
-                                               );
+    return items.value(id)->getFrame(frame, horizontal, vertical);
+}
+
+QImage hrScene::getImageTerrain(hrTile tile) const
+{
+    return getImage(tile.terrainId, tile.terrainFrame, tile.terrainHorizontal, tile.terrainVertical);
+}
+
+QImage hrScene::getImageRiver(hrTile tile) const
+{
+    return getImage(tile.riverId, tile.riverFrame, tile.riverHorizontal, tile.riverVertical);
+}
+
+QImage hrScene::getImageRoad(hrTile tile) const
+{
+    return getImage(tile.roadId, tile.roadFrame, tile.roadHorizontal, tile.roadVertical);
 }
 
 QImage hrScene::getImage(const hrObject &object) const
 {
-    return items.value(object.getId())->getFrame();
+    return items_obj.value(object.getName())->getFrame();
 }
 
 hrGraphicsItem* hrScene::getItem(const hrObject &object) const
 {
-    return items.value(object.getId());
+    return items_obj.value(object.getName());
 }
 
 QVector<hrTile> hrScene::getViewportTiles() const
@@ -169,27 +266,10 @@ QLinkedList<hrObject> hrScene::getViewportObjects() const
     return l;
 }
 
-QLinkedList<hrTile> hrScene::getViewportTilesSecondLayer() const
-{
-    QLinkedList<hrTile> l;
-    QLinkedListIterator<hrTile> it(tilesSecondLayer);
-    hrTile tile;
-    while (it.hasNext())
-    {
-        tile = it.next();
-        if (viewport.contains(tile.getPoint()))
-        {
-            l.append(tile);
-        }
-    }
-    return l;
-}
-
 QLinkedList<hrObject> hrScene::getAllObjects() const
 {
     return objects;
 }
-
 
 QRect hrScene::getSize() const
 {

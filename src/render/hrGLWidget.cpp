@@ -96,7 +96,6 @@ void hrGLWidget::resizeGL(int w, int h)
     viewport = rect();
     scene->setSceneViewport(coord::toCellRect(viewport));
     objects = scene->getViewportObjects();
-    tilesSecondLayer = scene->getViewportTilesSecondLayer();
 
     Begin();
     //glViewport(0, 0, w, h);
@@ -112,6 +111,9 @@ void hrGLWidget::Begin()
      // Make sure depth testing and lighting are disabled for 2D rendering
     glDisable(GL_DEPTH_TEST);
     glDisable(GL_LIGHTING);
+
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    glEnable(GL_BLEND);
 }
 
 void hrGLWidget::End()
@@ -129,27 +131,28 @@ void hrGLWidget::paintGL()
     for (int y = r.y(); y < r.y() + r.height(); y++)
         for (int x = r.x(); x < r.x() + r.width(); x++)
         {
+            QPoint point = coord::toPixPoint(QPoint(x, y));
             hrTile tile = scene->getTile(x, y);
-            QImage im = scene->getImage(tile);
+            QImage im = scene->getImageTerrain(tile);
             if (im.isNull()) continue;
             id = bindTexture(im, textureTarget, GL_RGBA8);
-            drawTexture(coord::toPixPoint(QPoint(x, y)), id , textureTarget);
+            drawTexture(point, id , textureTarget);
+            if (tile.riverId != 0)
+            {
+                QImage im = scene->getImageRiver(tile);
+                if (im.isNull()) continue;
+                id = bindTexture(im, textureTarget, GL_RGBA8);
+                drawTexture(point, id , textureTarget);
+            }
+            if (tile.roadId != 0)
+            {
+                QImage im = scene->getImageRoad(tile);
+                if (im.isNull()) continue;
+                id = bindTexture(im, textureTarget, GL_RGBA8);
+                drawTexture(point, id , textureTarget);
+            }
         }
 
-
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-    glEnable(GL_BLEND);
-
-    QLinkedListIterator<hrTile> itTiles(tilesSecondLayer);
-
-    while (itTiles.hasNext())
-    {
-        hrTile tile = itTiles.next();
-        QImage im = scene->getImage(tile);
-        if (im.isNull()) continue;
-        id = bindTexture(im, textureTarget, GL_RGBA8);
-        drawTexture(coord::toPixPoint(tile.getPoint()), id, textureTarget);
-    }
 
     QLinkedListIterator<hrObject> it(objects);
 
@@ -172,7 +175,6 @@ void hrGLWidget::paintGL()
         drawTexture(coord::toPixPoint(obj.getPoint()), id, textureTarget);
     }
 
-    glDisable(GL_BLEND);
     //End();
 }
 
@@ -236,7 +238,6 @@ void hrGLWidget::scroll()
         {
             scene->setSceneViewport(coord::toCellRect(viewport));
             objects = scene->getViewportObjects();
-            tilesSecondLayer = scene->getViewportTilesSecondLayer();
         }
         glTranslatef(dx, dy, 0);
         updateGL();

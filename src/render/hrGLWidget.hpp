@@ -47,7 +47,6 @@ private:
     hrScene *scene;
 
     QLinkedList<hrObject> objects;
-    QLinkedList<hrTile> tilesSecondLayer;
 
     QTimer scrollTimer;
     QTimer animateTimer;

@@ -22,7 +22,6 @@
 class hrGraphicsItem
 {
 private:
-    int id;
     QVector<QImage> frames;
     QVector<QImage> framesH;
     QVector<QImage> framesV;
@@ -32,9 +31,7 @@ private:
     QRect rect;
 public:
     hrGraphicsItem();
-    hrGraphicsItem(int id);
 
-    int getId() const;
     int getFramesCount() const;
     void nextFrame();
     QImage getNextFrame();
