@@ -52,9 +52,10 @@ void hrScene::addItem(QString name)
 
 hrScene::hrScene(int width, int height)
 {
-    size.setRect(0, 0, width - 1, height - 1);
+    size.setRect(0, 0, width, height);
+    qDebug() << "size: " << size;
     tiles.append(QVector<hrTile>());
-    addItem(-1, "default.def");
+    addItem(0xFF, "default.def");
 }
 
 hrScene::~hrScene()

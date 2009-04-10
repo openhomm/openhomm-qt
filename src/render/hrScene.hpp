@@ -17,27 +17,9 @@
 #ifndef HRSCENE_H
 #define HRSCENE_H
 
+#include "hrTile.hpp"
 #include "hrGraphicsItem.hpp"
 #include "hrCoord.hpp"
-
-class hrTile
-{
-public:
-    int terrainId;
-    quint8 terrainFrame;
-    quint8 riverId;
-    quint8 riverFrame;
-    quint8 roadId;
-    quint8 roadFrame;
-    bool riverHorizontal;
-    bool riverVertical;
-    bool roadHorizontal;
-    bool roadVertical;
-    bool terrainHorizontal;
-    bool terrainVertical;
-    hrTile() : terrainId(-1), terrainFrame(0), riverId(0), roadId(0) {}
-};
-
 
 class hrObject
 {

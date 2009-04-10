@@ -14,9 +14,5 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
-#pragma once
-
-typedef QString hrString;
-
-QDataStream &operator<<(QDataStream &, const hrString &);
-QDataStream &operator>>(QDataStream &, hrString &);
+#include "precompiled.hpp"
+#include "hrTile.hpp"

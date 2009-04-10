@@ -16,3 +16,37 @@
 //
 #include "precompiled.hpp"
 #include "hrString.hpp"
+
+QDataStream &operator<<(QDataStream &out, const hrString &str)
+{
+    if ( str.isEmpty() || str.isNull() )
+    {
+        out << (quint32)0x00;
+    }
+    else
+    {
+        out << (quint32)str.length();
+        out.writeRawData(str.toLocal8Bit().data(), str.length());
+    }
+    return out;
+}
+
+QDataStream &operator>>(QDataStream &in, hrString &str)
+{
+    quint32 len = 0;
+    in >> len;
+
+    if ( len == 0 )
+    {
+        str.clear();
+    }
+    else if ( len > 0 )
+    {
+        char *b = new char[len];
+        in.readRawData(b, len);
+        str = QString::fromLocal8Bit(b, len);
+        delete [] b;
+    }
+
+    return in;
+}

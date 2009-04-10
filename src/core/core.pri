@@ -1,12 +1,16 @@
 INCLUDEPATH += $$PWD
 DEPENDPATH += $$PWD
-HEADERS +=  hrString.hpp \
-            hrLodEngine.hpp \
-            hrLodEngineIterator.hpp \
-            hrSndEngineIterator.hpp \
-            hrSndEngine.hpp
-SOURCES +=  hrString.cpp \
-            hrLodEngine.cpp \
-            hrLodEngineIterator.cpp \
-            hrSndEngineIterator.cpp \
-            hrSndEngine.cpp
+HEADERS += hrString.hpp \
+    hrLodEngine.hpp \
+    hrLodEngineIterator.hpp \
+    hrSndEngineIterator.hpp \
+    hrSndEngine.hpp \
+    hrH3MReader.hpp \
+    hrTile.hpp
+SOURCES += hrString.cpp \
+    hrLodEngine.cpp \
+    hrLodEngineIterator.cpp \
+    hrSndEngineIterator.cpp \
+    hrSndEngine.cpp \
+    hrH3MReader.cpp \
+    hrTile.cpp

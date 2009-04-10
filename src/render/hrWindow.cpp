@@ -20,35 +20,18 @@ hrWindow::hrWindow(): QWidget()
 {
     setWindowTitle("OpenHoMM, fullscreen - F11");
 
-    scene = new hrScene(128, 128);
+    hrH3MReader reader;
+    reader.load("maps/Mutare's Apprentice");
+    int size = reader.getSize();
 
-    hrTile tile;
-    for (int i = 0; i < 128 * 128; i++)
+    scene = new hrScene(size, size);
+
+    for (int i = 0; i < size * size; i++)
     {
-        if (i % 2 == 0)
-        {
-            tile.terrainId = 0;
-            scene->addTile(tile);
-        }
-        else
-        {
-            tile.terrainId = 2;
-            scene->addTile(tile);
-        }
+        hrTile tile = reader.getTile(i);
+        qDebug() << "r tile: " << tile.terrainId;
+        scene->addTile(tile);
     }
-
-    for (int i = 0; i < 128; i += 2)
-        for (int j = 0; j < 128; j += 2)
-        {
-            hrObject object("adcfra.def", i, j);
-            scene->addObject(object);
-        }
-
-    scene->addObject(hrObject("advmwind.def", 0, 0));
-    scene->addObject(hrObject("advmwind.def", 15, 15));
-    scene->addObject(hrObject("advmwind.def", 30, 15));
-    scene->addObject(hrObject("advmwind.def", 15, 30));
-    scene->addObject(hrObject("advmwind.def", 30, 30));
 
     scene->setCursor("cradvntr.def");
 

@@ -20,6 +20,7 @@
 #include "precompiled.hpp"
 #include "hrGLWidget.hpp"
 #include "hrScene.hpp"
+#include "hrH3MReader.hpp"
 
 class hrWindow : public QWidget
 {
