@@ -28,6 +28,10 @@ hrH3MReader::~hrH3MReader()
     ground = NULL;
     delete [] underground;
     underground = NULL;
+    delete [] objects;
+    objects = NULL;
+    delete [] obj;
+    obj = NULL;
 }
 
 bool hrH3MReader::load(const QString &name)
@@ -85,7 +89,228 @@ bool hrH3MReader::load(const QString &name)
         m.readRawData( (char *) underground, sizeof(hrTile)*basic.size*basic.size );
     }
 
+    quint32 objC = 0;
+    m >> objC;
 
+    objects = NULL;
+    objects = new hrObject[objC];
+
+    for ( quint32 i = 0; i < objC; i++ )
+    {
+        m >> objects[i];
+        //objects[i].dump();
+    }
+
+    quint32 tunedO = 0;
+    m >> tunedO;
+
+    obj = new hrObjectOptions[tunedO];
+    for ( quint32 i = 0; i < tunedO; i++ )
+    {
+        //hrObjectOptions obj;
+        m >> obj[i];
+        //obj.dump();
+        switch(objects[obj[i].objectID].object_class)
+        {
+        case 5:
+        case 65:
+        case 66:
+        case 67:
+        case 68:
+        case 69:
+            {
+                ObjectArtefact artefact;
+                m >> artefact;
+            }
+             break;
+
+        case 6:
+            {
+                ObjectPandora pandora;
+                m >> pandora;
+            }
+            break;
+
+        case 17:
+        case 20:
+        case 42: //lighthouse
+            {
+                ObjectDwelling dwelling;
+                m >> dwelling;
+            }
+            break;
+
+        case 26:
+            {
+                ObjectEvent localevent;
+                m >> localevent;
+            }
+            break;
+
+        case 33:
+        case 219:
+            {
+                ObjectGarrison garrison;
+                m >> garrison;
+            }
+            break;
+
+        case 34:
+        case 70:
+            {
+                ObjectHero hero;
+                m >> hero;
+            }
+            break;
+        case 62:
+            {
+                ObjectHero hero;
+                m >> hero;
+            }
+            break;
+
+        case 36:
+            {
+                ObjectGrail grail;
+                m >> grail;
+            };
+            break;
+
+        case 53:
+            {
+                switch(objects[obj[i].objectID].object_number) {
+                case 7:
+                    {
+                        ObjectAbandonedMine abandoned;  // bit0 - mercury, 1 - ore, 2 - sulfur,
+                        m >> abandoned;                 // bit3 - crystal, 4 - gem, 5 - gold
+                    }
+                    break;
+                default:
+                    {
+                        ObjectMine mine;
+                        m >> mine;
+                    }
+                    break;
+                }
+            }
+            break;
+
+        case 54:
+        case 71:
+        case 72:
+        case 73:
+        case 74:
+        case 75:
+        case 162:
+        case 163:
+        case 164:
+            {
+                ObjectMonster monster;
+                m >> monster;
+            }
+            break;
+
+        case 76:
+        case 79:
+            {
+                ObjectResource res;
+                m >> res;
+            }
+            break;
+
+        case 81:
+            {
+                ObjectScientist scientist;
+                m >> scientist;
+            }
+            break;
+
+         case 83:
+            {
+                ObjectProphet prophet;
+                m >> prophet;
+            }
+            break;
+
+         case 87:
+            {
+                ObjectShipyard shipyard;
+                m >> shipyard;
+            }
+            break;
+
+         case 88:
+         case 89:
+         case 90:
+            {
+                ObjectShrine shrine;
+                m >> shrine;
+            }
+            break;
+
+         case 91:
+         case 59:
+            {
+                ObjectSign sign;
+                m >> sign;
+            }
+            break;
+
+         case 93:
+            {
+                ObjectSpell spell;
+                m >> spell;
+            }
+            break;
+
+         case 98:
+         case 77:
+            {
+                ObjectTown town;
+                m >> town;
+            }
+            break;
+
+         case 113:
+            {
+                ObjectWitchHut whut;
+                m >> whut;
+            }
+            break;
+
+         case 215:
+            {
+                ObjectQuestionGuard qguard;
+                m >> qguard;
+            }
+            break;
+
+         case 216:
+            {
+                ObjectGeneralRandomDwelling dwelling;
+                m >> dwelling;
+            }
+            break;
+         case 217:
+            {
+                ObjectLevelRandomDwelling dwelling;
+                m >> dwelling;
+            }
+            break;
+         case 218:
+             {
+                 ObjectTownRandomDwelling dwelling;
+                 m >> dwelling;
+             }
+             break;
+         case 220:
+            {
+                 ObjectAbandonedMine abandoned;
+                 m >> abandoned;
+            }
+            break;
+        };
+    }
     return true;
 }
 
@@ -329,17 +554,6 @@ QDataStream &operator>>(QDataStream &in, Rumors_t &r)
         in >> rumor;
         r.rumors.push_back(rumor);
     }
-    return in;
-}
-
-QDataStream &operator<<(QDataStream &out, const SecondarySkill_t &)
-{
-    qWarning("%s is not yet implemented", Q_FUNC_INFO);
-    return out;
-}
-QDataStream &operator>>(QDataStream &in, SecondarySkill_t &s)
-{
-    in >> s.skillID >> s.skillLevel;
     return in;
 }
 

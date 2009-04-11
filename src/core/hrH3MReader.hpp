@@ -17,6 +17,8 @@
 #pragma once
 
 #include "hrString.hpp"
+#include "hrTile.hpp"
+#include "hrObject.hpp"
 
 struct BasicParametres_t {
     quint32 version;
@@ -84,7 +86,6 @@ struct PlayerAttributes_t {
 //  if ( heroesCount > 0 ) {
     QVector<Hero_t> heroes;
 //  }
-    void dump();
 };
 QDataStream &operator<<(QDataStream &, const PlayerAttributes_t &);
 QDataStream &operator>>(QDataStream &, PlayerAttributes_t &);
@@ -133,7 +134,7 @@ struct SpecialVictoryCondition_t
 QDataStream &operator<<(QDataStream &, const SpecialVictoryCondition_t &);
 QDataStream &operator>>(QDataStream &, SpecialVictoryCondition_t &);
 
-struct SpecialLossConditions_t
+struct SpecialLossCondition_t
 {
     quint8 id;
     union
@@ -144,8 +145,8 @@ struct SpecialLossConditions_t
         quint16 days;
     };
 };
-QDataStream &operator<<(QDataStream &, const SpecialLossConditions_t &);
-QDataStream &operator>>(QDataStream &, SpecialLossConditions_t &);
+QDataStream &operator<<(QDataStream &, const SpecialLossCondition_t &);
+QDataStream &operator>>(QDataStream &, SpecialLossCondition_t &);
 
 struct Teams_t
 {
@@ -216,13 +217,6 @@ struct Rumors_t
 };
 QDataStream &operator<<(QDataStream &, const Rumors_t &);
 QDataStream &operator>>(QDataStream &, Rumors_t &);
-
-struct SecondarySkill_t {
-    quint8 skillID;
-    quint8 skillLevel;
-};
-QDataStream &operator<<(QDataStream &, const SecondarySkill_t &);
-QDataStream &operator>>(QDataStream &, SecondarySkill_t &);
 
 struct HeroOptions_enabled {
     quint8 isExp;
@@ -315,7 +309,7 @@ protected:
     BasicParametres_t basic;
     PlayerAttributes_t players[8];
     SpecialVictoryCondition_t svc;
-    SpecialLossConditions_t slc;
+    SpecialLossCondition_t slc;
     Teams_t teams;
     FreeHeroes_t fh;
     Artefacts_t artefacts;
@@ -324,4 +318,9 @@ protected:
     Rumors_t rumors;
     quint8 enable[156];
     HeroOptions_enabled heroOptions[156];
+
+    hrTile *ground;
+    hrTile *underground;
+    hrObject * objects;
+    hrObjectOptions * obj;
 };

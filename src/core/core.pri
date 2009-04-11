@@ -5,10 +5,14 @@ HEADERS +=  hrString.hpp \
             hrLodEngineIterator.hpp \
             hrSndEngineIterator.hpp \
             hrSndEngine.hpp \
-            hrH3MReader.hpp
+            hrH3MReader.hpp \
+            hrTile.hpp \
+            hrObject.hpp
 SOURCES +=  hrString.cpp \
             hrLodEngine.cpp \
             hrLodEngineIterator.cpp \
             hrSndEngineIterator.cpp \
             hrSndEngine.cpp \
-            hrH3MReader.cpp
+            hrH3MReader.cpp \
+            hrTile.cpp \
+            hrObject.cpp
