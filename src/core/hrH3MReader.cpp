@@ -89,27 +89,26 @@ bool hrH3MReader::load(const QString &name)
         m.readRawData( (char *) underground, sizeof(hrTile)*basic.size*basic.size );
     }
 
-    quint32 objC = 0;
-    m >> objC;
+
+    m >> objectQuantity;
 
     objects = NULL;
-    objects = new hrObject[objC];
+    objects = new hrObject[objectQuantity];
 
-    for ( quint32 i = 0; i < objC; i++ )
+    for ( quint32 i = 0; i < objectQuantity; i++ )
     {
         m >> objects[i];
         //objects[i].dump();
     }
 
-    quint32 tunedO = 0;
-    m >> tunedO;
+    m >> objectOptions;
 
-    obj = new hrObjectOptions[tunedO];
-    for ( quint32 i = 0; i < tunedO; i++ )
+    obj = new hrObjectOptions[objectOptions];
+    for ( quint32 i = 0; i < objectOptions; i++ )
     {
         //hrObjectOptions obj;
         m >> obj[i];
-        //obj.dump();
+        //obj[i].dump();
         switch(objects[obj[i].objectID].object_class)
         {
         case 5:

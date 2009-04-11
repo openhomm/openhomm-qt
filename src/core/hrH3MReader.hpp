@@ -323,4 +323,6 @@ protected:
     hrTile *underground;
     hrObject * objects;
     hrObjectOptions * obj;
+    quint32 objectQuantity;
+    quint32 objectOptions;
 };
