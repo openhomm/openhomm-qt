@@ -52,7 +52,7 @@ void hrScene::addItem(QString name)
 
 hrScene::hrScene(int width, int height)
 {
-    size.setRect(0, 0, width - 1, height - 1);
+    size.setRect(0, 0, width, height);
     tiles.append(QVector<hrTile>());
     addItem(0xFF, "default.def");
 }
@@ -141,7 +141,7 @@ void hrScene::addTile(hrTile tile)
     static int x = 0;
     static int y = 0;
 
-    if (x < size.width())
+    if (x < size.width() - 1)
     {
         tiles[y].append(tile);
         x++;
@@ -149,6 +149,7 @@ void hrScene::addTile(hrTile tile)
     else
     {
         x = 0;
+        tiles[y].append(tile);
         if (y < size.height())
         {
             tiles.append(QVector<hrTile>());
