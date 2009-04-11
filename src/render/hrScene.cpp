@@ -52,8 +52,7 @@ void hrScene::addItem(QString name)
 
 hrScene::hrScene(int width, int height)
 {
-    size.setRect(0, 0, width, height);
-    qDebug() << "size: " << size;
+    size.setRect(0, 0, width - 1, height - 1);
     tiles.append(QVector<hrTile>());
     addItem(0xFF, "default.def");
 }
@@ -99,7 +98,6 @@ void hrScene::addTile(hrTile tile)
             name = "rocktl.def";
             break;
     }
-
     addItem(tile.terrainId, name, true);
 
     if (tile.riverId != 0)
@@ -119,7 +117,7 @@ void hrScene::addTile(hrTile tile)
                 name = "lavrvr.def";
                 break;
         }
-        addItem(tile.riverId, name, true);
+        addItem(tile.riverId + 10, name, true);
     }
 
     if (tile.roadId != 0)
@@ -136,7 +134,7 @@ void hrScene::addTile(hrTile tile)
                 name = "cobbrd.def";
                 break;
         }
-        addItem(tile.roadId, name, true);
+        addItem(tile.roadId + 100, name, true);
     }
 
 
@@ -209,17 +207,17 @@ QImage hrScene::getImage(int id
 
 QImage hrScene::getImageTerrain(hrTile tile) const
 {
-    return getImage(tile.terrainId, tile.terrainFrame, tile.terrainHorizontal, tile.terrainVertical);
+    return getImage(tile.terrainId, tile.terrainFrame, tile.isTerrainHorizontal(), tile.isTerrainVertical());
 }
 
 QImage hrScene::getImageRiver(hrTile tile) const
 {
-    return getImage(tile.riverId, tile.riverFrame, tile.riverHorizontal, tile.riverVertical);
+    return getImage(tile.riverId + 10, tile.riverFrame, tile.isRiverHorizontal(), tile.isRiverVertical());
 }
 
 QImage hrScene::getImageRoad(hrTile tile) const
 {
-    return getImage(tile.roadId, tile.roadFrame, tile.roadHorizontal, tile.roadVertical);
+    return getImage(tile.roadId + 100, tile.roadFrame, tile.isRoadHorizontal(), tile.isRoadVertical());
 }
 
 QImage hrScene::getImage(const hrObject &object) const

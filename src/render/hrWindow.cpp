@@ -21,7 +21,7 @@ hrWindow::hrWindow(): QWidget()
     setWindowTitle("OpenHoMM, fullscreen - F11");
 
     hrH3MReader reader;
-    reader.load("maps/Mutare's Apprentice");
+    reader.load("maps/A Viking We Shall Go");
     int size = reader.getSize();
 
     scene = new hrScene(size, size);
@@ -29,7 +29,6 @@ hrWindow::hrWindow(): QWidget()
     for (int i = 0; i < size * size; i++)
     {
         hrTile tile = reader.getTile(i);
-        qDebug() << "r tile: " << tile.terrainId;
         scene->addTile(tile);
     }
 

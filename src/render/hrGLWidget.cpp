@@ -252,7 +252,7 @@ void hrGLWidget::scroll()
 void hrGLWidget::mouseMoveEvent(QMouseEvent * event)
 {
     QPoint pos = event->pos();
-    const int border = 50;
+    const int border = 30;
     const int c = 20;
     const int delay = 30;
     bool startScrollTimer = true;

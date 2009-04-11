@@ -77,7 +77,7 @@ bool hrH3MReader::load(const QString &name)
     }
 
     ground = new hrTile[basic.size*basic.size];
-    m.read( (char *) ground, sizeof(hrTile)*basic.size*basic.size );
+    m.readRawData( (char *) ground, sizeof(hrTile)*basic.size*basic.size );
 
     if ( basic.under == 1 )
     {

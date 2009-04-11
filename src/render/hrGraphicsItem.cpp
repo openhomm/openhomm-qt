@@ -69,8 +69,8 @@ void hrGraphicsItem::addImageMirrored(QImage im)
 {
     rect = im.rect();
     framesHV.append(im.mirrored(true, true));
-    framesH.append(im.mirrored(true));
-    framesV.append(im.mirrored(false, true));
+    framesH.append(im.mirrored(false, true));
+    framesV.append(im.mirrored(true, false));
     frames.append(im);
 }
 

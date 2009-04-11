@@ -27,36 +27,48 @@ public:
     quint8 riverFrame;
     quint8 roadId;
     quint8 roadFrame;
-    /*bool riverHorizontal : 1;
-    bool riverVertical : 1;
-    bool roadHorizontal : 1;
-    bool roadVertical : 1;
-    bool terrainHorizontal : 1;
-    bool terrainVertical : 1;*/
-    union
+    quint8 mirror;
+private:
+    enum
     {
-        struct
-        {
-            bool riverHorizontal : 1;
-            bool riverVertical : 1;
-            bool roadHorizontal : 1;
-            bool roadVertical : 1;
-            bool terrainHorizontal : 1;
-            bool terrainVertical : 1;
-        };
-        quint8 mirror;
+        terrainVertical = 0x1,
+        terrainHorizontal = 0x2,
+        riverVertical = 0x4,
+        riverHorizontal = 0x8,
+        roadVertical = 0x10,
+        roadHorizontal = 0x20
     };
-    /*hrTile() : terrainId(0xFF)
+public:
+    hrTile() : terrainId(0xFF)
             , terrainFrame(0)
             , riverId(0)
             , riverFrame(0)
             , roadId(0)
             , roadFrame(0)
-            , riverHorizontal(false)
-            , riverVertical(false)
-            , roadHorizontal(false)
-            , roadVertical(false)
-            , terrainHorizontal(false)
-            , terrainVertical(false)
-            {}*/
+            , mirror(0)
+            {}
+    bool isTerrainVertical()
+    {
+        return (mirror & terrainVertical);
+    }
+    bool isTerrainHorizontal()
+    {
+        return (mirror & terrainHorizontal);
+    }
+    bool isRiverVertical()
+    {
+        return (mirror & riverVertical);
+    }
+    bool isRiverHorizontal()
+    {
+        return (mirror & riverHorizontal);
+    }
+    bool isRoadVertical()
+    {
+        return (mirror & roadVertical);
+    }
+    bool isRoadHorizontal()
+    {
+        return (mirror & roadHorizontal);
+    }
 };
