@@ -27,7 +27,7 @@ public:
     hrSceneObject(QString name, QRect rect) : name(name), rect(rect) {}
     hrSceneObject(QString name, int x, int y, int width, int height) : name(name)
     {
-        rect.setRect(x, y, width, height);
+        rect.setRect(x - width + 1, y - height + 1, width, height);
     }
     hrSceneObject(QString name, int x, int y) : name(name)
     {

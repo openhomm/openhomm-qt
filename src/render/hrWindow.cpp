@@ -32,6 +32,13 @@ hrWindow::hrWindow(): QWidget()
         scene->addTile(tile);
     }
 
+    int cnt = reader.getObjectsCount();
+    for (int i = 0; i < cnt; i++)
+    {
+        hrSceneObject object = reader.getObject(i);
+        scene->addObject(object);
+    }
+
     scene->setCursor("cradvntr.def");
 
     w = new hrGLWidget(this, scene);

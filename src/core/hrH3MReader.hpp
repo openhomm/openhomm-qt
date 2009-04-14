@@ -19,6 +19,7 @@
 #include "hrString.hpp"
 #include "hrTile.hpp"
 #include "hrObject.hpp"
+#include "hrSceneObject.hpp"
 
 struct BasicParametres_t {
     quint32 version;
@@ -305,7 +306,9 @@ public:
     bool load(const QString &name);
     hrTile getTile(quint32 index, bool isUnderground = false);
 
-    int getSize();
+    int getSize() const;
+    int getObjectsCount() const;
+    hrSceneObject getObject(quint32 index) const;
 
 protected:
 

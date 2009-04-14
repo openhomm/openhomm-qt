@@ -322,9 +322,23 @@ hrTile hrH3MReader::getTile(quint32 index, bool isUnderground)
     return ground[index];
 }
 
-int hrH3MReader::getSize()
+int hrH3MReader::getSize() const
 {
     return basic.size;
+}
+
+int hrH3MReader::getObjectsCount() const
+{
+    return objectOptions;
+}
+
+hrSceneObject hrH3MReader::getObject(quint32 index) const
+{
+    Q_ASSERT( index >= 0 && index <= objectOptions);
+    return hrSceneObject(objects[obj[index].objectID].filename
+                         , obj[index].coord[0]
+                         , obj[index].coord[1]
+                         );
 }
 
 QDataStream &operator<<(QDataStream &out, const BasicParametres_t &)
