@@ -175,6 +175,7 @@ bool DefReader::readPalette()
     {
         QRgb rgb;
         // first color is alpha
+        rgb = qRgba(0, 0, 0, 0);
         colors.append(rgb);
         // second is light shadow
         rgb = qRgba(0, 0, 0, 128);
