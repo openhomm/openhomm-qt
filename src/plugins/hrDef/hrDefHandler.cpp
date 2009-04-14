@@ -74,13 +74,13 @@ private:
     bool readPalette();
     bool readBlockHeaders();
 
-    bool readFrame0(quint8 *imageBuffer, FrameHeader &fh);
-    bool readFrame1(quint8 *imageBuffer, quint8 *buf, FrameHeader &fh);
-    bool readFrame2(quint8 *imageBuffer, quint8 *buf, FrameHeader &fh);
-    bool readFrame3(quint8 *imageBuffer, quint8 *buf, FrameHeader &fh);
+    bool readFrame0(quint8 *imageBuffer, const FrameHeader &fh) const;
+    bool readFrame1(quint8 *imageBuffer, quint8 *buf, const FrameHeader &fh) const;
+    bool readFrame2(quint8 *imageBuffer, quint8 *buf, const FrameHeader &fh) const;
+    bool readFrame3(quint8 *imageBuffer, quint8 *buf, const FrameHeader &fh) const;
 
-    bool checkFrame(FrameHeader &fh);
-    void fillFrameBorders(quint8 *imageBuffer, FrameHeader &fh);
+    bool checkFrame(const FrameHeader &fh) const;
+    void fillFrameBorders(quint8 *imageBuffer, const FrameHeader &fh) const;
 
     QIODevice *dev;
 
@@ -174,13 +174,10 @@ bool DefReader::readPalette()
     if (dev->read((char*)buf, 256 * 3) == 256 * 3)
     {
         QRgb rgb;
-        int gray = 0;
         // first color is alpha
-        rgb = qRgba(buf[0], buf[1], buf[2], 0);
         colors.append(rgb);
         // second is light shadow
-        gray = qGray(buf[3], buf[4], buf[5]);
-        rgb = qRgba(0, 0, 0, gray);
+        rgb = qRgba(0, 0, 0, 128);
         colors.append(rgb);
         // only used in Tshre.def and AvGnoll.def
         rgb = qRgb(buf[6], buf[7], buf[8]);
@@ -189,8 +186,7 @@ bool DefReader::readPalette()
         rgb = qRgb(buf[9], buf[10], buf[11]);
         colors.append(rgb);
         // strong shadow
-        gray = qGray(buf[12], buf[13], buf[14]);
-        rgb = qRgba(0, 0, 0, gray);
+        rgb = qRgba(0, 0, 0, 64);
         colors.append(rgb);
 
         for(int i = 5, j = 15; i < 256; i++, j += 3)
@@ -253,7 +249,7 @@ bool DefReader::readHeader()
     return false;
 }
 
-bool DefReader::checkFrame(FrameHeader &fh)
+bool DefReader::checkFrame(const FrameHeader &fh) const
 {
     if (fh.marginLeft + fh.widthFrame <= fh.widthFull
         && fh.marginTop + fh.heightFrame <= fh.heightFull)
@@ -262,7 +258,7 @@ bool DefReader::checkFrame(FrameHeader &fh)
         return false;
 }
 
-bool DefReader::readFrame0(quint8 *imageBuffer, FrameHeader &fh)
+bool DefReader::readFrame0(quint8 *imageBuffer, const FrameHeader &fh) const
 {
     if (dev->read((char*)imageBuffer, fh.size) == fh.size)
     {
@@ -271,7 +267,7 @@ bool DefReader::readFrame0(quint8 *imageBuffer, FrameHeader &fh)
     return false;
 }
 
-void DefReader::fillFrameBorders(quint8 *imageBuffer, FrameHeader &fh)
+void DefReader::fillFrameBorders(quint8 *imageBuffer, const FrameHeader &fh) const
 {
     if (fh.widthFrame == fh.widthFull
         && fh.heightFrame == fh.heightFull)
@@ -298,7 +294,7 @@ void DefReader::fillFrameBorders(quint8 *imageBuffer, FrameHeader &fh)
             *line++ = 0;
 }
 
-bool DefReader::readFrame1(quint8 *imageBuffer, quint8 *buf, FrameHeader & fh)
+bool DefReader::readFrame1(quint8 *imageBuffer, quint8 *buf, const FrameHeader & fh) const
 {
     quint32 *offsets = (quint32*)&buf[0];
 
@@ -353,7 +349,7 @@ bool DefReader::readFrame1(quint8 *imageBuffer, quint8 *buf, FrameHeader & fh)
     return true;
 }
 
-bool DefReader::readFrame2(quint8 *imageBuffer, quint8 *buf, FrameHeader & fh)
+bool DefReader::readFrame2(quint8 *imageBuffer, quint8 *buf, const FrameHeader & fh) const
 {
     quint16 *offsets = (quint16*)&buf[0];
 
@@ -408,7 +404,7 @@ bool DefReader::readFrame2(quint8 *imageBuffer, quint8 *buf, FrameHeader & fh)
     return true;
 }
 
-bool DefReader::readFrame3(quint8 *imageBuffer, quint8 *buf, FrameHeader &fh)
+bool DefReader::readFrame3(quint8 *imageBuffer, quint8 *buf, const FrameHeader &fh) const
 {
     quint16 *offsets = (quint16*)&buf[0];
 
@@ -482,7 +478,7 @@ bool DefReader::read(QImage *image)
     if (!count()) // forces header to be read
         return false;
 
-    if (!dev->seek(blocks[curBlock].offsets[curFrame]))
+    if (!dev->seek(blocks.at(curBlock).offsets.at(curFrame)))
         return false;
 
     FrameHeader fh;
@@ -665,8 +661,7 @@ void hrDefHandler::setOption(ImageOption option, const QVariant &value)
 
 bool hrDefHandler::supportsOption(ImageOption option) const
 {
-    return option == Size
-        || option == Animation;
+    return option == Size;
 }
 
 QByteArray hrDefHandler::name() const
