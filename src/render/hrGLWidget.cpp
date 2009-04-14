@@ -242,6 +242,8 @@ void hrGLWidget::scroll()
     }
     else
     {
+        viewport.moveTo(oldPos - QPoint(dx, 0));
+        size.contains(viewport) ? dy = 0 : dx = 0;
         viewport.moveTo(oldPos);
     }
 }

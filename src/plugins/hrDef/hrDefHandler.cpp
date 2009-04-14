@@ -178,7 +178,7 @@ bool DefReader::readPalette()
         rgb = qRgba(0, 0, 0, 0);
         colors.append(rgb);
         // second is light shadow
-        rgb = qRgba(0, 0, 0, 128);
+        rgb = qRgba(0, 0, 0, 64);
         colors.append(rgb);
         // only used in Tshre.def and AvGnoll.def
         rgb = qRgb(buf[6], buf[7], buf[8]);
@@ -187,7 +187,7 @@ bool DefReader::readPalette()
         rgb = qRgb(buf[9], buf[10], buf[11]);
         colors.append(rgb);
         // strong shadow
-        rgb = qRgba(0, 0, 0, 64);
+        rgb = qRgba(0, 0, 0, 128);
         colors.append(rgb);
 
         for(int i = 5, j = 15; i < 256; i++, j += 3)
