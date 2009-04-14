@@ -131,19 +131,12 @@ void hrGLWidget::animateTiles() const
         {
             hrTile tile = scene->getTile(x, y);
             hrGraphicsItem *item = scene->getItem(tile.terrainId);
-            for (int i = 0; i < item->getBlocksCount(); i++)
-            {
-                item->setCurBlock(i);
-                item->nextFrame();
-            }
+            item->nextFrame();
+
             if (tile.hasRiver())
             {
                 item = scene->getItem(tile.getRiverId());
-                for (int i = 0; i < item->getBlocksCount(); i++)
-                {
-                    item->setCurBlock(i);
-                    item->nextFrame();
-                }
+                item->nextFrame();
             }
         }
 }
@@ -257,7 +250,7 @@ void hrGLWidget::scroll()
 void hrGLWidget::mouseMoveEvent(QMouseEvent * event)
 {
     QPoint pos = event->pos();
-    const int border = 30;
+    const int border = 50;
     const int c = 20;
     const int delay = 30;
     bool startScrollTimer = true;
