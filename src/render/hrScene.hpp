@@ -20,44 +20,7 @@
 #include "hrTile.hpp"
 #include "hrGraphicsItem.hpp"
 #include "hrCoord.hpp"
-
-class hrObject
-{
-    QString name;
-    QRect rect;
-public:
-    hrObject() { name = "default.def"; }
-    hrObject(QString name, QRect rect) : name(name), rect(rect) {}
-    hrObject(QString name, int x, int y, int width, int height) : name(name)
-    {
-        rect.setRect(x, y, width, height);
-    }
-    hrObject(QString name, int x, int y) : name(name)
-    {
-        rect.setX(x);
-        rect.setY(y);
-    }
-    QString getName() const
-    {
-        return name;
-    }
-    QPoint getPoint() const
-    {
-        return QPoint(x(), y());
-    }
-    int x() const
-    {
-        return rect.x();
-    }
-    int y() const
-    {
-        return rect.y();
-    }
-    QRect getRect() const
-    {
-        return rect;
-    }
-};
+#include "hrSceneObject.hpp"
 
 class hrScene
 {
@@ -66,7 +29,7 @@ public:
     ~hrScene();
 
     void addTile(hrTile tile);
-    void addObject(hrObject object);
+    void addObject(hrSceneObject object);
     void removeObject(int x, int y);
 
     void setCursor(QString name);
@@ -83,14 +46,14 @@ public:
     QImage getImageTerrain(const hrTile &tile) const;
     QImage getImageRiver(const hrTile &tile) const;
     QImage getImageRoad(const hrTile &tile) const;
-    QImage getImage(const hrObject &object) const;
-    hrGraphicsItem* getItem(const hrObject &object) const;
+    QImage getImage(const hrSceneObject &object) const;
+    hrGraphicsItem* getItem(const hrSceneObject &object) const;
     hrGraphicsItem* getItem(const hrTile &tile) const;
 
     QVector<hrTile> getViewportTiles() const;
     hrTile getTile(int x, int y) const;
-    QLinkedList<hrObject> getViewportObjects() const;
-    QLinkedList<hrObject> getAllObjects() const;
+    QLinkedList<hrSceneObject> getViewportObjects() const;
+    QLinkedList<hrSceneObject> getAllObjects() const;
 
 public slots:
 //mouseClick()
@@ -99,7 +62,7 @@ public slots:
 
 private:
     QVector< QVector<hrTile> > tiles;
-    QLinkedList<hrObject> objects;
+    QLinkedList<hrSceneObject> objects;
     QMap<int, hrGraphicsItem*> items;
     QHash<QString, hrGraphicsItem*> items_obj;
     QVector<QCursor> cursor;

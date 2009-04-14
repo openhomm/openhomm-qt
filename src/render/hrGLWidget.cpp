@@ -56,7 +56,7 @@ hrGLWidget::hrGLWidget(QWidget *parent, hrScene *scene)
     if (textureTarget == GL_TEXTURE_2D)
     {
         objects = scene->getAllObjects();
-        QLinkedListIterator<hrObject> it(objects);
+        QLinkedListIterator<hrSceneObject> it(objects);
         while (it.hasNext())
         {
             hrGraphicsItem* item = scene->getItem(it.next());
@@ -166,7 +166,7 @@ void hrGLWidget::paintGL()
         }
 
 
-    QLinkedListIterator<hrObject> it(objects);
+    QLinkedListIterator<hrSceneObject> it(objects);
 
     if (isAnimate)
     {
@@ -180,7 +180,7 @@ void hrGLWidget::paintGL()
 
     while (it.hasNext())
     {
-        hrObject obj = it.next();
+        hrSceneObject obj = it.next();
         QImage im = scene->getImage(obj);
         id = bindTexture(im, textureTarget, GL_RGBA8);
         drawTexture(coord::toPixPoint(obj.getPoint()), id, textureTarget);

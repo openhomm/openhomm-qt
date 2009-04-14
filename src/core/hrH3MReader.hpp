@@ -18,6 +18,7 @@
 
 #include "hrString.hpp"
 #include "hrTile.hpp"
+#include "hrObject.hpp"
 
 struct BasicParametres_t {
     quint32 version;
@@ -85,7 +86,6 @@ struct PlayerAttributes_t {
 //  if ( heroesCount > 0 ) {
     QVector<Hero_t> heroes;
 //  }
-    void dump();
 };
 QDataStream &operator<<(QDataStream &, const PlayerAttributes_t &);
 QDataStream &operator>>(QDataStream &, PlayerAttributes_t &);
@@ -218,13 +218,6 @@ struct Rumors_t
 QDataStream &operator<<(QDataStream &, const Rumors_t &);
 QDataStream &operator>>(QDataStream &, Rumors_t &);
 
-struct SecondarySkill_t {
-    quint8 skillID;
-    quint8 skillLevel;
-};
-QDataStream &operator<<(QDataStream &, const SecondarySkill_t &);
-QDataStream &operator>>(QDataStream &, SecondarySkill_t &);
-
 struct HeroOptions_enabled {
     quint8 isExp;
 
@@ -313,10 +306,6 @@ public:
     hrTile getTile(quint32 index, bool isUnderground = false);
     int getSize();
 
-private:
-    hrTile *ground;
-    hrTile *underground;
-
 protected:
 
 // data
@@ -332,4 +321,11 @@ protected:
     Rumors_t rumors;
     quint8 enable[156];
     HeroOptions_enabled heroOptions[156];
+
+    hrTile *ground;
+    hrTile *underground;
+    hrObject * objects;
+    hrObjectOptions * obj;
+    quint32 objectQuantity;
+    quint32 objectOptions;
 };

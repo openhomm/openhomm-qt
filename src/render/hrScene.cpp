@@ -186,12 +186,12 @@ void hrScene::addTile(hrTile tile)
     }
 }
 
-void hrScene::addObject(hrObject object)
+void hrScene::addObject(hrSceneObject object)
 {
     addItem(object.getName());
 
     QRect r = items_obj.value(object.getName())->getRect();
-    objects.append( hrObject(object.getName()
+    objects.append( hrSceneObject(object.getName()
                              , object.x()
                              , object.y()
                              , toCell(r.width())
@@ -255,12 +255,12 @@ QImage hrScene::getImageRoad(const hrTile &tile) const
     return getImage(tile.getRoadId(), tile.getRoadFrame(), tile.isRoadHorizontal(), tile.isRoadVertical());
 }
 
-QImage hrScene::getImage(const hrObject &object) const
+QImage hrScene::getImage(const hrSceneObject &object) const
 {
     return items_obj.value(object.getName())->getFrame();
 }
 
-hrGraphicsItem* hrScene::getItem(const hrObject &object) const
+hrGraphicsItem* hrScene::getItem(const hrSceneObject &object) const
 {
     return items_obj.value(object.getName());
 }
@@ -289,11 +289,11 @@ hrTile hrScene::getTile(int x, int y) const
     return hrTile();
 }
 
-QLinkedList<hrObject> hrScene::getViewportObjects() const
+QLinkedList<hrSceneObject> hrScene::getViewportObjects() const
 {
-    QLinkedList<hrObject> l;
-    QLinkedListIterator<hrObject> it(objects);
-    hrObject obj;
+    QLinkedList<hrSceneObject> l;
+    QLinkedListIterator<hrSceneObject> it(objects);
+    hrSceneObject obj;
     while (it.hasNext())
     {
         obj = it.next();
@@ -305,7 +305,7 @@ QLinkedList<hrObject> hrScene::getViewportObjects() const
     return l;
 }
 
-QLinkedList<hrObject> hrScene::getAllObjects() const
+QLinkedList<hrSceneObject> hrScene::getAllObjects() const
 {
     return objects;
 }
