@@ -54,6 +54,22 @@ QImage hrGraphicsItem::getFrame(int frame, bool horizontal, bool vertical) const
         return b.frames.at(frame);
 }
 
+QImage hrGraphicsItem::getFrame(bool horizontal, bool vertical)
+{
+    if (isNextFrame)
+        isNextFrame = false;
+
+    const Block &b = blocks.at(curBlock);
+    if (horizontal && vertical)
+        return b.framesHV.at(curFrame);
+    else if (horizontal)
+        return b.framesH.at(curFrame);
+    else if (vertical)
+        return b.framesV.at(curFrame);
+    else
+        return b.frames.at(curFrame);
+}
+
 QImage hrGraphicsItem::getFrame()
 {
     if (isNextFrame)

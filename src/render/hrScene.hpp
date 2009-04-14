@@ -48,7 +48,7 @@ public:
     QImage getImageRoad(const hrTile &tile) const;
     QImage getImage(const hrSceneObject &object) const;
     hrGraphicsItem* getItem(const hrSceneObject &object) const;
-    hrGraphicsItem* getItem(const hrTile &tile) const;
+    hrGraphicsItem* getItem(int id) const;
 
     QVector<hrTile> getViewportTiles() const;
     hrTile getTile(int x, int y) const;
@@ -71,7 +71,7 @@ private:
 
     void addItem(int id, QString name, bool mirrored = false);
     void addItem(QString name);
-    void PaletteAnimation(QImage &im);
+    void CyclShiftPalette(int a, int b, QImage &im);
 };
 
 #endif // HRSCENE_H

@@ -41,6 +41,7 @@ public:
     void nextFrame();
     QImage getNextFrame();
     QImage getFrame(int frame, bool horizontal = false, bool vertical = false) const;
+    QImage getFrame(bool horizontal, bool vertical);
     QImage getFrame();
     const QRect& getRect() const;
     void modifyFrame(QImage im);

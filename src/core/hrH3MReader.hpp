@@ -304,6 +304,7 @@ public:
 
     bool load(const QString &name);
     hrTile getTile(quint32 index, bool isUnderground = false);
+
     int getSize();
 
 protected:

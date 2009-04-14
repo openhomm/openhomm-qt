@@ -16,21 +16,15 @@
 //
 #include "hrScene.hpp"
 
-void hrScene::PaletteAnimation(QImage &im)
+void hrScene::CyclShiftPalette(int a, int b, QImage &im)
 {
-    im.setColor(229, im.color(241));
-    im.setColor(242, im.color(254));
-    for (int i = 0; i < 11; i++)
+    QRgb c = im.color(b);
+    for (int i = b; i > a; i--)
     {
-        QRgb color = im.color(230 + i + 1);
-        im.setColor(230 + i + 1, im.color(230 + i));
-        im.setColor(230 + i, color);
-        color = im.color(243 + i + 1);
-        im.setColor(243 + i + 1, im.color(243 + i));
-        im.setColor(243 + i, color);
+        im.setColor(i, im.color(i - 1));
     }
+    im.setColor(a, c);
 }
-
 
 void hrScene::addItem(int id, QString name, bool mirrored)
 {
@@ -40,22 +34,50 @@ void hrScene::addItem(int id, QString name, bool mirrored)
         QImageReader ir("lod:/data/h3sprite.lod/" + name);
         QImage im;
         for (int i = 0; ir.jumpToImage(i); i++)
+        {
             if (ir.read(&im))
             {
-                /*if (name == "watrtl.def")
+                mirrored ? item->addImageMirrored(im) : item->addImage(im);
+
+                if (name == "watrtl.def")
                 {
-                    for (int i = 0; i < 12; i++)
+                    for (int j = 0; j < 11; j++)
                     {
-                        PaletteAnimation(im);
+                        CyclShiftPalette(229, 240, im);
+                        CyclShiftPalette(242, 253, im);
                         mirrored ? item->addImageMirrored(im) : item->addImage(im);
                     }
                     item->addBlock();
                 }
-                else*/
+                else if (name == "clrrvr.def")
                 {
-                    mirrored ? item->addImageMirrored(im) : item->addImage(im);
+                    for (int j = 0; j < 11; j++)
+                    {
+                        CyclShiftPalette(189, 200, im);
+                        mirrored ? item->addImageMirrored(im) : item->addImage(im);
+                    }
+                    item->addBlock();
+                }
+                else if (name == "mudrvr.def")
+                {
+                    for (int j = 0; j < 11; j++)
+                    {
+                        CyclShiftPalette(228, 239, im);
+                        mirrored ? item->addImageMirrored(im) : item->addImage(im);
+                    }
+                    item->addBlock();
+                }
+                else if (name == "lavrvr.def")
+                {
+                    for (int j = 0; j < 8; j++)
+                    {
+                        CyclShiftPalette(240, 248, im);
+                        mirrored ? item->addImageMirrored(im) : item->addImage(im);
+                    }
+                    item->addBlock();
                 }
             }
+        }
 
         items[id] = item;
     }
@@ -236,23 +258,44 @@ QImage hrScene::getImage(int id
 
 QImage hrScene::getImageTerrain(const hrTile &tile) const
 {
-    /*if (tile.terrainId == 8) // "watrtl.def"
+    if (tile.terrainId == 8) // "watrtl.def"
     {
         hrGraphicsItem *item = items.value(tile.terrainId);
         item->setCurBlock(tile.terrainFrame);
-        return item->getFrame(0, tile.isTerrainHorizontal(), tile.isTerrainVertical());
-    }*/
-    return getImage(tile.terrainId, tile.getTerrainFrame(), tile.isTerrainHorizontal(), tile.isTerrainVertical());
+        return item->getFrame(tile.isTerrainHorizontal(), tile.isTerrainVertical());
+    }
+    return getImage(tile.terrainId
+                    , tile.getTerrainFrame()
+                    , tile.isTerrainHorizontal()
+                    , tile.isTerrainVertical()
+                    );
 }
 
 QImage hrScene::getImageRiver(const hrTile &tile) const
 {
-    return getImage(tile.getRiverId(), tile.getRiverFrame(), tile.isRiverHorizontal(), tile.isRiverVertical());
+    if (tile.riverId != 2) // not "icyrvr.def"
+    {
+        hrGraphicsItem *item = items.value(tile.getRiverId());
+        item->setCurBlock(tile.riverFrame);
+        return item->getFrame(tile.isRiverHorizontal(), tile.isRiverVertical());
+    }
+    else
+    {
+        return getImage(tile.getRiverId()
+                        , tile.getRiverFrame()
+                        , tile.isRiverHorizontal()
+                        , tile.isRiverVertical()
+                        );
+    }
 }
 
 QImage hrScene::getImageRoad(const hrTile &tile) const
 {
-    return getImage(tile.getRoadId(), tile.getRoadFrame(), tile.isRoadHorizontal(), tile.isRoadVertical());
+    return getImage(tile.getRoadId()
+                    , tile.getRoadFrame()
+                    , tile.isRoadHorizontal()
+                    , tile.isRoadVertical()
+                    );
 }
 
 QImage hrScene::getImage(const hrSceneObject &object) const
@@ -265,9 +308,9 @@ hrGraphicsItem* hrScene::getItem(const hrSceneObject &object) const
     return items_obj.value(object.getName());
 }
 
-hrGraphicsItem* hrScene::getItem(const hrTile &tile) const
+hrGraphicsItem* hrScene::getItem(int id) const
 {
-    return items.value(tile.terrainId);
+    return items.value(id);
 }
 
 QVector<hrTile> hrScene::getViewportTiles() const

@@ -55,15 +55,19 @@ private:
     int dy;
 
     bool isAnimate;
+    void animateTiles() const;
+    void animateObjects() const;
+
+    void drawTiles();
+    void drawObjects();
 
     void Begin();
     void End();
 
-    void PaletteAnimation(QImage &im);
-    void ImageToPOT(hrGraphicsItem *item, QImage im);
-    qint32 NearestGLTextureSize(qint32 v);
+    void ImageToPOT(hrGraphicsItem *item, QImage im) const;
+    qint32 NearestGLTextureSize(qint32 v) const;
 
-    int getTextureTarget();
+    int getTextureTarget() const;
     int maxTexDim;
     int textureTarget;
 

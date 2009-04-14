@@ -120,30 +120,43 @@ void hrGLWidget::End()
 {
 }
 
-void hrGLWidget::paintGL()
+void hrGLWidget::animateTiles() const
 {
-    //Begin();
-    glClear(GL_COLOR_BUFFER_BIT);
-    GLuint id = 0;
-
     QRect r = scene->getSceneViewport();
+    int bottom = r.y() + r.height();
+    int right = r.x() + r.width();
 
-    /*if (isAnimate)
-    {
-        for (int y = r.y(); y < r.y() + r.height(); y++)
-            for (int x = r.x(); x < r.x() + r.width(); x++)
+    for (int y = r.y(); y < bottom; y++)
+        for (int x = r.x(); x < right; x++)
+        {
+            hrTile tile = scene->getTile(x, y);
+            hrGraphicsItem *item = scene->getItem(tile.terrainId);
+            for (int i = 0; i < item->getBlocksCount(); i++)
             {
-                hrGraphicsItem *item = scene->getItem(scene->getTile(x, y));
+                item->setCurBlock(i);
+                item->nextFrame();
+            }
+            if (tile.hasRiver())
+            {
+                item = scene->getItem(tile.getRiverId());
                 for (int i = 0; i < item->getBlocksCount(); i++)
                 {
                     item->setCurBlock(i);
                     item->nextFrame();
                 }
             }
-    }*/
+        }
+}
 
-    for (int y = r.y(); y < r.y() + r.height(); y++)
-        for (int x = r.x(); x < r.x() + r.width(); x++)
+void hrGLWidget::drawTiles()
+{
+    GLuint id = 0;
+    QRect r = scene->getSceneViewport();
+    int bottom = r.y() + r.height();
+    int right = r.x() + r.width();
+
+    for (int y = r.y(); y < bottom; y++)
+        for (int x = r.x(); x < right; x++)
         {
             QPoint point = coord::toPixPoint(QPoint(x, y));
             hrTile tile = scene->getTile(x, y);
@@ -164,20 +177,22 @@ void hrGLWidget::paintGL()
                 drawTexture(point, id , textureTarget);
             }
         }
+}
 
-
+void hrGLWidget::animateObjects() const
+{
     QLinkedListIterator<hrSceneObject> it(objects);
-
-    if (isAnimate)
+    while (it.hasNext())
     {
-        while (it.hasNext())
-        {
-            hrGraphicsItem *item = scene->getItem(it.next());
-            item->nextFrame();
-        }
-        it.toFront();
+        hrGraphicsItem *item = scene->getItem(it.next());
+        item->nextFrame();
     }
+}
 
+void hrGLWidget::drawObjects()
+{
+    GLuint id = 0;
+    QLinkedListIterator<hrSceneObject> it(objects);
     while (it.hasNext())
     {
         hrSceneObject obj = it.next();
@@ -185,58 +200,26 @@ void hrGLWidget::paintGL()
         id = bindTexture(im, textureTarget, GL_RGBA8);
         drawTexture(coord::toPixPoint(obj.getPoint()), id, textureTarget);
     }
+}
+
+void hrGLWidget::paintGL()
+{
+    //Begin();
+    glClear(GL_COLOR_BUFFER_BIT);
+
+    if (isAnimate)
+        animateTiles();
+
+    drawTiles();
+
+    if (isAnimate)
+        animateObjects();
+
+    drawObjects();
 
     //End();
 }
 
-void hrGLWidget::PaletteAnimation(QImage &im)
-{
-    im.setColor(229, im.color(241));
-    im.setColor(242, im.color(254));
-    for (int i = 0; i < 11; i++)
-    {
-        im.setColor((230 + i + 1), im.color(230 + i));
-        im.setColor((243 + i + 1), im.color(243 + i));
-    }
-}
-
-void hrGLWidget::ImageToPOT(hrGraphicsItem *item, QImage im)
-{
-    int s = NearestGLTextureSize(qMax(im.width(), im.height()));
-    if (im.height() < s || im.width() < s)
-    {
-        item->modifyFrame(im.copy(0, 0, s, s));
-    }
-    else if (im.height() > s || im.width() > s)
-    {
-        // todo
-        qWarning("too big texture");
-        item->modifyFrame(im.copy(0, 0, s, s));
-    }
-}
-
-// returns the highest number closest to v, which is a power of 2
-qint32 hrGLWidget::NearestGLTextureSize(qint32 v)
-{
-    qint32 n = 0, last = 0;
-    qint32 s;
-
-    for (s = 0; s < 32; ++s)
-    {
-        if (((v >> s) & 1) == 1)
-        {
-            ++n;
-            last = s;
-        }
-    }
-
-    if (n > 1)
-        s = 1 << (last + 1);
-    else
-        s = 1 << last;
-
-    return qMin(s, maxTexDim);
-}
 
 void hrGLWidget::animate()
 {
@@ -357,7 +340,7 @@ void hrGLWidget::leaveEvent(QEvent * event)
     }
 }
 
-int hrGLWidget::getTextureTarget()
+int hrGLWidget::getTextureTarget() const
 {
     QString extensions(reinterpret_cast<const char *>(glGetString(GL_EXTENSIONS)));
 
@@ -383,3 +366,40 @@ int hrGLWidget::getTextureTarget()
     }
 }
 
+void hrGLWidget::ImageToPOT(hrGraphicsItem *item, QImage im) const
+{
+    int s = NearestGLTextureSize(qMax(im.width(), im.height()));
+    if (im.height() < s || im.width() < s)
+    {
+        item->modifyFrame(im.copy(0, 0, s, s));
+    }
+    else if (im.height() > s || im.width() > s)
+    {
+        // todo
+        qWarning("too big texture");
+        item->modifyFrame(im.copy(0, 0, s, s));
+    }
+}
+
+// returns the highest number closest to v, which is a power of 2
+qint32 hrGLWidget::NearestGLTextureSize(qint32 v) const
+{
+    qint32 n = 0, last = 0;
+    qint32 s;
+
+    for (s = 0; s < 32; ++s)
+    {
+        if (((v >> s) & 1) == 1)
+        {
+            ++n;
+            last = s;
+        }
+    }
+
+    if (n > 1)
+        s = 1 << (last + 1);
+    else
+        s = 1 << last;
+
+    return qMin(s, maxTexDim);
+}
