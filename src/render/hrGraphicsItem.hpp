@@ -22,11 +22,16 @@
 class hrGraphicsItem
 {
 private:
-    QVector<QImage> frames;
-    QVector<QImage> framesH;
-    QVector<QImage> framesV;
-    QVector<QImage> framesHV;
+    struct Block
+    {
+        QVector<QImage> frames;
+        QVector<QImage> framesH;
+        QVector<QImage> framesV;
+        QVector<QImage> framesHV;
+    };
+    QVector<Block> blocks;
     int curFrame;
+    int curBlock;
     bool isNextFrame;
     QRect rect;
 public:
@@ -37,11 +42,15 @@ public:
     QImage getNextFrame();
     QImage getFrame(int frame, bool horizontal = false, bool vertical = false) const;
     QImage getFrame();
-    QRect getRect() const;
+    const QRect& getRect() const;
     void modifyFrame(QImage im);
 
     void addImage(QImage im);
     void addImageMirrored(QImage im);
+
+    void addBlock();
+    void setCurBlock(int i);
+    int getBlocksCount() const;
 };
 
 #endif // HRGRAPHICSITEM_H

@@ -80,11 +80,12 @@ public:
                    , int frame
                    , bool horizontal = false
                    , bool vertical = false) const;
-    QImage getImageTerrain(hrTile tile) const;
-    QImage getImageRiver(hrTile tile) const;
-    QImage getImageRoad(hrTile tile) const;
+    QImage getImageTerrain(const hrTile &tile) const;
+    QImage getImageRiver(const hrTile &tile) const;
+    QImage getImageRoad(const hrTile &tile) const;
     QImage getImage(const hrObject &object) const;
     hrGraphicsItem* getItem(const hrObject &object) const;
+    hrGraphicsItem* getItem(const hrTile &tile) const;
 
     QVector<hrTile> getViewportTiles() const;
     hrTile getTile(int x, int y) const;
@@ -107,6 +108,7 @@ private:
 
     void addItem(int id, QString name, bool mirrored = false);
     void addItem(QString name);
+    void PaletteAnimation(QImage &im);
 };
 
 #endif // HRSCENE_H

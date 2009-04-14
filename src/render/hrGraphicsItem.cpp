@@ -16,75 +16,95 @@
 //
 #include "hrGraphicsItem.hpp"
 
-hrGraphicsItem::hrGraphicsItem() : curFrame(0)
+hrGraphicsItem::hrGraphicsItem() : curFrame(0), curBlock(0)
 {
     isNextFrame = false;
+    blocks.append(Block());
 }
 
 void hrGraphicsItem::nextFrame()
 {
+    const Block &b = blocks.at(curBlock);
     if (!isNextFrame)
     {
-        curFrame < frames.size() - 1 ? curFrame++ : curFrame = 0;
+        curFrame < b.frames.size() - 1 ? curFrame++ : curFrame = 0;
         isNextFrame = true;
     }
 }
 
 QImage hrGraphicsItem::getNextFrame()
 {
-    curFrame < frames.size() - 1 ? curFrame++ : curFrame = 0;
-    return frames.at(curFrame);
+    const Block &b = blocks.at(curBlock);
+    curFrame < b.frames.size() - 1 ? curFrame++ : curFrame = 0;
+    return b.frames.at(curFrame);
 }
 
 QImage hrGraphicsItem::getFrame(int frame, bool horizontal, bool vertical) const
 {
-    if (frame < frames.size())
-    {
-        if (horizontal && vertical)
-            return framesHV.at(frame);
-        else if (horizontal)
-            return framesH.at(frame);
-        else if (vertical)
-            return framesV.at(frame);
-        else
-            return frames.at(frame);
-    }
-    return QImage();
+    const Block &b = blocks.at(curBlock);
+    Q_ASSERT(frame >= 0 && frame < b.frames.size());
+
+    if (horizontal && vertical)
+        return b.framesHV.at(frame);
+    else if (horizontal)
+        return b.framesH.at(frame);
+    else if (vertical)
+        return b.framesV.at(frame);
+    else
+        return b.frames.at(frame);
 }
 
 QImage hrGraphicsItem::getFrame()
 {
     if (isNextFrame)
         isNextFrame = false;
-    return frames.at(curFrame);
+    return blocks.at(curBlock).frames.at(curFrame);
 }
 
 void hrGraphicsItem::addImage(QImage im)
 {
     rect = im.rect();
-    frames.append(im);
+    blocks[curBlock].frames.append(im);
 }
 
 void hrGraphicsItem::addImageMirrored(QImage im)
 {
     rect = im.rect();
-    framesHV.append(im.mirrored(true, true));
-    framesH.append(im.mirrored(false, true));
-    framesV.append(im.mirrored(true, false));
-    frames.append(im);
+    Block &b = blocks[curBlock];
+    b.framesHV.append(im.mirrored(true, true));
+    b.framesH.append(im.mirrored(true, false));
+    b.framesV.append(im.mirrored(false, true));
+    b.frames.append(im);
 }
 
 void hrGraphicsItem::modifyFrame(QImage im)
 {
-    frames[curFrame] = im;
+    blocks[curBlock].frames[curFrame] = im;
 }
 
 int hrGraphicsItem::getFramesCount() const
 {
-    return frames.size();
+    return blocks.at(curBlock).frames.size();
 }
 
-QRect hrGraphicsItem::getRect() const
+const QRect& hrGraphicsItem::getRect() const
 {
     return rect;
+}
+
+void hrGraphicsItem::addBlock()
+{
+    curBlock++;
+    blocks.append(Block());
+}
+
+void hrGraphicsItem::setCurBlock(int i)
+{
+    Q_ASSERT(i >= 0 && i < blocks.size());
+    curBlock = i;
+}
+
+int hrGraphicsItem::getBlocksCount() const
+{
+    return blocks.size();
 }

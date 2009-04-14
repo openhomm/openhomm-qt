@@ -31,12 +31,12 @@ public:
 private:
     enum
     {
-        terrainVertical = 0x1,
-        terrainHorizontal = 0x2,
-        riverVertical = 0x4,
-        riverHorizontal = 0x8,
-        roadVertical = 0x10,
-        roadHorizontal = 0x20
+        terrainHorizontal = 0x1,
+        terrainVertical = 0x2,
+        riverHorizontal = 0x4,
+        riverVertical = 0x8,
+        roadHorizontal = 0x10,
+        roadVertical = 0x20
     };
 public:
     hrTile() : terrainId(0xFF)
@@ -47,28 +47,56 @@ public:
             , roadFrame(0)
             , mirror(0)
             {}
-    bool isTerrainVertical()
+    bool hasRiver() const
     {
-        return (mirror & terrainVertical);
+        return riverId != 0 ? true : false;
     }
-    bool isTerrainHorizontal()
+    int getRiverId() const
     {
-        return (mirror & terrainHorizontal);
+        return riverId + 100;
     }
-    bool isRiverVertical()
+    bool hasRoad() const
     {
-        return (mirror & riverVertical);
+        return roadId != 0 ? true : false;
     }
-    bool isRiverHorizontal()
+    int getRoadId() const
     {
-        return (mirror & riverHorizontal);
+        return roadId + 200;
     }
-    bool isRoadVertical()
+    int getTerrainFrame() const
     {
-        return (mirror & roadVertical);
+        return terrainFrame;
     }
-    bool isRoadHorizontal()
+    int getRoadFrame() const
     {
-        return (mirror & roadHorizontal);
+        return roadFrame;
+    }
+    int getRiverFrame() const
+    {
+        return riverFrame;
+    }
+    bool isTerrainVertical() const
+    {
+        return mirror & terrainVertical;
+    }
+    bool isTerrainHorizontal() const
+    {
+        return mirror & terrainHorizontal;
+    }
+    bool isRiverVertical() const
+    {
+        return mirror & riverVertical;
+    }
+    bool isRiverHorizontal() const
+    {
+        return mirror & riverHorizontal;
+    }
+    bool isRoadVertical() const
+    {
+        return mirror & roadVertical;
+    }
+    bool isRoadHorizontal() const
+    {
+        return mirror & roadHorizontal;
     }
 };

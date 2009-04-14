@@ -30,7 +30,8 @@
 
 
 hrGLWidget::hrGLWidget(QWidget *parent, hrScene *scene)
- : QGLWidget(QGLFormat(QGL::SampleBuffers), parent), scene(scene)
+ : QGLWidget(parent)
+ , scene(scene)
 {
     isAnimate = false;
     dx = 0; dy = 0;
@@ -41,7 +42,6 @@ hrGLWidget::hrGLWidget(QWidget *parent, hrScene *scene)
     setCursor(scene->getCursor(0));
 
     makeCurrent();
-    setAutoBufferSwap(true);
 
     // todo: use it
     GLint param;
@@ -128,26 +128,38 @@ void hrGLWidget::paintGL()
 
     QRect r = scene->getSceneViewport();
 
+    /*if (isAnimate)
+    {
+        for (int y = r.y(); y < r.y() + r.height(); y++)
+            for (int x = r.x(); x < r.x() + r.width(); x++)
+            {
+                hrGraphicsItem *item = scene->getItem(scene->getTile(x, y));
+                for (int i = 0; i < item->getBlocksCount(); i++)
+                {
+                    item->setCurBlock(i);
+                    item->nextFrame();
+                }
+            }
+    }*/
+
     for (int y = r.y(); y < r.y() + r.height(); y++)
         for (int x = r.x(); x < r.x() + r.width(); x++)
         {
             QPoint point = coord::toPixPoint(QPoint(x, y));
             hrTile tile = scene->getTile(x, y);
+
             QImage im = scene->getImageTerrain(tile);
-            if (im.isNull()) continue;
             id = bindTexture(im, textureTarget, GL_RGBA8);
             drawTexture(point, id , textureTarget);
-            if (tile.riverId != 0)
+            if (tile.hasRiver())
             {
                 QImage im = scene->getImageRiver(tile);
-                if (im.isNull()) continue;
                 id = bindTexture(im, textureTarget, GL_RGBA8);
                 drawTexture(point, id , textureTarget);
             }
-            if (tile.roadId != 0)
+            if (tile.hasRoad())
             {
                 QImage im = scene->getImageRoad(tile);
-                if (im.isNull()) continue;
                 id = bindTexture(im, textureTarget, GL_RGBA8);
                 drawTexture(point, id , textureTarget);
             }
@@ -170,12 +182,22 @@ void hrGLWidget::paintGL()
     {
         hrObject obj = it.next();
         QImage im = scene->getImage(obj);
-        if (im.isNull()) continue;
         id = bindTexture(im, textureTarget, GL_RGBA8);
         drawTexture(coord::toPixPoint(obj.getPoint()), id, textureTarget);
     }
 
     //End();
+}
+
+void hrGLWidget::PaletteAnimation(QImage &im)
+{
+    im.setColor(229, im.color(241));
+    im.setColor(242, im.color(254));
+    for (int i = 0; i < 11; i++)
+    {
+        im.setColor((230 + i + 1), im.color(230 + i));
+        im.setColor((243 + i + 1), im.color(243 + i));
+    }
 }
 
 void hrGLWidget::ImageToPOT(hrGraphicsItem *item, QImage im)

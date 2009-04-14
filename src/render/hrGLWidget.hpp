@@ -59,6 +59,7 @@ private:
     void Begin();
     void End();
 
+    void PaletteAnimation(QImage &im);
     void ImageToPOT(hrGraphicsItem *item, QImage im);
     qint32 NearestGLTextureSize(qint32 v);
 
