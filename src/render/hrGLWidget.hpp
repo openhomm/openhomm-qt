@@ -66,12 +66,32 @@ private:
     void Begin();
     void End();
 
-    void ImageToPOT(hrGraphicsItem *item, QImage im) const;
+    void ImageToPOT(hrGraphicsItem *item, const QImage& im) const;
     qint32 NearestGLTextureSize(qint32 v) const;
 
-    int getTextureTarget() const;
-    int maxTexDim;
+    void checkExtensions();
+    bool textureRects;
+    bool generateMipmap;
     int textureTarget;
+
+    int maxTexDim;
+
+    class GLTexture
+    {
+        GLuint id;
+    public:
+        GLTexture(GLuint id) : id(id) {}
+        ~GLTexture()
+        {
+            glDeleteTextures(1, &id);
+        }
+        GLuint getId() const
+        {
+            return id;
+        }
+    };
+    QCache<quint64, GLTexture> texs;
+    GLuint bindImage(const QImage& im);
 
 private slots:
     void mouseMoveEvent(QMouseEvent * event);

@@ -28,6 +28,11 @@
 #define GL_TEXTURE_RECTANGLE_NV 0x84F5
 #endif
 
+#ifndef GL_SGIS_generate_mipmap
+#define GL_GENERATE_MIPMAP_SGIS           0x8191
+#define GL_GENERATE_MIPMAP_HINT_SGIS      0x8192
+#endif
+
 
 hrGLWidget::hrGLWidget(QWidget *parent, hrScene *scene)
  : QGLWidget(parent)
@@ -43,6 +48,7 @@ hrGLWidget::hrGLWidget(QWidget *parent, hrScene *scene)
     setCursor(scene->getCursor(0));
 
     makeCurrent();
+    texs.setMaxCost(1000);
 
     // todo: use it
     GLint param;
@@ -53,19 +59,19 @@ hrGLWidget::hrGLWidget(QWidget *parent, hrScene *scene)
     else
         maxTexDim = 512;
 
-    textureTarget = getTextureTarget();
-    if (textureTarget == GL_TEXTURE_2D)
+    checkExtensions(); // set flags
+
+    if (!textureRects)
     {
         objects = scene->getAllObjects();
         QLinkedListIterator<hrSceneObject> it(objects);
         while (it.hasNext())
         {
             hrGraphicsItem* item = scene->getItem(it.next());
-            QImage im;
             int cnt = item->getFramesCount();
             for (int i = 0; i < cnt; i++)
             {
-                im = item->getNextFrame();
+                const QImage &im = item->getNextFrame();
                 ImageToPOT(item, im);
             }
         }
@@ -118,6 +124,7 @@ void hrGLWidget::resizeGL(int w, int h)
     viewport = QRect(0, 0, w, h);
     //viewport = rect();
     scene->setSceneViewport(coord::toCellRect(viewport));
+    objects.clear();
     objects = scene->getViewportObjects();
 
     glViewport(0, 0, (int)(w * zoom), (int)(h * zoom));
@@ -156,7 +163,7 @@ void hrGLWidget::animateTiles() const
     for (int y = r.y(); y < bottom; y++)
         for (int x = r.x(); x < right; x++)
         {
-            hrTile tile = scene->getTile(x, y);
+            const hrTile &tile = scene->getTile(x, y);
             hrGraphicsItem *item = scene->getItem(tile.terrainId);
             item->nextFrame();
 
@@ -179,21 +186,18 @@ void hrGLWidget::drawTiles()
         for (int x = r.x(); x < right; x++)
         {
             QPoint point = coord::toPixPoint(QPoint(x, y));
-            hrTile tile = scene->getTile(x, y);
+            const hrTile &tile = scene->getTile(x, y);
 
-            QImage im = scene->getImageTerrain(tile);
-            id = bindTexture(im, textureTarget, GL_RGBA8);
+            id = bindImage( scene->getImageTerrain(tile) );
             drawTexture(point, id , textureTarget);
             if (tile.hasRiver())
             {
-                QImage im = scene->getImageRiver(tile);
-                id = bindTexture(im, textureTarget, GL_RGBA8);
+                id = bindImage( scene->getImageRiver(tile) );
                 drawTexture(point, id , textureTarget);
             }
             if (tile.hasRoad())
             {
-                QImage im = scene->getImageRoad(tile);
-                id = bindTexture(im, textureTarget, GL_RGBA8);
+                id = bindImage( scene->getImageRoad(tile) );
                 drawTexture(point, id , textureTarget);
             }
         }
@@ -216,10 +220,47 @@ void hrGLWidget::drawObjects()
     while (it.hasNext())
     {
         hrSceneObject obj = it.next();
-        QImage im = scene->getImage(obj);
-        id = bindTexture(im, textureTarget, GL_RGBA8);
+        id = bindImage( scene->getImage(obj) );
         drawTexture(coord::toPixPoint(obj.getPoint()), id, textureTarget);
     }
+}
+
+GLuint hrGLWidget::bindImage(const QImage &im)
+{
+    GLTexture *tx;
+    quint64 key = im.cacheKey();
+    if (texs.contains(key))
+    {
+        tx = texs[key];
+        glBindTexture(textureTarget, tx->getId());
+        return tx->getId();
+    }
+
+    const QImage &txim = QGLWidget::convertToGLFormat(im);
+
+    GLuint format = GL_RGBA;
+    GLuint param;
+    glGenTextures(1, &param);
+    tx = new GLTexture(param);
+    glBindTexture(textureTarget, tx->getId());
+
+    /*if (generateMipmap) // it's slow
+    {
+        glHint(GL_GENERATE_MIPMAP_HINT_SGIS, GL_NICEST);
+        glTexParameteri(textureTarget, GL_GENERATE_MIPMAP_SGIS, GL_TRUE);
+        glTexParameterf(textureTarget, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+    }
+    else*/
+    {
+        glTexParameteri(textureTarget, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+        glTexParameterf(textureTarget, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    }
+
+    glTexImage2D(textureTarget, 0, format, txim.width(), txim.height(), 0,
+                 GL_RGBA, GL_UNSIGNED_BYTE, txim.bits());
+
+    texs.insert(key, tx);
+    return tx->getId();
 }
 
 void hrGLWidget::paintGL()
@@ -262,6 +303,7 @@ void hrGLWidget::scroll()
         if (!sceneViewport.contains(viewport))
         {
             scene->setSceneViewport(coord::toCellRect(viewport));
+            objects.clear();
             objects = scene->getViewportObjects();
         }
         glTranslatef(dx, dy, 0);
@@ -362,33 +404,41 @@ void hrGLWidget::leaveEvent(QEvent * event)
     }
 }
 
-int hrGLWidget::getTextureTarget() const
+void hrGLWidget::checkExtensions()
 {
     QString extensions(reinterpret_cast<const char *>(glGetString(GL_EXTENSIONS)));
 
+    textureRects = true;
     if (extensions.contains("GL_NV_texture_rectangle"))
     {
         qWarning("GL_NV_texture_rectangle");
-        return GL_TEXTURE_RECTANGLE_NV;
+        textureTarget = GL_TEXTURE_RECTANGLE_NV;
     }
     else if (extensions.contains("GL_ARB_texture_rectangle"))
     {
         qWarning("GL_ARB_texture_rectangle");
-        return GL_TEXTURE_RECTANGLE_ARB;
+        textureTarget = GL_TEXTURE_RECTANGLE_ARB;
     }
     else if (extensions.contains("GL_EXT_texture_rectangle"))
     {
         qWarning("GL_EXT_texture_rectangle");
-        return GL_TEXTURE_RECTANGLE_EXT;
+        textureTarget = GL_TEXTURE_RECTANGLE_EXT;
     }
     else
     {
         qWarning("GL_TEXTURE_2D");
-        return GL_TEXTURE_2D;
+        textureTarget = GL_TEXTURE_2D;
+        textureRects = false;
     }
+
+    if (!textureRects)
+        generateMipmap = extensions.contains("GL_SGIS_generate_mipmap");
+    else
+        generateMipmap = false;
 }
 
-void hrGLWidget::ImageToPOT(hrGraphicsItem *item, QImage im) const
+
+void hrGLWidget::ImageToPOT(hrGraphicsItem *item, const QImage &im) const
 {
     int s = NearestGLTextureSize(qMax(im.width(), im.height()));
     if (im.height() < s || im.width() < s)

@@ -248,7 +248,7 @@ const QCursor& hrScene::getCursor(int frame)
     return cursor.at(0);
 }
 
-QImage hrScene::getImage(int id
+const QImage& hrScene::getImage(int id
                          , int frame
                          , bool horizontal
                          , bool vertical) const
@@ -256,7 +256,7 @@ QImage hrScene::getImage(int id
     return items.value(id)->getFrame(frame, horizontal, vertical);
 }
 
-QImage hrScene::getImageTerrain(const hrTile &tile) const
+const QImage& hrScene::getImageTerrain(const hrTile &tile) const
 {
     if (tile.terrainId == 8) // "watrtl.def"
     {
@@ -271,7 +271,7 @@ QImage hrScene::getImageTerrain(const hrTile &tile) const
                     );
 }
 
-QImage hrScene::getImageRiver(const hrTile &tile) const
+const QImage& hrScene::getImageRiver(const hrTile &tile) const
 {
     if (tile.riverId != 2) // not "icyrvr.def"
     {
@@ -289,7 +289,7 @@ QImage hrScene::getImageRiver(const hrTile &tile) const
     }
 }
 
-QImage hrScene::getImageRoad(const hrTile &tile) const
+const QImage& hrScene::getImageRoad(const hrTile &tile) const
 {
     return getImage(tile.getRoadId()
                     , tile.getRoadFrame()
@@ -298,7 +298,7 @@ QImage hrScene::getImageRoad(const hrTile &tile) const
                     );
 }
 
-QImage hrScene::getImage(const hrSceneObject &object) const
+const QImage& hrScene::getImage(const hrSceneObject &object) const
 {
     return items_obj.value(object.getName())->getFrame();
 }
@@ -325,11 +325,10 @@ QVector<hrTile> hrScene::getViewportTiles() const
     return v;
 }
 
-hrTile hrScene::getTile(int x, int y) const
+const hrTile& hrScene::getTile(int x, int y) const
 {
-    if (y < tiles.size() && x < tiles.at(y).size())
-        return tiles.at(y).at(x);
-    return hrTile();
+    Q_ASSERT(y < tiles.size() && x < tiles.at(y).size());
+    return tiles.at(y).at(x);
 }
 
 QLinkedList<hrSceneObject> hrScene::getViewportObjects() const

@@ -18,6 +18,7 @@
 #define HRGRAPHICSITEM_H
 
 #include "precompiled.hpp"
+#include <QGLWidget>
 
 class hrGraphicsItem
 {
@@ -39,15 +40,15 @@ public:
 
     int getFramesCount() const;
     void nextFrame();
-    QImage getNextFrame();
-    QImage getFrame(int frame, bool horizontal = false, bool vertical = false) const;
-    QImage getFrame(bool horizontal, bool vertical);
-    QImage getFrame();
+    const QImage& getNextFrame();
+    const QImage& getFrame(int frame, bool horizontal = false, bool vertical = false) const;
+    const QImage& getFrame(bool horizontal, bool vertical);
+    const QImage& getFrame();
     const QRect& getRect() const;
-    void modifyFrame(QImage im);
+    void modifyFrame(const QImage& im);
 
-    void addImage(QImage im);
-    void addImageMirrored(QImage im);
+    void addImage(const QImage& im);
+    void addImageMirrored(const QImage& im);
 
     void addBlock();
     void setCurBlock(int i);

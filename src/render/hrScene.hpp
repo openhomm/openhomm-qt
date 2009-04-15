@@ -39,19 +39,19 @@ public:
     void setSceneViewport(QRect r);
     QRect getSceneViewport() const;
 
-    QImage getImage(int id
+    const QImage& getImage(int id
                    , int frame
                    , bool horizontal = false
                    , bool vertical = false) const;
-    QImage getImageTerrain(const hrTile &tile) const;
-    QImage getImageRiver(const hrTile &tile) const;
-    QImage getImageRoad(const hrTile &tile) const;
-    QImage getImage(const hrSceneObject &object) const;
+    const QImage& getImageTerrain(const hrTile &tile) const;
+    const QImage& getImageRiver(const hrTile &tile) const;
+    const QImage& getImageRoad(const hrTile &tile) const;
+    const QImage& getImage(const hrSceneObject &object) const;
     hrGraphicsItem* getItem(const hrSceneObject &object) const;
     hrGraphicsItem* getItem(int id) const;
 
     QVector<hrTile> getViewportTiles() const;
-    hrTile getTile(int x, int y) const;
+    const hrTile& getTile(int x, int y) const;
     QLinkedList<hrSceneObject> getViewportObjects() const;
     QLinkedList<hrSceneObject> getAllObjects() const;
 

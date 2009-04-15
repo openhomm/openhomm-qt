@@ -32,14 +32,14 @@ void hrGraphicsItem::nextFrame()
     }
 }
 
-QImage hrGraphicsItem::getNextFrame()
+const QImage& hrGraphicsItem::getNextFrame()
 {
     const Block &b = blocks.at(curBlock);
     curFrame < b.frames.size() - 1 ? curFrame++ : curFrame = 0;
     return b.frames.at(curFrame);
 }
 
-QImage hrGraphicsItem::getFrame(int frame, bool horizontal, bool vertical) const
+const QImage& hrGraphicsItem::getFrame(int frame, bool horizontal, bool vertical) const
 {
     const Block &b = blocks.at(curBlock);
     Q_ASSERT(frame >= 0 && frame < b.frames.size());
@@ -54,7 +54,7 @@ QImage hrGraphicsItem::getFrame(int frame, bool horizontal, bool vertical) const
         return b.frames.at(frame);
 }
 
-QImage hrGraphicsItem::getFrame(bool horizontal, bool vertical)
+const QImage& hrGraphicsItem::getFrame(bool horizontal, bool vertical)
 {
     if (isNextFrame)
         isNextFrame = false;
@@ -70,20 +70,20 @@ QImage hrGraphicsItem::getFrame(bool horizontal, bool vertical)
         return b.frames.at(curFrame);
 }
 
-QImage hrGraphicsItem::getFrame()
+const QImage& hrGraphicsItem::getFrame()
 {
     if (isNextFrame)
         isNextFrame = false;
     return blocks.at(curBlock).frames.at(curFrame);
 }
 
-void hrGraphicsItem::addImage(QImage im)
+void hrGraphicsItem::addImage(const QImage& im)
 {
     rect = im.rect();
     blocks[curBlock].frames.append(im);
 }
 
-void hrGraphicsItem::addImageMirrored(QImage im)
+void hrGraphicsItem::addImageMirrored(const QImage& im)
 {
     rect = im.rect();
     Block &b = blocks[curBlock];
@@ -93,9 +93,9 @@ void hrGraphicsItem::addImageMirrored(QImage im)
     b.frames.append(im);
 }
 
-void hrGraphicsItem::modifyFrame(QImage im)
+void hrGraphicsItem::modifyFrame(const QImage& im)
 {
-    blocks[curBlock].frames[curFrame] = im;
+    blocks[curBlock].frames.replace(curFrame, im);
 }
 
 int hrGraphicsItem::getFramesCount() const
