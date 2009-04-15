@@ -148,8 +148,6 @@ void hrGLWidget::Begin()
 
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     glEnable(GL_BLEND);
-
-    glEnable(textureTarget);
 }
 
 void hrGLWidget::End()
@@ -246,11 +244,11 @@ GLuint hrGLWidget::bindImage(const QImage &im)
         glTexParameteri(textureTarget, GL_GENERATE_MIPMAP_SGIS, GL_TRUE);
         glTexParameterf(textureTarget, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
     }
-    else
-    {*/
+    else*/
+    {
         glTexParameteri(textureTarget, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
         glTexParameterf(textureTarget, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    //}
+    }
 
     glTexImage2D(textureTarget, 0, format, txim.width(), txim.height(), 0,
                  GL_RGBA, GL_UNSIGNED_BYTE, txim.bits());
@@ -261,14 +259,13 @@ GLuint hrGLWidget::bindImage(const QImage &im)
 
 void hrGLWidget::drawImage(const QPoint &point, const QImage &im)
 {
-    //double x1, y1, x2, y2;
-    int x1, y1, x2, y2;
+    double x1, y1, x2, y2;
     const QRect r(point.x(), point.y(), im.width(), im.height());
     const QRect src(0, 0, im.width(), im.height());
     
     bindImage(im);
 
-    //glEnable(textureTarget);
+    glEnable(textureTarget);
 
     glBegin(GL_QUADS);
     {
@@ -287,14 +284,14 @@ void hrGLWidget::drawImage(const QPoint &point, const QImage &im)
             y2 = src.height();
         }
 
-        glTexCoord2i(x1, y2); glVertex2i(r.x(), r.y());
-        glTexCoord2i(x2, y2); glVertex2i(r.x() + r.width(), r.y());
-        glTexCoord2i(x2, y1); glVertex2i(r.x() + r.width(), r.y() + r.height());
-        glTexCoord2i(x1, y1); glVertex2i(r.x(), r.y() + r.height());
+        glTexCoord2f(x1, y2); glVertex2f(r.x(), r.y());
+        glTexCoord2f(x2, y2); glVertex2f(r.x() + r.width(), r.y());
+        glTexCoord2f(x2, y1); glVertex2f(r.x() + r.width(), r.y() + r.height());
+        glTexCoord2f(x1, y1); glVertex2f(r.x(), r.y() + r.height());
     }
     glEnd();
 
-    //glDisable(textureTarget);
+    glDisable(textureTarget);
 }
 
 void hrGLWidget::paintGL()
@@ -443,7 +440,7 @@ void hrGLWidget::checkExtensions()
     QString extensions(reinterpret_cast<const char *>(glGetString(GL_EXTENSIONS)));
 
     textureRects = true;
-    /*if (extensions.contains("GL_NV_texture_rectangle"))
+    if (extensions.contains("GL_NV_texture_rectangle"))
     {
         qWarning("GL_NV_texture_rectangle");
         textureTarget = GL_TEXTURE_RECTANGLE_NV;
@@ -458,7 +455,7 @@ void hrGLWidget::checkExtensions()
         qWarning("GL_EXT_texture_rectangle");
         textureTarget = GL_TEXTURE_RECTANGLE_EXT;
     }
-    else*/
+    else
     {
         qWarning("GL_TEXTURE_2D");
         textureTarget = GL_TEXTURE_2D;

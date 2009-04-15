@@ -77,16 +77,21 @@ const QImage& hrGraphicsItem::getFrame()
     return blocks.at(curBlock).frames.at(curFrame);
 }
 
-void hrGraphicsItem::addImage(const QImage& im)
+void hrGraphicsItem::addImage(const QImage &im)
 {
     rect = im.rect();
+    //blocks[curBlock].frames.append(QGLWidget::convertToGLFormat(im));
     blocks[curBlock].frames.append(im);
 }
 
-void hrGraphicsItem::addImageMirrored(const QImage& im)
+void hrGraphicsItem::addImageMirrored(const QImage &im)
 {
     rect = im.rect();
     Block &b = blocks[curBlock];
+    /*b.framesHV.append(QGLWidget::convertToGLFormat(im.mirrored(true, true)));
+    b.framesH.append(QGLWidget::convertToGLFormat(im.mirrored(true, false)));
+    b.framesV.append(QGLWidget::convertToGLFormat(im.mirrored(false, true)));
+    b.frames.append(QGLWidget::convertToGLFormat(im));*/
     b.framesHV.append(im.mirrored(true, true));
     b.framesH.append(im.mirrored(true, false));
     b.framesV.append(im.mirrored(false, true));

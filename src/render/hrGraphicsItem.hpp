@@ -18,7 +18,7 @@
 #define HRGRAPHICSITEM_H
 
 #include "precompiled.hpp"
-#include <QGLWidget>
+//#include <QGLWidget>
 
 class hrGraphicsItem
 {
@@ -47,8 +47,8 @@ public:
     const QRect& getRect() const;
     void modifyFrame(const QImage& im);
 
-    void addImage(const QImage& im);
-    void addImageMirrored(const QImage& im);
+    void addImage(const QImage &im);
+    void addImageMirrored(const QImage &im);
 
     void addBlock();
     void setCurBlock(int i);
