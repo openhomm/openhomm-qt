@@ -148,6 +148,8 @@ void hrGLWidget::Begin()
 
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     glEnable(GL_BLEND);
+
+    glEnable(textureTarget);
 }
 
 void hrGLWidget::End()
@@ -177,7 +179,6 @@ void hrGLWidget::animateTiles() const
 
 void hrGLWidget::drawTiles()
 {
-    GLuint id = 0;
     QRect r = scene->getSceneViewport();
     int bottom = r.y() + r.height();
     int right = r.x() + r.width();
@@ -188,17 +189,14 @@ void hrGLWidget::drawTiles()
             QPoint point = coord::toPixPoint(QPoint(x, y));
             const hrTile &tile = scene->getTile(x, y);
 
-            id = bindImage( scene->getImageTerrain(tile) );
-            drawTexture(point, id , textureTarget);
+            drawImage(point, scene->getImageTerrain(tile));
             if (tile.hasRiver())
             {
-                id = bindImage( scene->getImageRiver(tile) );
-                drawTexture(point, id , textureTarget);
+                drawImage(point, scene->getImageRiver(tile));
             }
             if (tile.hasRoad())
             {
-                id = bindImage( scene->getImageRoad(tile) );
-                drawTexture(point, id , textureTarget);
+                drawImage(point, scene->getImageRoad(tile));
             }
         }
 }
@@ -215,13 +213,11 @@ void hrGLWidget::animateObjects() const
 
 void hrGLWidget::drawObjects()
 {
-    GLuint id = 0;
     QLinkedListIterator<hrSceneObject> it(objects);
     while (it.hasNext())
     {
-        hrSceneObject obj = it.next();
-        id = bindImage( scene->getImage(obj) );
-        drawTexture(coord::toPixPoint(obj.getPoint()), id, textureTarget);
+        const hrSceneObject &obj = it.next();
+        drawImage(coord::toPixPoint(obj.getPoint()), scene->getImage(obj));
     }
 }
 
@@ -250,17 +246,55 @@ GLuint hrGLWidget::bindImage(const QImage &im)
         glTexParameteri(textureTarget, GL_GENERATE_MIPMAP_SGIS, GL_TRUE);
         glTexParameterf(textureTarget, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
     }
-    else*/
-    {
+    else
+    {*/
         glTexParameteri(textureTarget, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
         glTexParameterf(textureTarget, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    }
+    //}
 
     glTexImage2D(textureTarget, 0, format, txim.width(), txim.height(), 0,
                  GL_RGBA, GL_UNSIGNED_BYTE, txim.bits());
 
     texs.insert(key, tx);
     return tx->getId();
+}
+
+void hrGLWidget::drawImage(const QPoint &point, const QImage &im)
+{
+    //double x1, y1, x2, y2;
+    int x1, y1, x2, y2;
+    const QRect r(point.x(), point.y(), im.width(), im.height());
+    const QRect src(0, 0, im.width(), im.height());
+    
+    bindImage(im);
+
+    //glEnable(textureTarget);
+
+    glBegin(GL_QUADS);
+    {
+        if (!textureRects)
+        {
+            x1 = 0;//src.x() / (double)im.width();
+            x2 = 1;//x1 + src.width() / (double)im.width();
+            y1 = 0;//src.y() / (double)im.height();
+            y2 = 1;//y1 + src.height() / (double)im.height();
+        }
+        else
+        {
+            x1 = src.x();
+            x2 = src.width();
+            y1 = src.y();
+            y2 = src.height();
+        }
+
+        glTexCoord2i(x1, y2); glVertex2i(r.x(), r.y());
+        glTexCoord2i(x2, y2); glVertex2i(r.x() + r.width(), r.y());
+        glTexCoord2i(x2, y1); glVertex2i(r.x() + r.width(), r.y() + r.height());
+        glTexCoord2i(x1, y1); glVertex2i(r.x(), r.y() + r.height());
+    }
+    glEnd();
+
+    //glDisable(textureTarget);
 }
 
 void hrGLWidget::paintGL()
@@ -409,7 +443,7 @@ void hrGLWidget::checkExtensions()
     QString extensions(reinterpret_cast<const char *>(glGetString(GL_EXTENSIONS)));
 
     textureRects = true;
-    if (extensions.contains("GL_NV_texture_rectangle"))
+    /*if (extensions.contains("GL_NV_texture_rectangle"))
     {
         qWarning("GL_NV_texture_rectangle");
         textureTarget = GL_TEXTURE_RECTANGLE_NV;
@@ -424,7 +458,7 @@ void hrGLWidget::checkExtensions()
         qWarning("GL_EXT_texture_rectangle");
         textureTarget = GL_TEXTURE_RECTANGLE_EXT;
     }
-    else
+    else*/
     {
         qWarning("GL_TEXTURE_2D");
         textureTarget = GL_TEXTURE_2D;

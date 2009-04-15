@@ -95,6 +95,7 @@ void hrGraphicsItem::addImageMirrored(const QImage& im)
 
 void hrGraphicsItem::modifyFrame(const QImage& im)
 {
+    rect = im.rect();
     blocks[curBlock].frames.replace(curFrame, im);
 }
 

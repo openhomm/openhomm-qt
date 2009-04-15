@@ -91,7 +91,8 @@ private:
         }
     };
     QCache<quint64, GLTexture> texs;
-    GLuint bindImage(const QImage& im);
+    GLuint bindImage(const QImage &im);
+    void drawImage(const QPoint &point, const QImage &im);
 
 private slots:
     void mouseMoveEvent(QMouseEvent * event);
