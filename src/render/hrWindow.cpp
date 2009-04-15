@@ -18,7 +18,7 @@
 
 hrWindow::hrWindow(): QWidget()
 {
-    setWindowTitle("OpenHoMM, fullscreen - F11");
+    setWindowTitle("OpenHoMM, fullscreen - F11, zoom - +/-");
 
     hrH3MReader reader;
     reader.load("maps/A Viking We Shall Go");
@@ -59,8 +59,19 @@ void hrWindow::resizeEvent(QResizeEvent *event)
 
 void hrWindow::keyPressEvent(QKeyEvent *event)
 {
+    static int i = 0;
     if (event->key() == Qt::Key_F11)
     {
         setWindowState(windowState() ^ Qt::WindowFullScreen);
+    }
+    else if (event->key() == Qt::Key_Plus || event->key() == Qt::Key_Equal)
+    {
+        i > 1 ? i = 0 : i++;
+        w->setZoom(i);
+    }
+    else if (event->key() == Qt::Key_Minus)
+    {
+        i > 0 ? i-- : i = 0;
+        w->setZoom(i);
     }
 }

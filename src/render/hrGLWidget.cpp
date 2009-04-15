@@ -33,6 +33,7 @@ hrGLWidget::hrGLWidget(QWidget *parent, hrScene *scene)
  : QGLWidget(parent)
  , scene(scene)
 {
+    zoom = 1.0;
     isAnimate = false;
     dx = 0; dy = 0;
     connect(&scrollTimer, SIGNAL(timeout()), this, SLOT(scroll()));
@@ -86,6 +87,25 @@ void hrGLWidget::stopAnimate()
         animateTimer.stop();
 }
 
+void hrGLWidget::setZoom(int i)
+{
+    switch (i)
+    {
+        case 0:
+            zoom = 1.0;
+            break;
+        case 1:
+            zoom = 1.28;
+            break;
+        case 2:
+            zoom = 1.6;
+            break;
+        default:
+            zoom = 1.0;
+    }
+    resizeGL(width(), height());
+}
+
 void hrGLWidget::initializeGL()
 {
     Begin();
@@ -93,11 +113,18 @@ void hrGLWidget::initializeGL()
 
 void hrGLWidget::resizeGL(int w, int h)
 {
-    viewport = rect();
+    w = (int)(w / zoom);
+    h = (int)(h / zoom);
+    viewport = QRect(0, 0, w, h);
+    //viewport = rect();
     scene->setSceneViewport(coord::toCellRect(viewport));
     objects = scene->getViewportObjects();
 
-    Begin();
+    glViewport(0, 0, (int)(w * zoom), (int)(h * zoom));
+    glMatrixMode(GL_PROJECTION);
+    glLoadIdentity();
+    glOrtho(0, w, h, 0, -999999, 999999);
+    //Begin();
     //glViewport(0, 0, w, h);
 }
 

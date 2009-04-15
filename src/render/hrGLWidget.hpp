@@ -32,6 +32,7 @@ public:
     ~hrGLWidget();
     void startAnimate(int delay);
     void stopAnimate();
+    void setZoom(int i);
 
 public slots:
     void animate();
@@ -53,6 +54,7 @@ private:
     QRect viewport;
     int dx;
     int dy;
+    double zoom;
 
     bool isAnimate;
     void animateTiles() const;
