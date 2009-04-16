@@ -17,6 +17,38 @@
 #include "precompiled.hpp"
 #include "hrH3MReader.hpp"
 #include "hrString.hpp"
+#include <zlib.h>
+
+QByteArray unpack(const QString &filename)
+{
+    QFile map(filename);
+    QByteArray array;
+    int len = 0;
+    if ( map.open(QIODevice::ReadOnly) )
+    {
+        map.seek(map.size()-(quint64)4);
+
+        map.read((char*)&len, 4);
+        map.close();
+    }
+
+    gzFile file = gzopen(filename.toLocal8Bit().data(), "rb");
+
+    char * a = new char[len];
+    gzread(file, a, len);
+
+    gzclose(file);
+
+    array.append(a, len);
+
+    qDebug() << array.size();
+
+    delete [] a;
+
+    qDebug() << array.size();
+
+    return array;
+}
 
 hrH3MReader::hrH3MReader() : ground(NULL), underground(NULL)
 {
@@ -39,15 +71,15 @@ bool hrH3MReader::load(const QString &name)
     QByteArray data;
 
     {
-        QFile map(name);
-        if ( ! map.open(QIODevice::ReadOnly) )
-        {
-            qWarning("Can't open file: %s", qPrintable(name));
-            return false;
-        }
+//        QFile map(name);
+//        if ( ! map.open(QIODevice::ReadOnly) )
+//        {
+//            qWarning("Can't open file: %s", qPrintable(name));
+//            return false;
+//        }
 
-        data = map.readAll();
-        map.close();
+        data = unpack(name);
+//        map.close();
     }
 
     QBuffer map(&data);

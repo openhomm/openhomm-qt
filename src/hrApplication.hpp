@@ -26,8 +26,12 @@ class hrApplication : public QApplication
 {
     Q_OBJECT
 public:
-    hrApplication(int argc, char **argv);
+    hrApplication(int &argc, char **argv);
     ~hrApplication();
+    static QString getMapName()
+    {
+        return mapName;
+    }
 private:
     void createFileEngineHandlers();
     void destroyFileEngineHandlers();
@@ -35,4 +39,6 @@ private:
 private:
     hrLodEngineHandler *lodHandler;
     hrSndEngineHandler *sndHandler;
+
+    static QString mapName;
 };

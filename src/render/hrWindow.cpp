@@ -15,13 +15,21 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
 #include "hrWindow.hpp"
+#include "hrApplication.hpp"
 
 hrWindow::hrWindow(): QWidget()
 {
     setWindowTitle("OpenHoMM, fullscreen - F11, zoom - +/-");
 
     hrH3MReader reader;
-    reader.load("maps/A Viking We Shall Go");
+
+    QString filename = hrApplication::getMapName();
+    qDebug() << filename;
+    if ( filename.isEmpty() )
+        reader.load("maps/A Viking We Shall Go.h3m");
+    else
+        reader.load(filename);
+
     int size = reader.getSize();
 
     scene = new hrScene(size, size);

@@ -20,12 +20,20 @@
 #include "hrLodEngine.hpp"
 #include "hrSndEngine.hpp"
 
-hrApplication::hrApplication(int argc, char **argv):
+QString hrApplication::mapName = "";
+
+hrApplication::hrApplication(int &argc, char **argv):
         QApplication(argc, argv),
         lodHandler(NULL),
         sndHandler(NULL)
 {
+    mapName = "";
     this->createFileEngineHandlers();
+
+    if ( argc > 1 ) {
+        mapName = argv[1];
+        qDebug() << mapName;
+    }
 }
 
 hrApplication::~hrApplication()
