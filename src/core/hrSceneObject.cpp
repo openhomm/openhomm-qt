@@ -18,21 +18,24 @@
 
 bool hrSceneObject::operator<(const hrSceneObject& s) const
 {
-//    if ( this->y() < s.y() )
-//        return true;
+    int x1 = this->x() + this->rect.width() - 1;
+    int y1 = this->y() + this->rect.height() - 1;
+    int x2 = s.x() + s.getRect().width() - 1;
+    int y2 = s.y() + s.getRect().height() - 1;
 
-//    if ( this->y() > s.y() )
-//        return false;
+    if (y1 < y2)
+        return true;
+    if (y1 > y2)
+        return false;
+
+    if ( this->isVisitable() && !s.isVisitable() )
+        return false;
 
     if ( !this->isVisitable() && s.isVisitable() )
         return true;
 
-    if ( !s.isVisitable() && this->isVisitable() )
-        return false;
+    if (x1 < x2)
+        return true;
 
-    if ( this->x() < s.x() )
-        return false;
-    if ( this->y() < s.y() )
-        return false;
     return false;
 }
