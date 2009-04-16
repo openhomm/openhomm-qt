@@ -41,11 +41,7 @@ QByteArray unpack(const QString &filename)
 
     array.append(a, len);
 
-    qDebug() << array.size();
-
     delete [] a;
-
-    qDebug() << array.size();
 
     return array;
 }
@@ -404,7 +400,7 @@ QDataStream &operator<<(QDataStream &out, const Hero_t &)
 }
 QDataStream &operator>>(QDataStream &in, Hero_t &h)
 {
-    in >> h.portret >> h.portret;
+    in >> h.portret >> h.name;
     return in;
 }
 QDataStream &operator<<(QDataStream &out, const PlayerAttributes_t &)
@@ -427,11 +423,14 @@ QDataStream &operator>>(QDataStream &in, PlayerAttributes_t &p)
 
     in >> p.junk >> p.heroesCount;
 
-    for ( quint32 i = 0; i < p.heroesCount; ++i )
+    if ( p.heroesCount > 0 )
     {
-        Hero_t hero;
-        in >> hero;
-        p.heroes.push_back(hero);
+        for ( quint32 i = 0; i < p.heroesCount; i++ )
+        {
+            Hero_t hero;
+            in >> hero;
+            p.heroes.push_back(hero);
+        }
     }
     return in;
 }
@@ -661,11 +660,14 @@ QDataStream &operator>>(QDataStream &in, HeroOptions_enabled &h)
 
         in >> h.knapsack_count;
 
-        for ( quint16 i = 0; i << h.knapsack_count; i++ )
+        if ( h.knapsack_count > 0 )
         {
-            quint16 knap;
-            in >> knap;
-            h.knapsackID.push_back(knap);
+            for ( quint16 i = 0; i < h.knapsack_count; i++ )
+            {
+                quint16 knap;
+                in >> knap;
+                h.knapsackID.push_back(knap);
+            }
         }
     }
 
