@@ -15,3 +15,24 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
 #include "hrSceneObject.hpp"
+
+bool hrSceneObject::operator<(const hrSceneObject& s) const
+{
+//    if ( this->y() < s.y() )
+//        return true;
+
+//    if ( this->y() > s.y() )
+//        return false;
+
+    if ( !this->isVisitable() && s.isVisitable() )
+        return true;
+
+    if ( !s.isVisitable() && this->isVisitable() )
+        return false;
+
+    if ( this->x() < s.x() )
+        return false;
+    if ( this->y() < s.y() )
+        return false;
+    return false;
+}

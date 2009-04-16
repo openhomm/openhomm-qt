@@ -336,6 +336,7 @@ hrSceneObject hrH3MReader::getObject(quint32 index) const
 {
     Q_ASSERT( index >= 0 && index <= objectOptions);
     return hrSceneObject(objects[obj[index].objectID].filename
+                         ,objects[obj[index].objectID].actions
                          , obj[index].coord[0]
                          , obj[index].coord[1]
                          );

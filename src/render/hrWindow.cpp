@@ -38,6 +38,7 @@ hrWindow::hrWindow(): QWidget()
         hrSceneObject object = reader.getObject(i);
         scene->addObject(object);
     }
+    scene->sortObjects();
 
     scene->setCursor("cradvntr.def");
 

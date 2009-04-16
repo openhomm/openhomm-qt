@@ -37,7 +37,6 @@
 #define GL_CLAMP_TO_EDGE 0x812F
 #endif
 
-
 hrGLWidget::hrGLWidget(QWidget *parent, hrScene *scene)
  : QGLWidget(parent)
  , scene(scene)
@@ -68,7 +67,8 @@ hrGLWidget::hrGLWidget(QWidget *parent, hrScene *scene)
     if (!textureRects)
     {
         objects = scene->getAllObjects();
-        QLinkedListIterator<hrSceneObject> it(objects);
+        //qSort(objects.begin(), objects.end());
+        QListIterator<hrSceneObject> it(objects);
         while (it.hasNext())
         {
             hrGraphicsItem* item = scene->getItem(it.next());
@@ -224,7 +224,7 @@ void hrGLWidget::drawTiles()
 
 void hrGLWidget::animateObjects() const
 {
-    QLinkedListIterator<hrSceneObject> it(objects);
+    QListIterator<hrSceneObject> it(objects);
     while (it.hasNext())
     {
         hrGraphicsItem *item = scene->getItem(it.next());
@@ -234,7 +234,7 @@ void hrGLWidget::animateObjects() const
 
 void hrGLWidget::drawObjects()
 {
-    QLinkedListIterator<hrSceneObject> it(objects);
+    QListIterator<hrSceneObject> it(objects);
     while (it.hasNext())
     {
         const hrSceneObject &obj = it.next();

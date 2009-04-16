@@ -28,15 +28,15 @@ public:
     hrScene(int width, int height);
     ~hrScene();
 
-    void addTile(hrTile tile);
-    void addObject(hrSceneObject object);
+    void addTile(const hrTile &tile);
+    void addObject(hrSceneObject &object);
     void removeObject(int x, int y);
 
-    void setCursor(QString name);
+    void setCursor(const QString &name);
     const QCursor& getCursor(int frame);
 
     QRect getSize() const;
-    void setSceneViewport(QRect r);
+    void setSceneViewport(const QRect &r);
     QRect getSceneViewport() const;
 
     const QImage& getImage(int id
@@ -52,9 +52,9 @@ public:
 
     QVector<hrTile> getViewportTiles() const;
     const hrTile& getTile(int x, int y) const;
-    QLinkedList<hrSceneObject> getViewportObjects() const;
-    QLinkedList<hrSceneObject> getAllObjects() const;
-
+    QList<hrSceneObject> getViewportObjects() const;
+    QList<hrSceneObject> getAllObjects() const;
+    void sortObjects();
 public slots:
 //mouseClick()
 //mouseMove()
@@ -62,15 +62,15 @@ public slots:
 
 private:
     QVector< QVector<hrTile> > tiles;
-    QLinkedList<hrSceneObject> objects;
+    QList<hrSceneObject> objects;
     QMap<int, hrGraphicsItem*> items;
     QHash<QString, hrGraphicsItem*> items_obj;
     QVector<QCursor> cursor;
     QRect viewport;
     QRect size;
 
-    void addItem(int id, QString name, bool mirrored = false);
-    void addItem(QString name);
+    void addItem(int id, const QString &name, bool mirrored = false);
+    void addItem(const QString &name);
     void CyclShiftPalette(int a, int b, QImage &im);
 };
 

@@ -26,7 +26,7 @@ void hrScene::CyclShiftPalette(int a, int b, QImage &im)
     im.setColor(a, c);
 }
 
-void hrScene::addItem(int id, QString name, bool mirrored)
+void hrScene::addItem(int id, const QString &name, bool mirrored)
 {
     if (!items.contains(id))
     {
@@ -83,7 +83,7 @@ void hrScene::addItem(int id, QString name, bool mirrored)
     }
 }
 
-void hrScene::addItem(QString name)
+void hrScene::addItem(const QString &name)
 {
     if (!items_obj.contains(name))
     {
@@ -112,7 +112,7 @@ hrScene::~hrScene()
     items.clear();
 }
 
-void hrScene::addTile(hrTile tile)
+void hrScene::addTile(const hrTile &tile)
 {
     QString name;
     switch (tile.terrainId)
@@ -208,12 +208,13 @@ void hrScene::addTile(hrTile tile)
     }
 }
 
-void hrScene::addObject(hrSceneObject object)
+void hrScene::addObject(hrSceneObject &object)
 {
     addItem(object.getName());
 
     QRect r = items_obj.value(object.getName())->getRect();
     objects.append( hrSceneObject(object.getName()
+                             , object.getVisitable()
                              , object.x()
                              , object.y()
                              , toCell(r.width())
@@ -228,7 +229,7 @@ void hrScene::removeObject(int x, int y)
     ;
 }
 
-void hrScene::setCursor(QString name)
+void hrScene::setCursor(const QString &name)
 {
     QImageReader ir("lod:/data/h3sprite.lod/" + name);
     QImage im;
@@ -331,10 +332,10 @@ const hrTile& hrScene::getTile(int x, int y) const
     return tiles.at(y).at(x);
 }
 
-QLinkedList<hrSceneObject> hrScene::getViewportObjects() const
+QList<hrSceneObject> hrScene::getViewportObjects() const
 {
-    QLinkedList<hrSceneObject> l;
-    QLinkedListIterator<hrSceneObject> it(objects);
+    QList<hrSceneObject> l;
+    QListIterator<hrSceneObject> it(objects);
     hrSceneObject obj;
     while (it.hasNext())
     {
@@ -347,7 +348,7 @@ QLinkedList<hrSceneObject> hrScene::getViewportObjects() const
     return l;
 }
 
-QLinkedList<hrSceneObject> hrScene::getAllObjects() const
+QList<hrSceneObject> hrScene::getAllObjects() const
 {
     return objects;
 }
@@ -357,7 +358,7 @@ QRect hrScene::getSize() const
     return size;
 }
 
-void hrScene::setSceneViewport(QRect r)
+void hrScene::setSceneViewport(const QRect &r)
 {
     viewport.setRect(r.x() - 2, r.y() - 2, r.width() + 4, r.height() + 4);
     viewport = size.intersected(viewport);
@@ -368,3 +369,7 @@ QRect hrScene::getSceneViewport() const
     return viewport;
 }
 
+void hrScene::sortObjects()
+{
+    qStableSort(objects.begin(), objects.end());
+}

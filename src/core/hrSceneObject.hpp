@@ -22,18 +22,36 @@ class hrSceneObject
 {
     QString name;
     QRect rect;
+    quint8 visitable[6];
 public:
     hrSceneObject() { name = "default.def"; }
-    hrSceneObject(QString name, QRect rect) : name(name), rect(rect) {}
-    hrSceneObject(QString name, int x, int y, int width, int height) : name(name)
+    hrSceneObject(const QString &name, const QRect &rect) : name(name), rect(rect) {}
+    hrSceneObject(const QString &name, quint8 *visit, int x, int y, int width, int height) : name(name)
     {
+        memcpy(visitable, visit, 6);
         rect.setRect(x - width + 1, y - height + 1, width, height);
     }
-    hrSceneObject(QString name, int x, int y) : name(name)
+    hrSceneObject(const QString &name, quint8 *visit, int x, int y) : name(name)
     {
+        memcpy(visitable, visit, 6);
         rect.setX(x);
         rect.setY(y);
     }
+    quint8* getVisitable()
+    {
+        return visitable;
+    }
+    bool isVisitable() const
+    {
+        for ( quint8 i = 0; i < 6; i++)
+            if ( visitable[i] != 0 )
+                return true;
+
+        return false;
+    }
+
+    bool operator<(const hrSceneObject& s) const;
+
     QString getName() const
     {
         return name;

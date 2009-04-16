@@ -47,7 +47,7 @@ protected:
 private:
     hrScene *scene;
 
-    QLinkedList<hrSceneObject> objects;
+    QList<hrSceneObject> objects;
 
     QTimer scrollTimer;
     QTimer animateTimer;
