@@ -124,6 +124,8 @@ bool hrH3MReader::load(const QString &name)
 
     m >> objectQuantity;
 
+    qDebug() << objectQuantity;
+
     objects = NULL;
     objects = new hrObject[objectQuantity];
 
@@ -134,6 +136,8 @@ bool hrH3MReader::load(const QString &name)
     }
 
     m >> objectOptions;
+
+    qDebug() << objectOptions;
 
     obj = new hrObjectOptions[objectOptions];
     for ( quint32 i = 0; i < objectOptions; i++ )

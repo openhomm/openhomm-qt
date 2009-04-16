@@ -109,7 +109,7 @@ QDataStream &operator>>(QDataStream &in, ObjectTown &s)
 
     if ( s.isGuard == 1 )
     {
-        for ( quint8 i = 0; i < sizeof(s.guards); i++ )
+        for ( quint8 i = 0; i < 7; i++ )
             in >> s.guards[i];
     }
 
@@ -301,7 +301,7 @@ QDataStream &operator>>(QDataStream &in, ObjectArtefact &s)
 
         if ( s.isGuards )
         {
-            for (quint8 i = 0; i < sizeof(s.guards); i++)
+            for (quint8 i = 0; i < 7; i++)
                 in >> s.guards[i];
 
             in.readRawData( (char *) s.junk, sizeof(s.junk) );
@@ -330,7 +330,7 @@ QDataStream &operator>>(QDataStream &in, ObjectGarrison &s)
 {
     in >> s.color;
 
-    for (quint8 i = 0; i < sizeof(s.guards); i++ )
+    for (quint8 i = 0; i < 7; i++ )
         in >> s.guards[i];
 
     in >> s.undeleteSoldiers;
@@ -471,7 +471,7 @@ QDataStream &operator>>(QDataStream &in, ObjectHero &s)
 
     if ( s.isCreature == 1 )
     {
-        for (quint8 i = 0; i < sizeof(s.creatures); i++)
+        for (quint8 i = 0; i < 7; i++)
             in >> s.creatures[i];
     }
 
