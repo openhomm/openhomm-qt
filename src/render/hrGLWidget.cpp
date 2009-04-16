@@ -67,7 +67,6 @@ hrGLWidget::hrGLWidget(QWidget *parent, hrScene *scene)
     if (!textureRects)
     {
         objects = scene->getAllObjects();
-        //qSort(objects.begin(), objects.end());
         QListIterator<hrSceneObject> it(objects);
         while (it.hasNext())
         {
@@ -137,11 +136,9 @@ void hrGLWidget::resizeGL(int w, int h)
 {
     w = (int)(w / zoom);
     h = (int)(h / zoom);
-    QPoint oldPos = viewport.topLeft();
+    QRect old = viewport;
     viewport = QRect(0, 0, w, h);
-    //viewport = rect();
     scene->setSceneViewport(coord::toCellRect(viewport));
-    objects.clear();
     objects = scene->getViewportObjects();
 
     glViewport(0, 0, (int)(w * zoom), (int)(h * zoom));
@@ -150,7 +147,7 @@ void hrGLWidget::resizeGL(int w, int h)
     glOrtho(0, w, h, 0, -999999, 999999);
 
     // try restore position
-    dx = -oldPos.x(); dy = -oldPos.y();
+    dx = -old.x(); dy = -old.y();
     scroll();
     dx = 0; dy = 0;
 
@@ -208,15 +205,34 @@ void hrGLWidget::drawTiles()
         for (int x = r.x(); x < right; x++)
         {
             QPoint point = coord::toPixPoint(QPoint(x, y));
-            const hrTile &tile = scene->getTile(x, y);
+            hrTile tile = scene->getTile(x, y);
 
             drawImage(point, scene->getImageTerrain(tile));
             if (tile.hasRiver())
             {
                 drawImage(point, scene->getImageRiver(tile));
             }
+            /*if (tile.hasRoad())
+            {
+                drawImage(point, scene->getImageRoad(tile));
+            }*/
+        }
+}
+
+void hrGLWidget::drawRoadTiles()
+{
+    QRect r = scene->getSceneViewport();
+    int bottom = r.y() + r.height();
+    int right = r.x() + r.width();
+
+    for (int y = r.y(); y < bottom; y++)
+        for (int x = r.x(); x < right; x++)
+        {
+            hrTile tile = scene->getTile(x, y);
             if (tile.hasRoad())
             {
+                QPoint point = coord::toPixPoint(QPoint(x, y));
+                point.setY(point.y() + 15);
                 drawImage(point, scene->getImageRoad(tile));
             }
         }
@@ -329,6 +345,7 @@ void hrGLWidget::paintGL()
         animateTiles();
 
     drawTiles();
+    drawRoadTiles();
 
     if (isAnimate)
         animateObjects();
@@ -360,7 +377,6 @@ void hrGLWidget::scroll()
         if (!sceneViewport.contains(viewport))
         {
             scene->setSceneViewport(coord::toCellRect(viewport));
-            objects.clear();
             objects = scene->getViewportObjects();
         }
         glTranslatef(dx, dy, 0);
@@ -465,7 +481,7 @@ void hrGLWidget::checkExtensions()
 {
     QString extensions(reinterpret_cast<const char *>(glGetString(GL_EXTENSIONS)));
 
-    textureRects = true;
+    /*textureRects = true;
     if (extensions.contains("GL_NV_texture_rectangle"))
     {
         qWarning("GL_NV_texture_rectangle");
@@ -481,7 +497,7 @@ void hrGLWidget::checkExtensions()
         qWarning("GL_EXT_texture_rectangle");
         textureTarget = GL_TEXTURE_RECTANGLE_EXT;
     }
-    else
+    else*/
     {
         qWarning("GL_TEXTURE_2D");
         textureTarget = GL_TEXTURE_2D;

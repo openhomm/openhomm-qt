@@ -61,6 +61,7 @@ private:
     void animateObjects() const;
 
     void drawTiles();
+    void drawRoadTiles();
     void drawObjects();
 
     void Begin();

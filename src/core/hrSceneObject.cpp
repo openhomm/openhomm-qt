@@ -18,13 +18,14 @@
 
 bool hrSceneObject::operator<(const hrSceneObject& s) const
 {
-    int x1 = this->x() + this->rect.width() - 1;
-    int y1 = this->y() + this->rect.height() - 1;
-    int x2 = s.x() + s.getRect().width() - 1;
-    int y2 = s.y() + s.getRect().height() - 1;
+    int x1 = rect.bottomRight().x();
+    int y1 = rect.bottomRight().y();
+    int x2 = s.getRect().bottomRight().x();
+    int y2 = s.getRect().bottomRight().y();
 
     if (y1 < y2)
         return true;
+
     if (y1 > y2)
         return false;
 
