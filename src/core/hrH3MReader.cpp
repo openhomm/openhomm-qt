@@ -132,7 +132,7 @@ bool hrH3MReader::load(const QString &name)
     for ( quint32 i = 0; i < objectQuantity; i++ )
     {
         m >> objects[i];
-        //objects[i].dump();
+        objects[i].dump();
     }
 
     m >> objectOptions;
@@ -144,7 +144,10 @@ bool hrH3MReader::load(const QString &name)
     {
         //hrObjectOptions obj;
         m >> obj[i];
-        //obj[i].dump();
+        qDebug("i=%d\n",i);
+        qDebug("object_class=%d\n",objects[obj[i].objectID].object_class);
+        obj[i].dump();
+
         switch(objects[obj[i].objectID].object_class)
         {
         case 5:

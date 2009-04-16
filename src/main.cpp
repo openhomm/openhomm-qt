@@ -19,10 +19,27 @@
 #include "hrH3MReader.hpp"
 
 #include "hrWindow.hpp"
-
+void myMessageOutput(QtMsgType type, const char *msg)
+{
+    switch (type) {
+    case QtDebugMsg:
+        fprintf(stdout, "Debug: %s\n", msg);
+        break;
+    case QtWarningMsg:
+        fprintf(stdout, "Warning: %s\n", msg);
+        break;
+    case QtCriticalMsg:
+        fprintf(stdout, "Critical: %s\n", msg);
+        break;
+    case QtFatalMsg:
+        fprintf(stdout, "Fatal: %s\n", msg);
+        abort();
+    }
+}
 int main(int argc, char** argv)
 {
     QT_REQUIRE_VERSION(argc, argv, "4.5.0");
+    qInstallMsgHandler(myMessageOutput);
     hrApplication app(argc, argv);
 
     hrWindow w;

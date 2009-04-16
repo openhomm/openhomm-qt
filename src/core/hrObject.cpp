@@ -53,15 +53,15 @@ QDataStream &operator>>(QDataStream &in, hrObjectOptions &s)
 void hrObject::dump()
 {
     qDebug() << filename;
-    for ( quint32 i = 0; i < sizeof(junk); i++ )
-        qDebug() << '\t' << junk[i];
+//    for ( quint32 i = 0; i < sizeof(junk); i++ )
+//        qDebug() << '\t' << junk[i];
 }
 
 void hrObjectOptions::dump()
 {
-    qDebug("%d - {%d,%d,%d}", objectID, coord[0], coord[1], coord[2]);
-    for ( quint32 i = 0; i < sizeof(junk); i++ )
-        qDebug() << '\t' << junk[i];
+    qDebug("%d - {%d,%d,%d}\n", objectID, coord[0], coord[1], coord[2]);
+//    for ( quint32 i = 0; i < sizeof(junk); i++ )
+//        qDebug() << '\t' << junk[i];
 }
 
 QDataStream &operator<<(QDataStream &out, const SecondarySkill_t &)
@@ -128,11 +128,14 @@ QDataStream &operator>>(QDataStream &in, ObjectTown &s)
 
     in >> s.event_quantity;
 
-    for (quint32 i = 0; i < s.event_quantity; i++ )
+    if ( s.event_quantity > 0 )
     {
-        TownEvent_t event;
-        in >> event;
-        s.events.push_back(event);
+        for (quint32 i = 0; i < s.event_quantity; i++ )
+        {
+            TownEvent_t event;
+            in >> event;
+            s.events.push_back(event);
+        }
     }
 
     in >> s.junk3;
@@ -185,38 +188,50 @@ QDataStream &operator>>(QDataStream &in, ObjectPandora &s)
     in >> s.offence >> s.defence >> s.power >> s.knowledge;
     in >> s.isSecSkills;
 
-    for ( quint8 i = 0; i < s.isSecSkills; i++)
+    if ( s.isSecSkills > 0 )
     {
-        SecondarySkill_t skill;
-        in >> skill;
-        s.sec_skills.push_back(skill);
+        for ( quint8 i = 0; i < s.isSecSkills; i++)
+        {
+            SecondarySkill_t skill;
+            in >> skill;
+            s.sec_skills.push_back(skill);
+        }
     }
 
     in >> s.isArtefacts;
 
-    for ( quint8 i = 0; i < s.isArtefacts; i++)
+    if ( s.isArtefacts > 0 )
     {
-        quint16 art;
-        in >> art;
-        s.artefacts.push_back(art);
+        for ( quint8 i = 0; i < s.isArtefacts; i++)
+        {
+            quint16 art;
+            in >> art;
+            s.artefacts.push_back(art);
+        }
     }
 
     in >> s.isSpells;
 
-    for ( quint8 i = 0; i < s.isSpells; i++)
+    if ( s.isSpells > 0 )
     {
-        quint8 sp;
-        in >> sp;
-        s.spells.push_back(sp);
+        for ( quint8 i = 0; i < s.isSpells; i++)
+        {
+            quint8 sp;
+            in >> sp;
+            s.spells.push_back(sp);
+        }
     }
 
     in >> s.monstres_count;
 
-    for ( quint8 i = 0; i < s.monstres_count; i++)
+    if ( s.monstres_count > 0 )
     {
-        Guard_t g;
-        in >> g;
-        s.monstres.push_back(g);
+        for ( quint8 i = 0; i < s.monstres_count; i++)
+        {
+            Guard_t g;
+            in >> g;
+            s.monstres.push_back(g);
+        }
     }
     in.readRawData( (char *) s.junk3, sizeof(s.junk3) );
     return in;
@@ -295,17 +310,16 @@ QDataStream &operator>>(QDataStream &in, ObjectArtefact &s)
 {
     in >> s.isText;
 
-    if ( s.isText )
+    if ( s.isText == 1 )
     {
         in >> s.text >> s.isGuards;
 
-        if ( s.isGuards )
+        if ( s.isGuards == 1)
         {
             for (quint8 i = 0; i < 7; i++)
                 in >> s.guards[i];
-
-            in.readRawData( (char *) s.junk, sizeof(s.junk) );
         }
+        in.readRawData( (char *) s.junk, sizeof(s.junk) );
     }
 
     return in;
@@ -409,11 +423,14 @@ QDataStream &operator>>(QDataStream &in, ObjectQuestionGuard &s)
         break;
     case 6:
         in >> s.creaturesQuantity;
-        for ( quint8 i = 0; i < s.creaturesQuantity; i++ )
+        if ( s.creaturesQuantity > 0 )
         {
-            Guard_t g;
-            in >> g;
-            s.creatures.push_back(g);
+            for ( quint8 i = 0; i < s.creaturesQuantity; i++ )
+            {
+                Guard_t g;
+                in >> g;
+                s.creatures.push_back(g);
+            }
         }
         break;
     case 7:
@@ -459,11 +476,14 @@ QDataStream &operator>>(QDataStream &in, ObjectHero &s)
     if ( s.isSecondary == 1 )
     {
         in >> s.skills_quantity;
-        for (quint8 i = 0; i < s.skills_quantity; i++ )
+        if ( s.skills_quantity > 0 )
         {
-            SecondarySkill_t sk;
-            in >> sk;
-            s.skills.push_back(sk);
+            for (quint8 i = 0; i < s.skills_quantity; i++ )
+            {
+                SecondarySkill_t sk;
+                in >> sk;
+                s.skills.push_back(sk);
+            }
         }
     }
 
@@ -487,11 +507,14 @@ QDataStream &operator>>(QDataStream &in, ObjectHero &s)
 
         in >> s.knapsack_count;
 
-        for ( quint16 i = 0; i << s.knapsack_count; i++ )
+        if ( s.knapsack_count > 0 )
         {
-            quint16 knap;
-            in >> knap;
-            s.knapsack.push_back(knap);
+            for ( quint16 i = 0; i < s.knapsack_count; i++ )
+            {
+                quint16 knap;
+                in >> knap;
+                s.knapsack.push_back(knap);
+            }
         }
     }
 
@@ -521,10 +544,10 @@ QDataStream &operator>>(QDataStream &in, ObjectHero &s)
 QDataStream &operator>>(QDataStream &in, ObjectProphet &s)
 {
     in >> s.quest;
-
     switch(s.quest)
     {
     case 0:
+
         break;
     case 1:
         in >> s.level;
@@ -549,18 +572,21 @@ QDataStream &operator>>(QDataStream &in, ObjectProphet &s)
         break;
     case 6:
         in >> s.creaturesQuantity;
-        for ( quint8 i = 0; i < s.creaturesQuantity; i++ )
+        if ( s.creaturesQuantity > 0 )
         {
-            Guard_t g;
-            in >> g;
-            s.creatures.push_back(g);
+            for ( quint8 i = 0; i < s.creaturesQuantity; i++ )
+            {
+                Guard_t g;
+                in >> g;
+                s.creatures.push_back(g);
+            }
         }
         break;
     case 7:
         in >> s.res;
         break;
     case 8:
-        in >> s.heroID;
+        in >> s.heroID_;
         break;
     case 9:
         in >> s.playerColor;
@@ -571,6 +597,7 @@ QDataStream &operator>>(QDataStream &in, ObjectProphet &s)
     };
 
     in >> s.time_limit;
+    qDebug("s.time_limit = %d", s.time_limit);
     in >> s.quest_begin >> s.quest_inprocess >> s.quest_end;
 
     in >> s.reward;

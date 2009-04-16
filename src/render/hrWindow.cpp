@@ -26,7 +26,7 @@ hrWindow::hrWindow(): QWidget()
     QString filename = hrApplication::getMapName();
     qDebug() << filename;
     if ( filename.isEmpty() )
-        reader.load("maps/A Viking We Shall Go.h3m");
+        reader.load("maps/Back For Revenge.h3m");
     else
         reader.load(filename);
 

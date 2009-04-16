@@ -314,7 +314,8 @@ struct ObjectProphet {
         {
             quint8 offence, defence, power, knowledge;
         };
-        quint32 heroID; // quest 3, quest 8
+        quint32 heroID; // quest 3
+        quint8 heroID_; // quest 8
         quint32 monsterID; // quest 4
         quint8 playerColor; // quest 9
     };
