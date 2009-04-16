@@ -66,7 +66,7 @@ void hrWindow::keyPressEvent(QKeyEvent *event)
     }
     else if (event->key() == Qt::Key_Plus || event->key() == Qt::Key_Equal)
     {
-        i > 1 ? i = 0 : i++;
+        i > 3 ? i = 0 : i++;
         w->setZoom(i);
     }
     else if (event->key() == Qt::Key_Minus)

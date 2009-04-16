@@ -33,6 +33,10 @@
 #define GL_GENERATE_MIPMAP_HINT_SGIS      0x8192
 #endif
 
+#ifndef GL_CLAMP_TO_EDGE
+#define GL_CLAMP_TO_EDGE 0x812F
+#endif
+
 
 hrGLWidget::hrGLWidget(QWidget *parent, hrScene *scene)
  : QGLWidget(parent)
@@ -100,11 +104,23 @@ void hrGLWidget::setZoom(int i)
         case 0:
             zoom = 1.0;
             break;
-        case 1:
+        /*case 1:
             zoom = 1.28;
             break;
         case 2:
             zoom = 1.6;
+            break;*/
+        case 1:
+            zoom = 1.1;
+            break;
+        case 2:
+            zoom = 1.2;
+            break;
+        case 3:
+            zoom = 1.3;
+            break;
+        case 4:
+            zoom = 1.5;
             break;
         default:
             zoom = 1.0;
@@ -121,6 +137,7 @@ void hrGLWidget::resizeGL(int w, int h)
 {
     w = (int)(w / zoom);
     h = (int)(h / zoom);
+    QPoint oldPos = viewport.topLeft();
     viewport = QRect(0, 0, w, h);
     //viewport = rect();
     scene->setSceneViewport(coord::toCellRect(viewport));
@@ -131,6 +148,12 @@ void hrGLWidget::resizeGL(int w, int h)
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
     glOrtho(0, w, h, 0, -999999, 999999);
+
+    // try restore position
+    dx = -oldPos.x(); dy = -oldPos.y();
+    scroll();
+    dx = 0; dy = 0;
+
     //Begin();
     //glViewport(0, 0, w, h);
 }
@@ -242,13 +265,16 @@ GLuint hrGLWidget::bindImage(const QImage &im)
     {
         glHint(GL_GENERATE_MIPMAP_HINT_SGIS, GL_NICEST);
         glTexParameteri(textureTarget, GL_GENERATE_MIPMAP_SGIS, GL_TRUE);
-        glTexParameterf(textureTarget, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-    }
-    else*/
+        glTexParameteri(textureTarget, GL_TEXTURE_MAG_FILTER, GL_NEAREST_MIPMAP_NEAREST);
+        glTexParameterf(textureTarget, GL_TEXTURE_MIN_FILTER, GL_NEAREST_MIPMAP_LINEAR);*/
+    if (!textureRects)
     {
-        glTexParameteri(textureTarget, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-        glTexParameterf(textureTarget, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+        glTexParameteri(textureTarget, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+        glTexParameteri(textureTarget, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
     }
+
+    glTexParameteri(textureTarget, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameteri(textureTarget, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 
     glTexImage2D(textureTarget, 0, format, txim.width(), txim.height(), 0,
                  GL_RGBA, GL_UNSIGNED_BYTE, txim.bits());
@@ -259,7 +285,7 @@ GLuint hrGLWidget::bindImage(const QImage &im)
 
 void hrGLWidget::drawImage(const QPoint &point, const QImage &im)
 {
-    double x1, y1, x2, y2;
+    int x1, y1, x2, y2;
     const QRect r(point.x(), point.y(), im.width(), im.height());
     const QRect src(0, 0, im.width(), im.height());
     
@@ -284,10 +310,10 @@ void hrGLWidget::drawImage(const QPoint &point, const QImage &im)
             y2 = src.height();
         }
 
-        glTexCoord2f(x1, y2); glVertex2f(r.x(), r.y());
-        glTexCoord2f(x2, y2); glVertex2f(r.x() + r.width(), r.y());
-        glTexCoord2f(x2, y1); glVertex2f(r.x() + r.width(), r.y() + r.height());
-        glTexCoord2f(x1, y1); glVertex2f(r.x(), r.y() + r.height());
+        glTexCoord2i(x1, y2); glVertex2i(r.x(), r.y());
+        glTexCoord2i(x2, y2); glVertex2i(r.x() + r.width(), r.y());
+        glTexCoord2i(x2, y1); glVertex2i(r.x() + r.width(), r.y() + r.height());
+        glTexCoord2i(x1, y1); glVertex2i(r.x(), r.y() + r.height());
     }
     glEnd();
 
