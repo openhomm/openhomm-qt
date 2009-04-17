@@ -215,6 +215,7 @@ void hrScene::addObject(hrSceneObject &object)
     QRect r = items_obj.value(object.getName())->getRect();
     objects.append( hrSceneObject(object.getName()
                              , object.getVisitable()
+                             , object.isOverlay()
                              , object.x()
                              , object.y()
                              , toCell(r.width())

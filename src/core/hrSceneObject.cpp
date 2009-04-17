@@ -18,6 +18,12 @@
 
 bool hrSceneObject::operator<(const hrSceneObject& s) const
 {
+    if ( this->isOverlay() && !s.isOverlay() )
+        return true;
+
+    if ( !this->isOverlay() && s.isOverlay() )
+        return false;
+
     int x1 = rect.bottomRight().x();
     int y1 = rect.bottomRight().y();
     int x2 = s.getRect().bottomRight().x();
@@ -29,11 +35,11 @@ bool hrSceneObject::operator<(const hrSceneObject& s) const
     if (y1 > y2)
         return false;
 
-    if ( this->isVisitable() && !s.isVisitable() )
-        return false;
-
     if ( !this->isVisitable() && s.isVisitable() )
         return true;
+
+    if ( this->isVisitable() && !s.isVisitable() )
+        return false;
 
     if (x1 < x2)
         return true;

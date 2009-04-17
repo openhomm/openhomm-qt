@@ -136,7 +136,7 @@ void hrGLWidget::resizeGL(int w, int h)
 {
     w = (int)(w / zoom);
     h = (int)(h / zoom);
-    QRect old = viewport;
+    //QRect old = viewport;
     viewport = QRect(0, 0, w, h);
     scene->setSceneViewport(coord::toCellRect(viewport));
     objects = scene->getViewportObjects();
@@ -147,9 +147,9 @@ void hrGLWidget::resizeGL(int w, int h)
     glOrtho(0, w, h, 0, -999999, 999999);
 
     // try restore position
-    dx = -old.x(); dy = -old.y();
+    /*dx = -old.x(); dy = -old.y();
     scroll();
-    dx = 0; dy = 0;
+    dx = 0; dy = 0;*/
 
     //Begin();
     //glViewport(0, 0, w, h);
@@ -481,7 +481,7 @@ void hrGLWidget::checkExtensions()
 {
     QString extensions(reinterpret_cast<const char *>(glGetString(GL_EXTENSIONS)));
 
-    /*textureRects = true;
+    textureRects = true;
     if (extensions.contains("GL_NV_texture_rectangle"))
     {
         qWarning("GL_NV_texture_rectangle");
@@ -497,7 +497,7 @@ void hrGLWidget::checkExtensions()
         qWarning("GL_EXT_texture_rectangle");
         textureTarget = GL_TEXTURE_RECTANGLE_EXT;
     }
-    else*/
+    else
     {
         qWarning("GL_TEXTURE_2D");
         textureTarget = GL_TEXTURE_2D;
