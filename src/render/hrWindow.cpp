@@ -44,7 +44,8 @@ hrWindow::hrWindow(): QWidget()
     for (int i = 0; i < cnt; i++)
     {
         hrSceneObject object = reader.getObject(i);
-        scene->addObject(object);
+        if (!object.isUnderground())
+            scene->addObject(object);
     }
     scene->sortObjects();
 

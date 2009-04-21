@@ -24,15 +24,18 @@ class hrSceneObject
     QRect rect;
     quint8 visitable[6];
     bool overlay;
+    bool underground;
 public:
     hrSceneObject() { name = "default.def"; }
     hrSceneObject(const QString &name
                   , quint8 *visit
                   , bool overlay
+                  , bool underground
                   , int x
                   , int y
                   , int width
-                  , int height) : name(name), overlay(overlay)
+                  , int height)
+        : name(name), overlay(overlay), underground(underground)
     {
         memcpy(visitable, visit, 6);
         rect.setRect(x - width + 1, y - height + 1, width, height);
@@ -40,8 +43,10 @@ public:
     hrSceneObject(const QString &name
                   , quint8 *visit
                   , bool overlay
+                  , bool underground
                   , int x
-                  , int y) : name(name), overlay(overlay)
+                  , int y)
+        : name(name), overlay(overlay), underground(underground)
     {
         memcpy(visitable, visit, 6);
         rect.setX(x);
@@ -65,6 +70,10 @@ public:
     bool isOverlay() const
     {
         return overlay;
+    }
+    bool isUnderground() const
+    {
+        return underground;
     }
     QString getName() const
     {

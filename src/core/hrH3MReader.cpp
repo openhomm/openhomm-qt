@@ -370,12 +370,14 @@ int hrH3MReader::getObjectsCount() const
 hrSceneObject hrH3MReader::getObject(quint32 index) const
 {
     Q_ASSERT( index >= 0 && index <= objectOptions);
+
     return hrSceneObject(objects[obj[index].objectID].filename
-                         , objects[obj[index].objectID].actions
-                         , objects[obj[index].objectID].isOverlay
-                         , obj[index].coord[0]
-                         , obj[index].coord[1]
-                         );
+                             , objects[obj[index].objectID].actions
+                             , objects[obj[index].objectID].isOverlay
+                             , obj[index].coord[2] == 0 ? false : true
+                             , obj[index].coord[0]
+                             , obj[index].coord[1]
+                             );
 }
 
 QDataStream &operator<<(QDataStream &out, const BasicParametres_t &)
