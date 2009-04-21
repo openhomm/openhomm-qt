@@ -437,7 +437,7 @@ QDataStream &operator>>(QDataStream &in, ObjectQuestionGuard &s)
         in >> s.res;
         break;
     case 8:
-        in >> s.heroID;
+        in >> s.heroID_;
         break;
     case 9:
         in >> s.playerColor;

@@ -503,7 +503,8 @@ struct ObjectQuestionGuard {
         {
             quint8 offence, defence, power, knowledge;
         };
-        quint32 heroID; // 3, 8
+        quint32 heroID; // 3
+        quint8 heroID_; // 8
         quint32 monsterID; // 4
         quint8 playerColor; // 9
     };
