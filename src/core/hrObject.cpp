@@ -272,7 +272,7 @@ QDataStream &operator>>(QDataStream &in, ObjectLevelRandomDwelling &s)
 {
     in >> s.owner >> s.junk;
 
-    if ( s.junk == 1 )
+    if ( s.junk == 0 )
         in >> s.towns;
 
     return in;
@@ -283,7 +283,7 @@ QDataStream &operator>>(QDataStream &in, ObjectGeneralRandomDwelling &s)
 {
     in >> s.owner >> s.junk;
 
-    if ( s.junk == 1 )
+    if ( s.junk == 0 )
         in >> s.towns;
 
     in >> s.minlevel >> s.maxlevel;
