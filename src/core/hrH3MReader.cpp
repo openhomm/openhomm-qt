@@ -94,10 +94,14 @@ bool hrH3MReader::load(const QString &name)
     {
         m >> players[i];
     }
-
+qDebug("Position: %lX", m.device()->pos());
     m >> svc >> slc >> teams;
+    qDebug("Position: %lX", m.device()->pos());
     m >> fh;
+    qDebug("Position: %lX", m.device()->pos());
     m >> artefacts >> spells >> secSkills >> rumors;
+
+    qDebug("Position: %lX", m.device()->pos());
 
     for ( int i = 0; i < 156; i++ )
     {
@@ -108,6 +112,8 @@ bool hrH3MReader::load(const QString &name)
         }
     }
 
+    qDebug("Position: %lX", m.device()->pos());
+
     ground = new hrTile[basic.size*basic.size];
     m.readRawData( (char *) ground, sizeof(hrTile)*basic.size*basic.size );
 
@@ -117,7 +123,8 @@ bool hrH3MReader::load(const QString &name)
         m.readRawData( (char *) underground, sizeof(hrTile)*basic.size*basic.size );
     }
 
-
+    qDebug("hrTile sizeof = %d", sizeof(hrTile) );
+    qDebug("Position: %lX", m.device()->pos());
     m >> objectQuantity;
 
     qDebug() << objectQuantity;
@@ -370,14 +377,13 @@ int hrH3MReader::getObjectsCount() const
 hrSceneObject hrH3MReader::getObject(quint32 index) const
 {
     Q_ASSERT( index >= 0 && index <= objectOptions);
-
     return hrSceneObject(objects[obj[index].objectID].filename
-                             , objects[obj[index].objectID].actions
-                             , objects[obj[index].objectID].isOverlay
-                             , obj[index].coord[2] == 0 ? false : true
-                             , obj[index].coord[0]
-                             , obj[index].coord[1]
-                             );
+                         , objects[obj[index].objectID].actions
+                         , objects[obj[index].objectID].isOverlay
+                         , obj[index].coord[2] == 0 ? false : true
+                         , obj[index].coord[0]
+                         , obj[index].coord[1]
+                         );
 }
 
 QDataStream &operator<<(QDataStream &out, const BasicParametres_t &)
@@ -421,18 +427,21 @@ QDataStream &operator>>(QDataStream &in, PlayerAttributes_t &p)
 
     in >> p.randomHero >> p.heroType;
 
-    if ( p.heroType != 0xFF )
-        in >> p.heroPortret >> p.heroName;
-
-    in >> p.junk >> p.heroesCount;
-
-    if ( p.heroesCount > 0 )
+    if ( p.heroType == 0xFF )
     {
-        for ( quint32 i = 0; i < p.heroesCount; i++ )
+        in >> p.heroPortret >> p.heroName;
+    } else
+    {
+        in >> p.junk >> p.heroesCount;
+        qDebug("p.heroesCount = %d", p.heroesCount);
+        if ( p.heroesCount > 0 )
         {
-            Hero_t hero;
-            in >> hero;
-            p.heroes.push_back(hero);
+            for ( quint32 i = 0; i < p.heroesCount; i++ )
+            {
+                Hero_t hero;
+                in >> hero;
+                p.heroes.push_back(hero);
+            }
         }
     }
     return in;
@@ -455,41 +464,43 @@ QDataStream &operator>>(QDataStream &in, SpecialVictoryCondition_t &s)
 {
     in >> s.id;
 
-    if ( s.id == 0xFF )
-        return in;
-
-    in >> s.canStandardEnd >> s.canComputer;
-    switch(s.id)
+    if ( s.id != 0xFF )
     {
-    case 0x00:
-        in >> s.artId;
-        break;
-    case 0x01:
-        in >> s.creatureId >> s.creatureCount;
-        break;
-    case 0x02:
-        in >> s.resId >> s.resCount;
-        break;
-    case 0x03:
-        in >> s.townCoord[0] >> s.townCoord[1] >> s.townCoord[2] >> s.townCoord[3];
-        in >> s.hallLevel >> s.castleLevel;
-        break;
-    case 0x04:
-    case 0x05:
-    case 0x06:
-    case 0x07:
-        in >> s.coord[0] >> s.coord[1] >> s.coord[2];
-        break;
-    case 0x08:
-    case 0x09:
-        break;
-    case 0x0A:
-        in >> s.artType >> s.artCoord[0] >> s.artCoord[1] >> s.artCoord[2];
-        break;
-    default:
-        qWarning("SpecialVictoryCondition ID: %d is unkonwn", s.id);
-        break;
-    };
+        //return in;
+        in >> s.canStandardEnd >> s.canComputer;
+
+        switch(s.id)
+        {
+        case 0x00:
+            in >> s.artId;
+            break;
+        case 0x01:
+            in >> s.creatureId >> s.creatureCount;
+            break;
+        case 0x02:
+            in >> s.resId >> s.resCount;
+            break;
+        case 0x03:
+            in >> s.townCoord[0] >> s.townCoord[1] >> s.townCoord[2];
+            in >> s.hallLevel >> s.castleLevel;
+            break;
+        case 0x04:
+        case 0x05:
+        case 0x06:
+        case 0x07:
+            in >> s.coord[0] >> s.coord[1] >> s.coord[2];
+            break;
+        case 0x08:
+        case 0x09:
+            break;
+        case 0x0A:
+            in >> s.artType >> s.artCoord[0] >> s.artCoord[1] >> s.artCoord[2];
+            break;
+        default:
+            qWarning("SpecialVictoryCondition ID: %d is unkonwn", s.id);
+            break;
+        };
+    }
     return in;
 }
 
@@ -502,16 +513,16 @@ QDataStream &operator>>(QDataStream &in, SpecialLossCondition_t &s)
 {
     in >> s.id;
 
-    if ( s.id == 0xFF )
-        return in;
+    if ( s.id != 0xFF )
+    {
 
-    if ( s.id == 0x00 || s.id == 0x01 )
-        in >> s.coord[0] >> s.coord[1] >> s.coord[2];
-    else if ( s.id == 0x02 )
-        in >> s.days;
-    else
-        qWarning("SpecialLossConditions ID: %d is unkown", s.id);
-
+        if ( s.id == 0x00 || s.id == 0x01 )
+            in >> s.coord[0] >> s.coord[1] >> s.coord[2];
+        else if ( s.id == 0x02 )
+            in >> s.days;
+        else
+            qWarning("SpecialLossConditions ID: %d is unkown", s.id);
+    }
     return in;
 }
 
@@ -525,7 +536,7 @@ QDataStream &operator>>(QDataStream &in, Teams_t &t)
     in >> t.quantity;
 
     if ( t.quantity > 0 )
-        in.readRawData((char*)t.commands, 8);
+        in.readRawData((char*)t.commands, sizeof(t.commands));
 
     return in;
 }
@@ -553,11 +564,17 @@ QDataStream &operator>>(QDataStream &in, FreeHeroes_t &f)
 
     in >> f.heroesQuantity;
 
-    for ( quint8 i = 0; i < f.heroesQuantity; ++i )
+    //qDebug(" f.heroesQuantity = %d", f.heroesQuantity);
+    if ( f.heroesQuantity > 0 )
     {
-        TunedHero_t tuned;
-        in >> tuned;
-        f.tunedHeroes.push_back(tuned);
+        for ( quint8 i = 0; i < f.heroesQuantity; i++ )
+        {
+            //qDebug("QDataStream &operator>>(QDataStream &in, FreeHeroes_t &f) Position = %X", in.device()->pos());
+            TunedHero_t tuned;
+            in >> tuned;
+            //qDebug() << tuned.name.length();
+            f.tunedHeroes.push_back(tuned);
+        }
     }
 
     in.readRawData( (char *) f.junk2, sizeof(f.junk2) );
@@ -617,11 +634,16 @@ QDataStream &operator<<(QDataStream &out, const Rumors_t &)
 QDataStream &operator>>(QDataStream &in, Rumors_t &r)
 {
     in >> r.quantity;
-    for ( quint32 i = 0; i < r.quantity; i++ )
+
+    qDebug("Rumors quantity=%d", r.quantity);
+    if ( r.quantity > 0 )
     {
-        Rumor_t rumor;
-        in >> rumor;
-        r.rumors.push_back(rumor);
+        for ( quint32 i = 0; i < r.quantity; i++ )
+        {
+            Rumor_t rumor;
+            in >> rumor;
+            r.rumors.push_back(rumor);
+        }
     }
     return in;
 }
@@ -643,11 +665,14 @@ QDataStream &operator>>(QDataStream &in, HeroOptions_enabled &h)
     if ( h.isSecSkill == 1 )
     {
         in >> h.secSkillsQuantity;
-        for ( quint32 i = 0; i < h.secSkillsQuantity; i++ )
+        if ( h.secSkillsQuantity > 0 )
         {
-            SecondarySkill_t skill;
-            in >> skill;
-            h.secSkills.push_back(skill);
+            for ( quint32 i = 0; i < h.secSkillsQuantity; i++ )
+            {
+                SecondarySkill_t skill;
+                in >> skill;
+                h.secSkills.push_back(skill);
+            }
         }
     }
 

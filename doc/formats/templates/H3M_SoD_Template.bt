@@ -70,10 +70,11 @@ struct PLAYER_ATTRIBUTES {
     uchar hero_type;
 
 
-    if ( hero_type != 0xFF ) {
+    if ( hero_type == 0xFF ) {
     uchar hero_portret;
     hstring hero_name;
     }
+else {
         char junk;
         uint heroes_count;
         if ( heroes_count > 0 ) {
@@ -83,6 +84,7 @@ struct PLAYER_ATTRIBUTES {
             };
             Hero_tag hero[heroes_count] <optimize=false>;
         }
+    }
 };
 
 struct SpecialLossConditions {

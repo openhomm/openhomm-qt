@@ -102,7 +102,7 @@ struct SpecialVictoryCondition_t
     {
         // id == 0x00
         struct {
-            quint8 artId;
+            quint16 artId;
         };
         // id == 0x01
         struct {
