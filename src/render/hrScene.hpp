@@ -19,8 +19,64 @@
 
 #include "hrTile.hpp"
 #include "hrGraphicsItem.hpp"
+#include "hrTileAtlas.hpp"
 #include "hrCoord.hpp"
 #include "hrSceneObject.hpp"
+
+class hrSceneTile
+{
+    int id;
+    int frame;
+    QPoint point;
+    bool horizontal;
+    bool vertical;
+public:
+    hrSceneTile(int id
+                , int frame
+                , int x
+                , int y
+                , bool horizontal = false
+                , bool vertical = false)
+        : id(id), frame(frame), horizontal(horizontal), vertical(vertical)
+    {
+        point.setX(x);
+        point.setY(y);
+    }
+    bool operator<(const hrSceneTile& s) const
+    {
+        if (this->id < s.getId())
+            return true;
+        return false;
+    }
+    int getId() const
+    {
+        return id;
+    }
+    int getFrame() const
+    {
+        return frame;
+    }
+    bool isHorizontal() const
+    {
+        return horizontal;
+    }
+    bool isVertical() const
+    {
+        return vertical;
+    }
+    int x() const
+    {
+        return point.x();
+    }
+    int y() const
+    {
+        return point.y();
+    }
+    QPoint getPoint() const
+    {
+        return point;
+    }
+};
 
 class hrScene
 {
@@ -50,11 +106,16 @@ public:
     hrGraphicsItem* getItem(const hrSceneObject &object) const;
     hrGraphicsItem* getItem(int id) const;
 
-    QVector<hrTile> getViewportTiles() const;
+    //QVector<hrTile> getViewportTiles() const;
     const hrTile& getTile(int x, int y) const;
     QList<hrSceneObject> getViewportObjects() const;
     QList<hrSceneObject> getAllObjects() const;
+
     void sortObjects();
+
+    QList<hrSceneTile> getViewportTiles() const;
+    hrTileAtlas* getAtlas(const hrSceneTile &tile) const;
+
 public slots:
 //mouseClick()
 //mouseMove()
@@ -72,6 +133,9 @@ private:
     void addItem(int id, const QString &name, bool mirrored = false);
     void addItem(const QString &name);
     void CyclShiftPalette(int a, int b, QImage &im);
+
+    void addTileItem(int id, const QString &name);
+    QMap<int , hrTileAtlas*> items_atlas;
 };
 
 #endif // HRSCENE_H

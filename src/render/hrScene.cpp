@@ -83,6 +83,41 @@ void hrScene::addItem(int id, const QString &name, bool mirrored)
     }
 }
 
+void hrScene::addTileItem(int id, const QString &name)
+{
+    if (!items_atlas.contains(id))
+    {
+        //qDebug() << "add tile:" << id;
+        int animation = 0;
+        if (name == "watrtl.def")
+        {
+            animation = hrTileAtlas::watrtl;
+        }
+        else if (name == "clrrvr.def")
+        {
+            animation = hrTileAtlas::clrrvr;
+        }
+        else if (name == "mudrvr.def")
+        {
+            animation = hrTileAtlas::mudrvr;
+        }
+        else if (name == "lavrvr.def")
+        {
+            animation = hrTileAtlas::lavrvr;
+        }
+        hrTileAtlas *atlas = new hrTileAtlas(animation);
+        QImageReader ir("lod:/data/h3sprite.lod/" + name);
+        QImage im;
+        for (int i = 0; ir.jumpToImage(i); i++)
+            if (ir.read(&im))
+            {
+                atlas->addImage(im);
+            }
+
+        items_atlas[id] = atlas;
+    }
+}
+
 void hrScene::addItem(const QString &name)
 {
     if (!items_obj.contains(name))
@@ -148,7 +183,8 @@ void hrScene::addTile(const hrTile &tile)
             name = "rocktl.def";
             break;
     }
-    addItem(tile.terrainId, name, true);
+    //addItem(tile.terrainId, name, true);
+    addTileItem(tile.terrainId, name);
 
     if (tile.hasRiver())
     {
@@ -167,7 +203,8 @@ void hrScene::addTile(const hrTile &tile)
                 name = "lavrvr.def";
                 break;
         }
-        addItem(tile.getRiverId(), name, true);
+        //addItem(tile.getRiverId(), name, true);
+        addTileItem(tile.getRiverId(), name);
     }
 
     if (tile.hasRoad())
@@ -184,7 +221,8 @@ void hrScene::addTile(const hrTile &tile)
                 name = "cobbrd.def";
                 break;
         }
-        addItem(tile.getRoadId(), name, true);
+        //addItem(tile.getRoadId(), name, true);
+        addTileItem(tile.getRoadId(), name);
     }
 
 
@@ -219,8 +257,8 @@ void hrScene::addObject(hrSceneObject &object)
                              , object.isUnderground()
                              , object.x()
                              , object.y()
-                             , toCell(r.width())
-                             , toCell(r.height())
+                             , coord::toCell(r.width())
+                             , coord::toCell(r.height())
                              )
                    );
 }
@@ -316,7 +354,7 @@ hrGraphicsItem* hrScene::getItem(int id) const
     return items.value(id);
 }
 
-QVector<hrTile> hrScene::getViewportTiles() const
+/*QVector<hrTile> hrScene::getViewportTiles() const
 {
     QVector<hrTile> v;
 
@@ -326,6 +364,62 @@ QVector<hrTile> hrScene::getViewportTiles() const
             v.append(tiles.at(viewport.y() + y).at(viewport.x() + x));
         }
     return v;
+}*/
+
+QList<hrSceneTile> hrScene::getViewportTiles() const
+{
+    QList<hrSceneTile> l;
+
+    for (int y = 0; y < viewport.height(); y++)
+        for (int x = 0; x < viewport.width(); x++)
+        {
+            int x0 = viewport.x() + x;
+            int y0 = viewport.y() + y;
+            const hrTile &tile = tiles.at(y0).at(x0);
+            l.append(hrSceneTile(tile.terrainId
+                                 , tile.getTerrainFrame()
+                                 , coord::toPix(x0)
+                                 , coord::toPix(y0)
+                                 , tile.isTerrainHorizontal()
+                                 , tile.isTerrainVertical()
+                                 )
+                     );
+            if (tile.hasRiver())
+            {
+                l.append(hrSceneTile(tile.getRiverId()
+                                     , tile.getRiverFrame()
+                                     , coord::toPix(x0)
+                                     , coord::toPix(y0)
+                                     , tile.isRiverHorizontal()
+                                     , tile.isRiverVertical()
+                                     )
+                         );
+            }
+            if (tile.hasRoad())
+            {
+                l.append(hrSceneTile(tile.getRoadId()
+                                     , tile.getRoadFrame()
+                                     , coord::toPix(x0)
+                                     , coord::toPix(y0) + 16
+                                     , tile.isRoadHorizontal()
+                                     , tile.isRoadVertical()
+                                     )
+                         );
+            }
+        }
+    qStableSort(l);
+    /*QListIterator<hrSceneTile> it(l);
+    while(it.hasNext())
+    {
+        hrSceneTile tile = it.next();
+        qDebug() << "id" << tile.getId() << "frame" << tile.getFrame() << "p:" << tile.getPoint();
+    }*/
+    return l;
+}
+
+hrTileAtlas* hrScene::getAtlas(const hrSceneTile &tile) const
+{
+    return items_atlas.value(tile.getId());
 }
 
 const hrTile& hrScene::getTile(int x, int y) const

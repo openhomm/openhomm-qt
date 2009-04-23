@@ -19,7 +19,7 @@
 
 hrWindow::hrWindow(): QWidget()
 {
-    setWindowTitle("OpenHoMM, fullscreen - F11, zoom - +/-");
+    setWindowTitle("OpenHoMM, fullscreen - F11");//, zoom - +/-");
 
     hrH3MReader reader;
 
@@ -69,12 +69,12 @@ void hrWindow::resizeEvent(QResizeEvent *event)
 
 void hrWindow::keyPressEvent(QKeyEvent *event)
 {
-    static int i = 0;
+    //static int i = 0;
     if (event->key() == Qt::Key_F11)
     {
         setWindowState(windowState() ^ Qt::WindowFullScreen);
     }
-    else if (event->key() == Qt::Key_Plus || event->key() == Qt::Key_Equal)
+    /*else if (event->key() == Qt::Key_Plus || event->key() == Qt::Key_Equal)
     {
         i > 3 ? i = 0 : i++;
         w->setZoom(i);
@@ -83,5 +83,5 @@ void hrWindow::keyPressEvent(QKeyEvent *event)
     {
         i > 0 ? i-- : i = 0;
         w->setZoom(i);
-    }
+    }*/
 }

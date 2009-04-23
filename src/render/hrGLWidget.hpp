@@ -75,7 +75,7 @@ private:
     bool generateMipmap;
     int textureTarget;
 
-    int maxTexDim;
+    int textureMaxDim;
 
     class GLTexture
     {
@@ -92,8 +92,17 @@ private:
         }
     };
     QCache<quint64, GLTexture> texs;
-    GLuint bindImage(const QImage &im);
+    GLuint bindImage(const QImage &im, GLuint target);
     void drawImage(const QPoint &point, const QImage &im);
+
+    QList<hrSceneTile> tiles;
+    int oldTileId;
+    void drawAtlasTiles();
+    void drawAtlasItem(const QPoint &point
+                       , const QRect &src
+                       , bool horizontal = false
+                       , bool vertical = false
+                       );
 
 private slots:
     void mouseMoveEvent(QMouseEvent * event);

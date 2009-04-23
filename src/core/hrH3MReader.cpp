@@ -94,14 +94,14 @@ bool hrH3MReader::load(const QString &name)
     {
         m >> players[i];
     }
-qDebug("Position: %lX", m.device()->pos());
+    //qDebug("Position: %lX", m.device()->pos());
     m >> svc >> slc >> teams;
-    qDebug("Position: %lX", m.device()->pos());
+    //qDebug("Position: %lX", m.device()->pos());
     m >> fh;
-    qDebug("Position: %lX", m.device()->pos());
+    //qDebug("Position: %lX", m.device()->pos());
     m >> artefacts >> spells >> secSkills >> rumors;
 
-    qDebug("Position: %lX", m.device()->pos());
+    //qDebug("Position: %lX", m.device()->pos());
 
     for ( int i = 0; i < 156; i++ )
     {
@@ -112,7 +112,7 @@ qDebug("Position: %lX", m.device()->pos());
         }
     }
 
-    qDebug("Position: %lX", m.device()->pos());
+    //qDebug("Position: %lX", m.device()->pos());
 
     ground = new hrTile[basic.size*basic.size];
     m.readRawData( (char *) ground, sizeof(hrTile)*basic.size*basic.size );
@@ -123,8 +123,8 @@ qDebug("Position: %lX", m.device()->pos());
         m.readRawData( (char *) underground, sizeof(hrTile)*basic.size*basic.size );
     }
 
-    qDebug("hrTile sizeof = %d", sizeof(hrTile) );
-    qDebug("Position: %lX", m.device()->pos());
+    //qDebug("hrTile sizeof = %d", sizeof(hrTile) );
+    //qDebug("Position: %lX", m.device()->pos());
     m >> objectQuantity;
 
     qDebug() << objectQuantity;
@@ -135,7 +135,7 @@ qDebug("Position: %lX", m.device()->pos());
     for ( quint32 i = 0; i < objectQuantity; i++ )
     {
         m >> objects[i];
-        objects[i].dump();
+        //objects[i].dump();
     }
 
     m >> objectOptions;
@@ -147,9 +147,9 @@ qDebug("Position: %lX", m.device()->pos());
     {
         //hrObjectOptions obj;
         m >> obj[i];
-        qDebug("i=%d\n",i);
-        qDebug("object_class=%d\n",objects[obj[i].objectID].object_class);
-        obj[i].dump();
+        //qDebug("i=%d\n",i);
+        //qDebug("object_class=%d\n",objects[obj[i].objectID].object_class);
+        //obj[i].dump();
 
         switch(objects[obj[i].objectID].object_class)
         {

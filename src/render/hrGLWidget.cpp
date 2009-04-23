@@ -58,9 +58,9 @@ hrGLWidget::hrGLWidget(QWidget *parent, hrScene *scene)
     glGetIntegerv(GL_MAX_TEXTURE_SIZE, &param);
     qWarning("maxsize: %d", param);
     if (param != 0)
-        maxTexDim = param;
+        textureMaxDim = param;
     else
-        maxTexDim = 512;
+        textureMaxDim = 512;
 
     checkExtensions(); // set flags
 
@@ -138,8 +138,10 @@ void hrGLWidget::resizeGL(int w, int h)
     h = (int)(h / zoom);
     //QRect old = viewport;
     viewport = QRect(0, 0, w, h);
-    scene->setSceneViewport(coord::toCellRect(viewport));
+    scene->setSceneViewport(coord::toCell(viewport));
     objects = scene->getViewportObjects();
+    tiles = scene->getViewportTiles();
+    oldTileId = -1;
 
     glViewport(0, 0, (int)(w * zoom), (int)(h * zoom));
     glMatrixMode(GL_PROJECTION);
@@ -204,7 +206,7 @@ void hrGLWidget::drawTiles()
     for (int y = r.y(); y < bottom; y++)
         for (int x = r.x(); x < right; x++)
         {
-            QPoint point = coord::toPixPoint(QPoint(x, y));
+            QPoint point = coord::toPix(QPoint(x, y));
             hrTile tile = scene->getTile(x, y);
 
             drawImage(point, scene->getImageTerrain(tile));
@@ -231,7 +233,7 @@ void hrGLWidget::drawRoadTiles()
             hrTile tile = scene->getTile(x, y);
             if (tile.hasRoad())
             {
-                QPoint point = coord::toPixPoint(QPoint(x, y));
+                QPoint point = coord::toPix(QPoint(x, y));
                 point.setY(point.y() + 15);
                 drawImage(point, scene->getImageRoad(tile));
             }
@@ -254,18 +256,18 @@ void hrGLWidget::drawObjects()
     while (it.hasNext())
     {
         const hrSceneObject &obj = it.next();
-        drawImage(coord::toPixPoint(obj.getPoint()), scene->getImage(obj));
+        drawImage(coord::toPix(obj.getPoint()), scene->getImage(obj));
     }
 }
 
-GLuint hrGLWidget::bindImage(const QImage &im)
+GLuint hrGLWidget::bindImage(const QImage &im, GLuint target)
 {
     GLTexture *tx;
     quint64 key = im.cacheKey();
     if (texs.contains(key))
     {
         tx = texs[key];
-        glBindTexture(textureTarget, tx->getId());
+        glBindTexture(target, tx->getId());
         return tx->getId();
     }
 
@@ -275,24 +277,26 @@ GLuint hrGLWidget::bindImage(const QImage &im)
     GLuint param;
     glGenTextures(1, &param);
     tx = new GLTexture(param);
-    glBindTexture(textureTarget, tx->getId());
+    glBindTexture(target, tx->getId());
 
     /*if (generateMipmap) // it's slow
     {
         glHint(GL_GENERATE_MIPMAP_HINT_SGIS, GL_NICEST);
         glTexParameteri(textureTarget, GL_GENERATE_MIPMAP_SGIS, GL_TRUE);
         glTexParameteri(textureTarget, GL_TEXTURE_MAG_FILTER, GL_NEAREST_MIPMAP_NEAREST);
-        glTexParameterf(textureTarget, GL_TEXTURE_MIN_FILTER, GL_NEAREST_MIPMAP_LINEAR);*/
+        glTexParameterf(textureTarget, GL_TEXTURE_MIN_FILTER, GL_NEAREST_MIPMAP_LINEAR);
+    }*/
+
     if (!textureRects)
     {
-        glTexParameteri(textureTarget, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-        glTexParameteri(textureTarget, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+        glTexParameteri(target, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+        glTexParameteri(target, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
     }
 
-    glTexParameteri(textureTarget, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    glTexParameteri(textureTarget, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(target, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameteri(target, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 
-    glTexImage2D(textureTarget, 0, format, txim.width(), txim.height(), 0,
+    glTexImage2D(target, 0, format, txim.width(), txim.height(), 0,
                  GL_RGBA, GL_UNSIGNED_BYTE, txim.bits());
 
     texs.insert(key, tx);
@@ -303,37 +307,97 @@ void hrGLWidget::drawImage(const QPoint &point, const QImage &im)
 {
     int x1, y1, x2, y2;
     const QRect r(point.x(), point.y(), im.width(), im.height());
-    const QRect src(0, 0, im.width(), im.height());
-    
-    bindImage(im);
+
+    bindImage(im, textureTarget);
+
+    if (!textureRects)
+    {
+        x1 = 0;
+        x2 = 1;
+        y1 = 0;
+        y2 = 1;
+    }
+    else
+    {
+        x1 = 0;
+        x2 = im.width();
+        y1 = 0;
+        y2 = im.height();
+    }
 
     glEnable(textureTarget);
-
     glBegin(GL_QUADS);
     {
-        if (!textureRects)
-        {
-            x1 = 0;//src.x() / (double)im.width();
-            x2 = 1;//x1 + src.width() / (double)im.width();
-            y1 = 0;//src.y() / (double)im.height();
-            y2 = 1;//y1 + src.height() / (double)im.height();
-        }
-        else
-        {
-            x1 = src.x();
-            x2 = src.width();
-            y1 = src.y();
-            y2 = src.height();
-        }
-
         glTexCoord2i(x1, y2); glVertex2i(r.x(), r.y());
         glTexCoord2i(x2, y2); glVertex2i(r.x() + r.width(), r.y());
         glTexCoord2i(x2, y1); glVertex2i(r.x() + r.width(), r.y() + r.height());
         glTexCoord2i(x1, y1); glVertex2i(r.x(), r.y() + r.height());
     }
     glEnd();
-
     glDisable(textureTarget);
+}
+
+void hrGLWidget::drawAtlasTiles()
+{
+    QListIterator<hrSceneTile> it(tiles);
+    while (it.hasNext())
+    {
+        const hrSceneTile &tile = it.next();
+        hrTileAtlas* atlas = scene->getAtlas(tile);
+        if (tile.getId() != oldTileId)
+        {
+            oldTileId = tile.getId();
+            //if (isAnimate)
+            //    atlas->nextFrame();
+            bindImage(atlas->getImage(), GL_TEXTURE_2D);
+        }
+        drawAtlasItem(tile.getPoint()
+                      , atlas->getFrame(tile.getFrame())
+                      , tile.isHorizontal()
+                      , tile.isVertical()
+                      );
+    }
+}
+
+void hrGLWidget::drawAtlasItem(const QPoint &point
+                               , const QRect &src
+                               , bool horizontal
+                               , bool vertical
+                               )
+{
+    double x1, y1, x2, y2;
+    const QRect r(point.x(), point.y(), coord::dim, coord::dim);
+
+    x1 = src.x() / (double) hrTileAtlas::dim;
+    x2 = x1 + src.width() / (double) hrTileAtlas::dim;
+
+    y2 = 1 - src.y() / (double) hrTileAtlas::dim;
+    y1 = y2 - src.height() / (double) hrTileAtlas::dim;
+
+    if (horizontal && vertical)
+    {
+        qSwap(x1, x2);
+        qSwap(y1, y2);
+    }
+    else if (horizontal)
+    {
+        qSwap(x1, x2);
+    }
+    else if (vertical)
+    {
+        qSwap(y1, y2);
+    }
+
+    glEnable(GL_TEXTURE_2D);
+    glBegin(GL_QUADS);
+    {
+        glTexCoord2f(x1, y2); glVertex2f(r.x(), r.y());
+        glTexCoord2f(x2, y2); glVertex2f(r.x() + r.width(), r.y());
+        glTexCoord2f(x2, y1); glVertex2f(r.x() + r.width(), r.y() + r.height());
+        glTexCoord2f(x1, y1); glVertex2f(r.x(), r.y() + r.height());
+    }
+    glEnd();
+    glDisable(GL_TEXTURE_2D);
 }
 
 void hrGLWidget::paintGL()
@@ -341,11 +405,13 @@ void hrGLWidget::paintGL()
     //Begin();
     glClear(GL_COLOR_BUFFER_BIT);
 
-    if (isAnimate)
-        animateTiles();
+    /*if (isAnimate)
+       animateTiles();
 
     drawTiles();
-    drawRoadTiles();
+    drawRoadTiles();*/
+
+    drawAtlasTiles();
 
     if (isAnimate)
         animateObjects();
@@ -365,8 +431,8 @@ void hrGLWidget::animate()
 void hrGLWidget::scroll()
 {
     isAnimate = false;
-    QRect size = coord::toPixRect(scene->getSize());
-    QRect sceneViewport = coord::toPixRect(scene->getSceneViewport());
+    QRect size = coord::toPix(scene->getSize());
+    QRect sceneViewport = coord::toPix(scene->getSceneViewport());
 
     QPoint oldPos = viewport.topLeft();
     QPoint newPos = oldPos - QPoint(dx, dy);
@@ -376,8 +442,10 @@ void hrGLWidget::scroll()
     {
         if (!sceneViewport.contains(viewport))
         {
-            scene->setSceneViewport(coord::toCellRect(viewport));
+            scene->setSceneViewport(coord::toCell(viewport));
             objects = scene->getViewportObjects();
+            tiles = scene->getViewportTiles();
+            oldTileId = -1;
         }
         glTranslatef(dx, dy, 0);
         updateGL();
@@ -395,8 +463,8 @@ void hrGLWidget::mouseMoveEvent(QMouseEvent * event)
 {
     QPoint pos = event->pos();
     const int border = 50;
-    const int c = 20;
-    const int delay = 30;
+    const int c = 16;
+    const int delay = 20;
     bool startScrollTimer = true;
 
     if (pos.x() < border && pos.y() < border)
@@ -546,5 +614,5 @@ qint32 hrGLWidget::NearestGLTextureSize(qint32 v) const
     else
         s = 1 << last;
 
-    return qMin(s, maxTexDim);
+    return qMin(s, textureMaxDim);
 }
