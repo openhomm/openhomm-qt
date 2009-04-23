@@ -136,7 +136,7 @@ void hrGLWidget::resizeGL(int w, int h)
 {
     w = (int)(w / zoom);
     h = (int)(h / zoom);
-    //QRect old = viewport;
+    QRect old = viewport;
     viewport = QRect(0, 0, w, h);
     scene->setSceneViewport(coord::toCell(viewport));
     objects = scene->getViewportObjects();
@@ -406,10 +406,10 @@ void hrGLWidget::paintGL()
     glClear(GL_COLOR_BUFFER_BIT);
 
     /*if (isAnimate)
-       animateTiles();
+       animateTiles();*/
 
-    drawTiles();
-    drawRoadTiles();*/
+    //drawTiles();
+    //drawRoadTiles();
 
     drawAtlasTiles();
 
