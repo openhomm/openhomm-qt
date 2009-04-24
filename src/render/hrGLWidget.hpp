@@ -100,6 +100,7 @@ private:
     void drawAtlasTiles();
     void drawAtlasItem(const QPoint &point
                        , const QRect &src
+                       , int dim
                        , bool horizontal = false
                        , bool vertical = false
                        );

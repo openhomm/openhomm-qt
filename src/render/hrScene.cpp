@@ -87,8 +87,8 @@ void hrScene::addTileItem(int id, const QString &name)
 {
     if (!items_atlas.contains(id))
     {
-        //qDebug() << "add tile:" << id;
         int animation = 0;
+        int dim = 256;
         if (name == "watrtl.def")
         {
             animation = hrTileAtlas::watrtl;
@@ -96,16 +96,29 @@ void hrScene::addTileItem(int id, const QString &name)
         else if (name == "clrrvr.def")
         {
             animation = hrTileAtlas::clrrvr;
+            dim = 128;
         }
         else if (name == "mudrvr.def")
         {
             animation = hrTileAtlas::mudrvr;
+            dim = 128;
         }
         else if (name == "lavrvr.def")
         {
             animation = hrTileAtlas::lavrvr;
+            dim = 128;
         }
-        hrTileAtlas *atlas = new hrTileAtlas(animation);
+        else if (   name == "grastl.def"
+                 || name == "lavatl.def"
+                 || name == "rougtl.def"
+                 || name == "snowtl.def"
+                 || name == "subbtl.def"
+                 || name == "swmptl.def" )
+        {
+            dim = 512;
+        }
+
+        hrTileAtlas *atlas = new hrTileAtlas(dim);
         QImageReader ir("lod:/data/h3sprite.lod/" + name);
         QImage im;
         for (int i = 0; ir.jumpToImage(i); i++)
@@ -113,6 +126,8 @@ void hrScene::addTileItem(int id, const QString &name)
             {
                 atlas->addImage(im);
             }
+
+        atlas->animate(animation);
 
         items_atlas[id] = atlas;
     }

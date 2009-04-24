@@ -16,25 +16,33 @@
 //
 #include "hrTileAtlas.hpp"
 
-hrTileAtlas::hrTileAtlas(int animation) : x(0), y(0), animation(animation)
+hrTileAtlas::hrTileAtlas(int dim)
+    : x(0), y(0), dim(dim), curFrame(0)
 {
     tilesPerLine = dim / coord::dim;
+    frames.append(QImage());
 }
 
-void hrTileAtlas::CyclShiftPalette(int a, int b)
+int hrTileAtlas::getDim() const
 {
-    QRgb c = atlas.color(b);
+    return dim;
+}
+
+void hrTileAtlas::CyclShiftPalette(int a, int b, QImage &im)
+{
+    QRgb c = im.color(b);
     for (int i = b; i > a; i--)
     {
-        atlas.setColor(i, atlas.color(i - 1));
+        im.setColor(i, im.color(i - 1));
     }
-    atlas.setColor(a, c);
+    im.setColor(a, c);
 }
 
 void hrTileAtlas::addImage(const QImage &im)
 {
     Q_ASSERT(x < tilesPerLine && y < tilesPerLine);
 
+    QImage &atlas = frames[0];
     if (y == 0 && x == 0)
     {
         atlas = im.copy(0, 0, dim, dim);
@@ -62,7 +70,7 @@ void hrTileAtlas::addImage(const QImage &im)
 
 const QImage& hrTileAtlas::getImage() const
 {
-    return atlas;
+    return frames.at(curFrame);
 }
 
 QRect hrTileAtlas::getFrame(int frame) const
@@ -77,22 +85,44 @@ QRect hrTileAtlas::getFrame(int frame) const
 
 void hrTileAtlas::nextFrame()
 {
+    curFrame < frames.size() - 1 ? curFrame++ : curFrame = 0;
+}
+
+void hrTileAtlas::animate(int animation)
+{
+    QImage im = frames[0];
     switch (animation)
     {
         case noanim:
              break;
         case watrtl:
-             CyclShiftPalette(229, 240);
-             CyclShiftPalette(242, 253);
+             for (int i = 0; i < 11; i++)
+             {
+                 CyclShiftPalette(229, 240, im);
+                 CyclShiftPalette(242, 253, im);
+                 frames.append(im);
+             }
              break;
         case clrrvr:
-             CyclShiftPalette(189, 200);
+             for (int i = 0; i < 11; i++)
+             {
+                CyclShiftPalette(189, 200, im);
+                frames.append(im);
+             }
              break;
         case mudrvr:
-             CyclShiftPalette(228, 239);
+             for (int i = 0; i < 11; i++)
+             {
+                CyclShiftPalette(228, 239, im);
+                frames.append(im);
+             }
              break;
         case lavrvr:
-             CyclShiftPalette(240, 248);
+             for (int i = 0; i < 8; i++)
+             {
+                CyclShiftPalette(240, 248, im);
+                frames.append(im);
+             }
              break;
     }
 }

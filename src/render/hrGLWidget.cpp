@@ -347,12 +347,13 @@ void hrGLWidget::drawAtlasTiles()
         if (tile.getId() != oldTileId)
         {
             oldTileId = tile.getId();
-            //if (isAnimate)
-            //    atlas->nextFrame();
+            if (isAnimate)
+                atlas->nextFrame();
             bindImage(atlas->getImage(), GL_TEXTURE_2D);
         }
         drawAtlasItem(tile.getPoint()
                       , atlas->getFrame(tile.getFrame())
+                      , atlas->getDim()
                       , tile.isHorizontal()
                       , tile.isVertical()
                       );
@@ -361,6 +362,7 @@ void hrGLWidget::drawAtlasTiles()
 
 void hrGLWidget::drawAtlasItem(const QPoint &point
                                , const QRect &src
+                               , int dim
                                , bool horizontal
                                , bool vertical
                                )
@@ -368,11 +370,11 @@ void hrGLWidget::drawAtlasItem(const QPoint &point
     double x1, y1, x2, y2;
     const QRect r(point.x(), point.y(), coord::dim, coord::dim);
 
-    x1 = src.x() / (double) hrTileAtlas::dim;
-    x2 = x1 + src.width() / (double) hrTileAtlas::dim;
+    x1 = src.x() / (double) dim;
+    x2 = x1 + src.width() / (double) dim;
 
-    y2 = 1 - src.y() / (double) hrTileAtlas::dim;
-    y1 = y2 - src.height() / (double) hrTileAtlas::dim;
+    y2 = 1 - src.y() / (double) dim;
+    y1 = y2 - src.height() / (double) dim;
 
     if (horizontal && vertical)
     {
@@ -406,10 +408,10 @@ void hrGLWidget::paintGL()
     glClear(GL_COLOR_BUFFER_BIT);
 
     /*if (isAnimate)
-       animateTiles();*/
+       animateTiles();
 
-    //drawTiles();
-    //drawRoadTiles();
+    drawTiles();
+    drawRoadTiles();*/
 
     drawAtlasTiles();
 
@@ -531,9 +533,7 @@ void hrGLWidget::mouseMoveEvent(QMouseEvent * event)
     else
     {
         if (scrollTimer.isActive())
-        {
             scrollTimer.stop();
-        }
     }
 }
 

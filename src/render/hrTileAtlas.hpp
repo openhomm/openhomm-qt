@@ -30,19 +30,23 @@ public:
         mudrvr,
         lavrvr
     };
-    hrTileAtlas(int animation);
+    hrTileAtlas(int dim);
+    int getDim() const;
     void addImage(const QImage &im);
     const QImage& getImage() const;
     QRect getFrame(int frame) const;
     void nextFrame();
 
-    static const int dim = 512;
+    void animate(int animation);
+
 private:
-    QImage atlas;
+    QVector<QImage> frames;
     int x;
     int y;
-    int animation;
+    int dim;
+
+    int curFrame;
     int tilesPerLine;
 
-    void CyclShiftPalette(int a, int b);
+    void CyclShiftPalette(int a, int b, QImage &im);
 };
