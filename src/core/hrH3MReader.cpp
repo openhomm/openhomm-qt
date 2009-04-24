@@ -94,14 +94,10 @@ bool hrH3MReader::load(const QString &name)
     {
         m >> players[i];
     }
-    //qDebug("Position: %lX", m.device()->pos());
-    m >> svc >> slc >> teams;
-    //qDebug("Position: %lX", m.device()->pos());
-    m >> fh;
-    //qDebug("Position: %lX", m.device()->pos());
-    m >> artefacts >> spells >> secSkills >> rumors;
 
-    //qDebug("Position: %lX", m.device()->pos());
+    m >> svc >> slc >> teams;
+    m >> fh;
+    m >> artefacts >> spells >> secSkills >> rumors;
 
     for ( int i = 0; i < 156; i++ )
     {
@@ -112,8 +108,6 @@ bool hrH3MReader::load(const QString &name)
         }
     }
 
-    //qDebug("Position: %lX", m.device()->pos());
-
     ground = new hrTile[basic.size*basic.size];
     m.readRawData( (char *) ground, sizeof(hrTile)*basic.size*basic.size );
 
@@ -123,11 +117,7 @@ bool hrH3MReader::load(const QString &name)
         m.readRawData( (char *) underground, sizeof(hrTile)*basic.size*basic.size );
     }
 
-    //qDebug("hrTile sizeof = %d", sizeof(hrTile) );
-    //qDebug("Position: %lX", m.device()->pos());
     m >> objectQuantity;
-
-    qDebug() << objectQuantity;
 
     objects = NULL;
     objects = new hrObject[objectQuantity];
@@ -140,16 +130,11 @@ bool hrH3MReader::load(const QString &name)
 
     m >> objectOptions;
 
-    qDebug() << objectOptions;
 
     obj = new hrObjectOptions[objectOptions];
     for ( quint32 i = 0; i < objectOptions; i++ )
     {
-        //hrObjectOptions obj;
         m >> obj[i];
-        //qDebug("i=%d\n",i);
-        //qDebug("object_class=%d\n",objects[obj[i].objectID].object_class);
-        //obj[i].dump();
 
         switch(objects[obj[i].objectID].object_class)
         {
@@ -427,13 +412,11 @@ QDataStream &operator>>(QDataStream &in, PlayerAttributes_t &p)
 
     in >> p.randomHero >> p.heroType;
 
-    if ( p.heroType == 0xFF )
-    {
-        in >> p.heroPortret >> p.heroName;
-    } else
+    in >> p.heroPortret >> p.heroName;
+    if ( p.heroType != 0xFF )
     {
         in >> p.junk >> p.heroesCount;
-        qDebug("p.heroesCount = %d", p.heroesCount);
+
         if ( p.heroesCount > 0 )
         {
             for ( quint32 i = 0; i < p.heroesCount; i++ )
@@ -564,15 +547,12 @@ QDataStream &operator>>(QDataStream &in, FreeHeroes_t &f)
 
     in >> f.heroesQuantity;
 
-    //qDebug(" f.heroesQuantity = %d", f.heroesQuantity);
     if ( f.heroesQuantity > 0 )
     {
         for ( quint8 i = 0; i < f.heroesQuantity; i++ )
         {
-            //qDebug("QDataStream &operator>>(QDataStream &in, FreeHeroes_t &f) Position = %X", in.device()->pos());
             TunedHero_t tuned;
             in >> tuned;
-            //qDebug() << tuned.name.length();
             f.tunedHeroes.push_back(tuned);
         }
     }
@@ -635,7 +615,6 @@ QDataStream &operator>>(QDataStream &in, Rumors_t &r)
 {
     in >> r.quantity;
 
-    qDebug("Rumors quantity=%d", r.quantity);
     if ( r.quantity > 0 )
     {
         for ( quint32 i = 0; i < r.quantity; i++ )
