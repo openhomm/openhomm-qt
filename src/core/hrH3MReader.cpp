@@ -366,8 +366,7 @@ hrSceneObject hrH3MReader::getObject(quint32 index) const
                          , objects[obj[index].objectID].actions
                          , objects[obj[index].objectID].isOverlay
                          , obj[index].coord[2] == 0 ? false : true
-                         , obj[index].coord[0]
-                         , obj[index].coord[1]
+                         , QPoint(obj[index].coord[0], obj[index].coord[1])
                          );
 }
 

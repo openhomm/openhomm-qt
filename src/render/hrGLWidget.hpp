@@ -32,7 +32,6 @@ public:
     ~hrGLWidget();
     void startAnimate(int delay);
     void stopAnimate();
-    void setZoom(int i);
 
 public slots:
     void animate();
@@ -47,8 +46,6 @@ protected:
 private:
     hrScene *scene;
 
-    QList<hrSceneObject> objects;
-
     QTimer scrollTimer;
     QTimer animateTimer;
     QRect viewport;
@@ -57,11 +54,13 @@ private:
     double zoom;
 
     bool isAnimate;
-    void animateTiles() const;
-    void animateObjects() const;
 
-    void drawTiles();
-    void drawRoadTiles();
+    QList<hrSceneTile> tiles;
+    int oldTileId;
+    void drawAtlasTiles();
+
+    QList<hrSceneObject> objects;
+    void animateObjects() const;
     void drawObjects();
 
     void Begin();
@@ -92,13 +91,10 @@ private:
         }
     };
     QCache<quint64, GLTexture> texs;
+
     GLuint bindImage(const QImage &im, GLuint target);
     void drawImage(const QPoint &point, const QImage &im);
-
-    QList<hrSceneTile> tiles;
-    int oldTileId;
-    void drawAtlasTiles();
-    void drawAtlasItem(const QPoint &point
+    void drawAtlasImage(const QPoint &point
                        , const QRect &src
                        , int dim
                        , bool horizontal = false

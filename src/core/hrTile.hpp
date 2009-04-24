@@ -39,7 +39,7 @@ private:
         roadVertical = 0x20
     };
 public:
-    hrTile() : terrainId(0xFF)
+    hrTile() : terrainId(0)
             , terrainFrame(0)
             , riverId(0)
             , riverFrame(0)

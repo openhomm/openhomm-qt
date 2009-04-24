@@ -27,31 +27,23 @@ class hrSceneObject
     bool underground;
 public:
     hrSceneObject() { name = "default.def"; }
+
     hrSceneObject(const QString &name
                   , quint8 *visit
                   , bool overlay
                   , bool underground
-                  , int x
-                  , int y
-                  , int width
-                  , int height)
+                  , const QPoint &bottomRight)
         : name(name), overlay(overlay), underground(underground)
     {
         memcpy(visitable, visit, 6);
-        rect.setRect(x - width + 1, y - height + 1, width, height);
+        rect.setBottomRight(bottomRight);
     }
-    hrSceneObject(const QString &name
-                  , quint8 *visit
-                  , bool overlay
-                  , bool underground
-                  , int x
-                  , int y)
-        : name(name), overlay(overlay), underground(underground)
+
+    void setRect(int x, int y, int width, int height)
     {
-        memcpy(visitable, visit, 6);
-        rect.setX(x);
-        rect.setY(y);
+        rect.setRect(x, y, width, height);
     }
+
     quint8* getVisitable()
     {
         return visitable;
@@ -75,13 +67,17 @@ public:
     {
         return underground;
     }
-    QString getName() const
+    const QString& getName() const
     {
         return name;
     }
     QPoint getPoint() const
     {
-        return QPoint(x(), y());
+        return rect.topLeft();
+    }
+    const QRect& getRect() const
+    {
+        return rect;
     }
     int x() const
     {
@@ -90,9 +86,5 @@ public:
     int y() const
     {
         return rect.y();
-    }
-    QRect getRect() const
-    {
-        return rect;
     }
 };

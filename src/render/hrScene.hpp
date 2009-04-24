@@ -95,26 +95,17 @@ public:
     void setSceneViewport(const QRect &r);
     QRect getSceneViewport() const;
 
-    const QImage& getImage(int id
-                   , int frame
-                   , bool horizontal = false
-                   , bool vertical = false) const;
-    const QImage& getImageTerrain(const hrTile &tile) const;
-    const QImage& getImageRiver(const hrTile &tile) const;
-    const QImage& getImageRoad(const hrTile &tile) const;
     const QImage& getImage(const hrSceneObject &object) const;
     hrGraphicsItem* getItem(const hrSceneObject &object) const;
-    hrGraphicsItem* getItem(int id) const;
-
-    //QVector<hrTile> getViewportTiles() const;
-    const hrTile& getTile(int x, int y) const;
     QList<hrSceneObject> getViewportObjects() const;
     QList<hrSceneObject> getAllObjects() const;
 
+    const hrTile& getTile(int x, int y) const;
+    hrTileAtlas* getAtlas(const hrSceneTile &tile) const;
+    QList<hrSceneTile> getViewportTiles() const;
+
     void sortObjects();
 
-    QList<hrSceneTile> getViewportTiles() const;
-    hrTileAtlas* getAtlas(const hrSceneTile &tile) const;
 
 public slots:
 //mouseClick()
@@ -122,20 +113,17 @@ public slots:
 
 
 private:
-    QVector< QVector<hrTile> > tiles;
+    QVector<hrTile> tiles;
     QList<hrSceneObject> objects;
-    QMap<int, hrGraphicsItem*> items;
+
+    QMap<int , hrTileAtlas*> items_atlas;
     QHash<QString, hrGraphicsItem*> items_obj;
     QVector<QCursor> cursor;
     QRect viewport;
     QRect size;
 
-    void addItem(int id, const QString &name, bool mirrored = false);
     void addItem(const QString &name);
-    void CyclShiftPalette(int a, int b, QImage &im);
-
     void addTileItem(int id, const QString &name);
-    QMap<int , hrTileAtlas*> items_atlas;
 };
 
 #endif // HRSCENE_H

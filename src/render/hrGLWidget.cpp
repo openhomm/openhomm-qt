@@ -96,37 +96,6 @@ void hrGLWidget::stopAnimate()
         animateTimer.stop();
 }
 
-void hrGLWidget::setZoom(int i)
-{
-    switch (i)
-    {
-        case 0:
-            zoom = 1.0;
-            break;
-        /*case 1:
-            zoom = 1.28;
-            break;
-        case 2:
-            zoom = 1.6;
-            break;*/
-        case 1:
-            zoom = 1.1;
-            break;
-        case 2:
-            zoom = 1.2;
-            break;
-        case 3:
-            zoom = 1.3;
-            break;
-        case 4:
-            zoom = 1.5;
-            break;
-        default:
-            zoom = 1.0;
-    }
-    resizeGL(width(), height());
-}
-
 void hrGLWidget::initializeGL()
 {
     Begin();
@@ -134,24 +103,16 @@ void hrGLWidget::initializeGL()
 
 void hrGLWidget::resizeGL(int w, int h)
 {
-    w = (int)(w / zoom);
-    h = (int)(h / zoom);
-    QRect old = viewport;
     viewport = QRect(0, 0, w, h);
     scene->setSceneViewport(coord::toCell(viewport));
     objects = scene->getViewportObjects();
     tiles = scene->getViewportTiles();
     oldTileId = -1;
 
-    glViewport(0, 0, (int)(w * zoom), (int)(h * zoom));
+    glViewport(0, 0, w, h);
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
     glOrtho(0, w, h, 0, -999999, 999999);
-
-    // try restore position
-    /*dx = -old.x(); dy = -old.y();
-    scroll();
-    dx = 0; dy = 0;*/
 
     //Begin();
     //glViewport(0, 0, w, h);
@@ -174,70 +135,6 @@ void hrGLWidget::Begin()
 
 void hrGLWidget::End()
 {
-}
-
-void hrGLWidget::animateTiles() const
-{
-    QRect r = scene->getSceneViewport();
-    int bottom = r.y() + r.height();
-    int right = r.x() + r.width();
-
-    for (int y = r.y(); y < bottom; y++)
-        for (int x = r.x(); x < right; x++)
-        {
-            const hrTile &tile = scene->getTile(x, y);
-            hrGraphicsItem *item = scene->getItem(tile.terrainId);
-            item->nextFrame();
-
-            if (tile.hasRiver())
-            {
-                item = scene->getItem(tile.getRiverId());
-                item->nextFrame();
-            }
-        }
-}
-
-void hrGLWidget::drawTiles()
-{
-    QRect r = scene->getSceneViewport();
-    int bottom = r.y() + r.height();
-    int right = r.x() + r.width();
-
-    for (int y = r.y(); y < bottom; y++)
-        for (int x = r.x(); x < right; x++)
-        {
-            QPoint point = coord::toPix(QPoint(x, y));
-            hrTile tile = scene->getTile(x, y);
-
-            drawImage(point, scene->getImageTerrain(tile));
-            if (tile.hasRiver())
-            {
-                drawImage(point, scene->getImageRiver(tile));
-            }
-            /*if (tile.hasRoad())
-            {
-                drawImage(point, scene->getImageRoad(tile));
-            }*/
-        }
-}
-
-void hrGLWidget::drawRoadTiles()
-{
-    QRect r = scene->getSceneViewport();
-    int bottom = r.y() + r.height();
-    int right = r.x() + r.width();
-
-    for (int y = r.y(); y < bottom; y++)
-        for (int x = r.x(); x < right; x++)
-        {
-            hrTile tile = scene->getTile(x, y);
-            if (tile.hasRoad())
-            {
-                QPoint point = coord::toPix(QPoint(x, y));
-                point.setY(point.y() + 15);
-                drawImage(point, scene->getImageRoad(tile));
-            }
-        }
 }
 
 void hrGLWidget::animateObjects() const
@@ -351,7 +248,7 @@ void hrGLWidget::drawAtlasTiles()
                 atlas->nextFrame();
             bindImage(atlas->getImage(), GL_TEXTURE_2D);
         }
-        drawAtlasItem(tile.getPoint()
+        drawAtlasImage(tile.getPoint()
                       , atlas->getFrame(tile.getFrame())
                       , atlas->getDim()
                       , tile.isHorizontal()
@@ -360,7 +257,7 @@ void hrGLWidget::drawAtlasTiles()
     }
 }
 
-void hrGLWidget::drawAtlasItem(const QPoint &point
+void hrGLWidget::drawAtlasImage(const QPoint &point
                                , const QRect &src
                                , int dim
                                , bool horizontal
@@ -406,12 +303,6 @@ void hrGLWidget::paintGL()
 {
     //Begin();
     glClear(GL_COLOR_BUFFER_BIT);
-
-    /*if (isAnimate)
-       animateTiles();
-
-    drawTiles();
-    drawRoadTiles();*/
 
     drawAtlasTiles();
 

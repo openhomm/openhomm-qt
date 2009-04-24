@@ -39,35 +39,12 @@ const QImage& hrGraphicsItem::getNextFrame()
     return b.frames.at(curFrame);
 }
 
-const QImage& hrGraphicsItem::getFrame(int frame, bool horizontal, bool vertical) const
+const QImage& hrGraphicsItem::getFrame(int frame) const
 {
     const Block &b = blocks.at(curBlock);
     Q_ASSERT(frame >= 0 && frame < b.frames.size());
 
-    if (horizontal && vertical)
-        return b.framesHV.at(frame);
-    else if (horizontal)
-        return b.framesH.at(frame);
-    else if (vertical)
-        return b.framesV.at(frame);
-    else
-        return b.frames.at(frame);
-}
-
-const QImage& hrGraphicsItem::getFrame(bool horizontal, bool vertical)
-{
-    if (isNextFrame)
-        isNextFrame = false;
-
-    const Block &b = blocks.at(curBlock);
-    if (horizontal && vertical)
-        return b.framesHV.at(curFrame);
-    else if (horizontal)
-        return b.framesH.at(curFrame);
-    else if (vertical)
-        return b.framesV.at(curFrame);
-    else
-        return b.frames.at(curFrame);
+    return b.frames.at(frame);
 }
 
 const QImage& hrGraphicsItem::getFrame()
@@ -82,20 +59,6 @@ void hrGraphicsItem::addImage(const QImage &im)
     rect = im.rect();
     //blocks[curBlock].frames.append(QGLWidget::convertToGLFormat(im));
     blocks[curBlock].frames.append(im);
-}
-
-void hrGraphicsItem::addImageMirrored(const QImage &im)
-{
-    rect = im.rect();
-    Block &b = blocks[curBlock];
-    /*b.framesHV.append(QGLWidget::convertToGLFormat(im.mirrored(true, true)));
-    b.framesH.append(QGLWidget::convertToGLFormat(im.mirrored(true, false)));
-    b.framesV.append(QGLWidget::convertToGLFormat(im.mirrored(false, true)));
-    b.frames.append(QGLWidget::convertToGLFormat(im));*/
-    b.framesHV.append(im.mirrored(true, true));
-    b.framesH.append(im.mirrored(true, false));
-    b.framesV.append(im.mirrored(false, true));
-    b.frames.append(im);
 }
 
 void hrGraphicsItem::modifyFrame(const QImage& im)
