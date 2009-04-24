@@ -20,6 +20,7 @@
 
 class hrSceneObject
 {
+    int id;
     QString name;
     QRect rect;
     quint8 visitable[6];
@@ -28,12 +29,13 @@ class hrSceneObject
 public:
     hrSceneObject() { name = "default.def"; }
 
-    hrSceneObject(const QString &name
+    hrSceneObject(int id
+                  , const QString &name
                   , quint8 *visit
                   , bool overlay
                   , bool underground
                   , const QPoint &bottomRight)
-        : name(name), overlay(overlay), underground(underground)
+        : id(id), name(name), overlay(overlay), underground(underground)
     {
         memcpy(visitable, visit, 6);
         rect.setBottomRight(bottomRight);
@@ -66,6 +68,10 @@ public:
     bool isUnderground() const
     {
         return underground;
+    }
+    int getId() const
+    {
+        return id;
     }
     const QString& getName() const
     {

@@ -116,13 +116,13 @@ private:
     QVector<hrTile> tiles;
     QList<hrSceneObject> objects;
 
-    QMap<int , hrTileAtlas*> items_atlas;
-    QHash<QString, hrGraphicsItem*> items_obj;
+    QMap<int, hrTileAtlas*> items_atlas;
+    QMap<int, hrGraphicsItem*> items_obj;
     QVector<QCursor> cursor;
     QRect viewport;
     QRect size;
 
-    void addItem(const QString &name);
+    void addItem(int id, const QString &name);
     void addTileItem(int id, const QString &name);
 };
 

@@ -66,9 +66,9 @@ void hrScene::addTileItem(int id, const QString &name)
     }
 }
 
-void hrScene::addItem(const QString &name)
+void hrScene::addItem(int id, const QString &name)
 {
-    if (!items_obj.contains(name))
+    if (!items_obj.contains(id))
     {
         hrGraphicsItem *item = new hrGraphicsItem();
         QImageReader ir("lod:/data/h3sprite.lod/" + name);
@@ -79,7 +79,7 @@ void hrScene::addItem(const QString &name)
                item->addImage(im);
             }
 
-        items_obj[name] = item;
+        items_obj[id] = item;
     }
 }
 
@@ -172,9 +172,9 @@ void hrScene::addTile(const hrTile &tile)
 
 void hrScene::addObject(hrSceneObject &object)
 {
-    addItem(object.getName());
+    addItem(object.getId(), object.getName());
 
-    QRect r = coord::toCell( items_obj.value(object.getName())->getRect() );
+    QRect r = coord::toCell( items_obj.value(object.getId())->getRect() );
     QPoint p = object.getRect().bottomRight();
     object.setRect(p.x() - r.width() + 1
                    , p.y() - r.height() + 1
@@ -206,19 +206,23 @@ void hrScene::setCursor(const QString &name)
 
 const QCursor& hrScene::getCursor(int frame)
 {
-    if (frame < cursor.size())
-        return cursor.at(frame);
-    return cursor.at(0);
+    Q_ASSERT(frame >= 0 && frame < cursor.size());
+
+    return cursor.at(frame);
 }
 
 const QImage& hrScene::getImage(const hrSceneObject &object) const
 {
-    return items_obj.value(object.getName())->getFrame();
+    Q_ASSERT( items_obj.contains(object.getId()) );
+
+    return items_obj.value(object.getId())->getFrame();
 }
 
 hrGraphicsItem* hrScene::getItem(const hrSceneObject &object) const
 {
-    return items_obj.value(object.getName());
+    Q_ASSERT( items_obj.contains(object.getId()) );
+
+    return items_obj.value(object.getId());
 }
 
 QList<hrSceneTile> hrScene::getViewportTiles() const
@@ -271,12 +275,15 @@ QList<hrSceneTile> hrScene::getViewportTiles() const
 
 hrTileAtlas* hrScene::getAtlas(const hrSceneTile &tile) const
 {
+    Q_ASSERT( items_atlas.contains(tile.getId()) );
+
     return items_atlas.value(tile.getId());
 }
 
 const hrTile& hrScene::getTile(int x, int y) const
 {
     Q_ASSERT(x >= 0 && y >= 0 && x < size.width() && y < size.height());
+
     return tiles.at(y * size.width() + x);
 }
 
