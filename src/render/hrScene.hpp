@@ -98,7 +98,7 @@ public:
     const QImage& getImage(const hrSceneObject &object) const;
     hrGraphicsItem* getItem(const hrSceneObject &object) const;
     QList<hrSceneObject> getViewportObjects() const;
-    QList<hrSceneObject> getAllObjects() const;
+    const QList<hrSceneObject>& getAllObjects() const;
 
     const hrTile& getTile(int x, int y) const;
     hrTileAtlas* getAtlas(const hrSceneTile &tile) const;

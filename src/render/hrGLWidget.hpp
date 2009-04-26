@@ -51,7 +51,6 @@ private:
     QRect viewport;
     int dx;
     int dy;
-    double zoom;
 
     bool isAnimate;
 

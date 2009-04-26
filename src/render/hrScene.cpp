@@ -303,7 +303,7 @@ QList<hrSceneObject> hrScene::getViewportObjects() const
     return lst;
 }
 
-QList<hrSceneObject> hrScene::getAllObjects() const
+const QList<hrSceneObject>& hrScene::getAllObjects() const
 {
     return objects;
 }

@@ -41,7 +41,6 @@ hrGLWidget::hrGLWidget(QWidget *parent, hrScene *scene)
  : QGLWidget(parent)
  , scene(scene)
 {
-    zoom = 1.0;
     isAnimate = false;
     dx = 0; dy = 0;
     connect(&scrollTimer, SIGNAL(timeout()), this, SLOT(scroll()));
@@ -328,27 +327,35 @@ void hrGLWidget::scroll()
     QRect sceneViewport = coord::toPix(scene->getSceneViewport());
 
     QPoint oldPos = viewport.topLeft();
-    QPoint newPos = oldPos - QPoint(dx, dy);
 
-    viewport.moveTo(newPos);
-    if (size.contains(viewport))
-    {
-        if (!sceneViewport.contains(viewport))
-        {
-            scene->setSceneViewport(coord::toCell(viewport));
-            objects = scene->getViewportObjects();
-            tiles = scene->getViewportTiles();
-            oldTileId = -1;
-        }
-        glTranslatef(dx, dy, 0);
-        updateGL();
-    }
-    else
+    viewport.moveTo(oldPos - QPoint(dx, dy));
+    if (!size.contains(viewport))
     {
         viewport.moveTo(oldPos - QPoint(dx, 0));
-        size.contains(viewport) ? dy = 0 : dx = 0;
-        viewport.moveTo(oldPos);
+        if (!size.contains(viewport))
+        {
+            viewport.moveTo(oldPos - QPoint(0, dy));
+            if (!size.contains(viewport))
+            {
+                viewport.moveTo(oldPos);
+                return;
+            }
+            else
+                dx = 0;
+        }
+        else
+            dy = 0;
     }
+
+    if (!sceneViewport.contains(viewport))
+    {
+        scene->setSceneViewport(coord::toCell(viewport));
+        objects = scene->getViewportObjects();
+        tiles = scene->getViewportTiles();
+        oldTileId = -1;
+    }
+    glTranslatef(dx, dy, 0);
+    updateGL();
 }
 
 
