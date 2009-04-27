@@ -25,29 +25,32 @@ hrWindow::hrWindow(): QWidget()
 
     QString filename = hrApplication::getMapName();
     qDebug() << filename;
+    bool isMapLoad;
     if ( filename.isEmpty() )
-        reader.load("maps/Back For Revenge.h3m");
+        isMapLoad = reader.load("maps/Back For Revenge.h3m");
     else
-        reader.load(filename);
+        isMapLoad = reader.load(filename);
 
     int size = reader.getSize();
-
     scene = new hrScene(size, size);
 
-    for (int i = 0; i < size * size; i++)
+    if (isMapLoad)
     {
-        hrTile tile = reader.getTile(i);
-        scene->addTile(tile);
-    }
+        for (int i = 0; i < size * size; i++)
+        {
+            hrTile tile = reader.getTile(i);
+            scene->addTile(tile);
+        }
 
-    int cnt = reader.getObjectsCount();
-    for (int i = 0; i < cnt; i++)
-    {
-        hrSceneObject object = reader.getObject(i);
-        if (!object.isUnderground())
-            scene->addObject(object);
+        int cnt = reader.getObjectsCount();
+        for (int i = 0; i < cnt; i++)
+        {
+            hrSceneObject object = reader.getObject(i);
+            if (!object.isUnderground())
+                scene->addObject(object);
+        }
+        scene->sortObjects();
     }
-    scene->sortObjects();
 
     scene->setCursor("cradvntr.def");
 

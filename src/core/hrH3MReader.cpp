@@ -46,19 +46,23 @@ QByteArray unpack(const QString &filename)
     return array;
 }
 
-hrH3MReader::hrH3MReader() : ground(NULL), underground(NULL)
+hrH3MReader::hrH3MReader() : ground(NULL), underground(NULL), objects(NULL), obj(NULL)
 {
 }
 
 hrH3MReader::~hrH3MReader()
 {
-    delete [] ground;
+    if (ground != NULL)
+        delete [] ground;
     ground = NULL;
-    delete [] underground;
+    if (underground != NULL)
+        delete [] underground;
     underground = NULL;
-    delete [] objects;
+    if (objects != NULL)
+        delete [] objects;
     objects = NULL;
-    delete [] obj;
+    if (obj != NULL)
+        delete [] obj;
     obj = NULL;
 }
 
@@ -89,6 +93,9 @@ bool hrH3MReader::load(const QString &name)
     m.setByteOrder(QDataStream::LittleEndian);
 
     m >> basic;
+
+    if (basic.version != 0x0000001C)
+       return false;
 
     for ( int i = 0; i < 8; i++ )
     {

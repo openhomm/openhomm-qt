@@ -92,7 +92,7 @@ private:
     QCache<quint64, GLTexture> texs;
 
     GLuint bindImage(const QImage &im, GLuint target);
-    void drawImage(const QPoint &point, const QImage &im);
+    void drawImage(const QPoint &point, const QRect &src);//QImage im);
     void drawAtlasImage(const QPoint &point
                        , const QRect &src
                        , int dim

@@ -152,7 +152,9 @@ void hrGLWidget::drawObjects()
     while (it.hasNext())
     {
         const hrSceneObject &obj = it.next();
-        drawImage(coord::toPix(obj.getPoint()), scene->getImage(obj));
+        const QImage &im = scene->getImage(obj);
+        bindImage(im, textureTarget);
+        drawImage(coord::toPix(obj.getPoint()), im.rect());
     }
 }
 
@@ -167,7 +169,7 @@ GLuint hrGLWidget::bindImage(const QImage &im, GLuint target)
         return tx->getId();
     }
 
-    const QImage &txim = QGLWidget::convertToGLFormat(im);
+    QImage txim = QGLWidget::convertToGLFormat(im);
 
     GLuint format = GL_RGBA;
     GLuint param;
@@ -199,12 +201,10 @@ GLuint hrGLWidget::bindImage(const QImage &im, GLuint target)
     return tx->getId();
 }
 
-void hrGLWidget::drawImage(const QPoint &point, const QImage &im)
+void hrGLWidget::drawImage(const QPoint &point, const QRect &src)
 {
     int x1, y1, x2, y2;
-    const QRect r(point.x(), point.y(), im.width(), im.height());
-
-    bindImage(im, textureTarget);
+    const QRect r(point.x(), point.y(), src.width(), src.height());
 
     if (!textureRects)
     {
@@ -216,9 +216,9 @@ void hrGLWidget::drawImage(const QPoint &point, const QImage &im)
     else
     {
         x1 = 0;
-        x2 = im.width();
+        x2 = src.width();
         y1 = 0;
-        y2 = im.height();
+        y2 = src.height();
     }
 
     glEnable(textureTarget);
