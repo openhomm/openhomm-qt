@@ -14,31 +14,20 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
-#pragma once
+#ifndef HRCOORD_H
+#define HRCOORD_H
 
-#include <QApplication>
-#include <QObject>
+#include "precompiled.hpp"
 
-class hrLodEngineHandler;
-class hrSndEngineHandler;
-
-class hrApplication : public QApplication
+namespace coord
 {
-    Q_OBJECT
-public:
-    hrApplication(int &argc, char **argv);
-    ~hrApplication();
-    static QString getMapName()
-    {
-        return mapName;
-    }
-private:
-    void createFileEngineHandlers();
-    void destroyFileEngineHandlers();
-// data
-private:
-    hrLodEngineHandler *lodHandler;
-    hrSndEngineHandler *sndHandler;
+    const int dim = 32;
+    int toPix(int x);
+    int toCell(int x);
+    QPoint toPix(const QPoint &p);
+    QPoint toCell(const QPoint &p);
+    QRect toPix(const QRect &r);
+    QRect toCell(const QRect &r);
+}
 
-    static QString mapName;
-};
+#endif // HRCOORD_H

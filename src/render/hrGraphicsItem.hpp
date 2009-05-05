@@ -14,31 +14,40 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
-#pragma once
+#ifndef HRGRAPHICSITEM_H
+#define HRGRAPHICSITEM_H
 
-#include <QApplication>
-#include <QObject>
+#include "precompiled.hpp"
+//#include <QGLWidget>
 
-class hrLodEngineHandler;
-class hrSndEngineHandler;
-
-class hrApplication : public QApplication
+class hrGraphicsItem
 {
-    Q_OBJECT
-public:
-    hrApplication(int &argc, char **argv);
-    ~hrApplication();
-    static QString getMapName()
+private:
+    struct Block
     {
-        return mapName;
-    }
-private:
-    void createFileEngineHandlers();
-    void destroyFileEngineHandlers();
-// data
-private:
-    hrLodEngineHandler *lodHandler;
-    hrSndEngineHandler *sndHandler;
+        QVector<QImage> frames;
+    };
+    QVector<Block> blocks;
+    int curFrame;
+    int curBlock;
+    bool isNextFrame;
+    QRect rect;
+public:
+    hrGraphicsItem();
 
-    static QString mapName;
+    int getFramesCount() const;
+    void nextFrame();
+    const QImage& getNextFrame();
+    const QImage& getFrame(int frame) const;
+    const QImage& getFrame();
+    const QRect& getRect() const;
+    void modifyFrame(const QImage& im);
+
+    void addImage(const QImage &im);
+
+    void addBlock();
+    void setCurBlock(int i);
+    int getBlocksCount() const;
 };
+
+#endif // HRGRAPHICSITEM_H

@@ -14,31 +14,35 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
-#pragma once
+#include "hrSceneObject.hpp"
 
-#include <QApplication>
-#include <QObject>
-
-class hrLodEngineHandler;
-class hrSndEngineHandler;
-
-class hrApplication : public QApplication
+bool hrSceneObject::operator<(const hrSceneObject& s) const
 {
-    Q_OBJECT
-public:
-    hrApplication(int &argc, char **argv);
-    ~hrApplication();
-    static QString getMapName()
-    {
-        return mapName;
-    }
-private:
-    void createFileEngineHandlers();
-    void destroyFileEngineHandlers();
-// data
-private:
-    hrLodEngineHandler *lodHandler;
-    hrSndEngineHandler *sndHandler;
+    if ( this->isOverlay() && !s.isOverlay() )
+        return true;
 
-    static QString mapName;
-};
+    if ( !this->isOverlay() && s.isOverlay() )
+        return false;
+
+    int x1 = rect.bottomRight().x();
+    int y1 = rect.bottomRight().y();
+    int x2 = s.getRect().bottomRight().x();
+    int y2 = s.getRect().bottomRight().y();
+
+    if (y1 < y2)
+        return true;
+
+    if (y1 > y2)
+        return false;
+
+    if ( !this->isVisitable() && s.isVisitable() )
+        return true;
+
+    if ( this->isVisitable() && !s.isVisitable() )
+        return false;
+
+    if (x1 < x2)
+        return true;
+
+    return false;
+}

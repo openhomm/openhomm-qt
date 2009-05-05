@@ -14,31 +14,4 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
-#pragma once
-
-#include <QApplication>
-#include <QObject>
-
-class hrLodEngineHandler;
-class hrSndEngineHandler;
-
-class hrApplication : public QApplication
-{
-    Q_OBJECT
-public:
-    hrApplication(int &argc, char **argv);
-    ~hrApplication();
-    static QString getMapName()
-    {
-        return mapName;
-    }
-private:
-    void createFileEngineHandlers();
-    void destroyFileEngineHandlers();
-// data
-private:
-    hrLodEngineHandler *lodHandler;
-    hrSndEngineHandler *sndHandler;
-
-    static QString mapName;
-};
+#include "hrTile.hpp"

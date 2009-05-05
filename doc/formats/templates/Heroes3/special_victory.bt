@@ -8,7 +8,7 @@ struct SpecialVictoryConditions {
     
     if ( id == 0x00 ) {
         struct svc_acqSpecArt_tag {
-            char artID;
+            ushort artID;
         } svc_acqSpecArt;
     } else if ( id == 0x01 ) {
         struct svc_accCreatures_tag {

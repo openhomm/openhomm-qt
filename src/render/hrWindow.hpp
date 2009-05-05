@@ -14,31 +14,29 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
-#pragma once
+#ifndef WINDOW_H
+#define WINDOW_H
 
-#include <QApplication>
-#include <QObject>
+#include "precompiled.hpp"
+#include "hrGLWidget.hpp"
+#include "hrScene.hpp"
+#include "hrH3MReader.hpp"
 
-class hrLodEngineHandler;
-class hrSndEngineHandler;
-
-class hrApplication : public QApplication
+class hrWindow : public QWidget
 {
     Q_OBJECT
-public:
-    hrApplication(int &argc, char **argv);
-    ~hrApplication();
-    static QString getMapName()
-    {
-        return mapName;
-    }
-private:
-    void createFileEngineHandlers();
-    void destroyFileEngineHandlers();
-// data
-private:
-    hrLodEngineHandler *lodHandler;
-    hrSndEngineHandler *sndHandler;
 
-    static QString mapName;
+public:
+    hrWindow();
+    ~hrWindow();
+
+private:
+    hrGLWidget *w;
+    hrScene *scene;
+
+private slots:
+    void resizeEvent(QResizeEvent *event);
+    void keyPressEvent(QKeyEvent *event);
+
 };
+#endif // WINDOW_H

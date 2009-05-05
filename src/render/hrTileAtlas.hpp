@@ -16,29 +16,37 @@
 //
 #pragma once
 
-#include <QApplication>
-#include <QObject>
+#include "precompiled.hpp"
+#include "hrCoord.hpp"
 
-class hrLodEngineHandler;
-class hrSndEngineHandler;
-
-class hrApplication : public QApplication
+class hrTileAtlas
 {
-    Q_OBJECT
 public:
-    hrApplication(int &argc, char **argv);
-    ~hrApplication();
-    static QString getMapName()
+    enum
     {
-        return mapName;
-    }
-private:
-    void createFileEngineHandlers();
-    void destroyFileEngineHandlers();
-// data
-private:
-    hrLodEngineHandler *lodHandler;
-    hrSndEngineHandler *sndHandler;
+        noanim,
+        watrtl,
+        clrrvr,
+        mudrvr,
+        lavrvr
+    };
+    hrTileAtlas(int dim);
+    int getDim() const;
+    void addImage(const QImage &im);
+    const QImage& getImage() const;
+    QRect getFrame(int frame) const;
+    void nextFrame();
 
-    static QString mapName;
+    void animate(int animation);
+
+private:
+    QVector<QImage> frames;
+    int x;
+    int y;
+    int dim;
+
+    int curFrame;
+    int tilesPerLine;
+
+    void CyclShiftPalette(int a, int b, QImage &im);
 };
