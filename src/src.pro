@@ -12,7 +12,7 @@ INCLUDEPATH += . \
     render \
     core
 
-# PRECOMPILED_HEADER = precompiled.hpp
+PRECOMPILED_HEADER = precompiled.hpp
 SOURCES += main.cpp \
     hrApplication.cpp
 include(gui/gui.pri)

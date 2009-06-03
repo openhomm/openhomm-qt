@@ -14,10 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
-#ifndef GLWIDGET_H
-#define GLWIDGET_H
-
-#include "precompiled.hpp"
+#pragma once
 #include <QGLWidget>
 
 #include "hrScene.hpp"
@@ -104,6 +101,4 @@ private slots:
     void mouseMoveEvent(QMouseEvent * event);
     void leaveEvent(QEvent * event);
 };
-
-#endif // GLWIDGET_H
 

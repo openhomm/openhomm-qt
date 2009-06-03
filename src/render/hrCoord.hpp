@@ -14,10 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
-#ifndef HRCOORD_H
-#define HRCOORD_H
-
-#include "precompiled.hpp"
+#pragma once
 
 namespace coord
 {
@@ -30,4 +27,3 @@ namespace coord
     QRect toCell(const QRect &r);
 }
 
-#endif // HRCOORD_H

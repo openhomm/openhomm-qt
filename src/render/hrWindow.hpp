@@ -14,10 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
-#ifndef WINDOW_H
-#define WINDOW_H
-
-#include "precompiled.hpp"
+#pragma once
 #include "hrGLWidget.hpp"
 #include "hrScene.hpp"
 #include "hrH3MReader.hpp"
@@ -39,4 +36,3 @@ private slots:
     void keyPressEvent(QKeyEvent *event);
 
 };
-#endif // WINDOW_H

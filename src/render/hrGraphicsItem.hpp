@@ -14,10 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
-#ifndef HRGRAPHICSITEM_H
-#define HRGRAPHICSITEM_H
-
-#include "precompiled.hpp"
+#pragma once
 //#include <QGLWidget>
 
 class hrGraphicsItem
@@ -49,5 +46,3 @@ public:
     void setCurBlock(int i);
     int getBlocksCount() const;
 };
-
-#endif // HRGRAPHICSITEM_H

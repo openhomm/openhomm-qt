@@ -16,8 +16,6 @@
 //
 #pragma once
 
-#include "precompiled.hpp"
-
 class hrTile
 {
 public:

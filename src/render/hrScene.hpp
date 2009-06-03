@@ -14,9 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
-#ifndef HRSCENE_H
-#define HRSCENE_H
-
+#pragma once
 #include "hrTile.hpp"
 #include "hrGraphicsItem.hpp"
 #include "hrTileAtlas.hpp"
@@ -125,5 +123,3 @@ private:
     void addItem(int id, const QString &name);
     void addTileItem(int id, const QString &name);
 };
-
-#endif // HRSCENE_H
