@@ -34,11 +34,13 @@ hrApplication::hrApplication(int &argc, char **argv):
         mapName = argv[1];
         qDebug() << mapName;
     }
+    hrSettings::get().load();
 }
 
 hrApplication::~hrApplication()
 {
     this->destroyFileEngineHandlers();
+    hrSettings::get().save();
 }
 
 void hrApplication::createFileEngineHandlers()

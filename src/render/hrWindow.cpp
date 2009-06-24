@@ -22,6 +22,15 @@ hrWindow::hrWindow(): QWidget()
 {
     setWindowTitle("OpenHoMM, fullscreen - F11");//, zoom - +/-");
 
+    if ( hrSettings::get().isGameFullscreen )
+        setWindowState(windowState() | Qt::WindowFullScreen );
+
+    int gameX = hrSettings::get().gameX,
+        gameY = hrSettings::get().gameY;
+
+    if ( gameX > 0 && gameY > 0 )
+        move(gameX, gameY);
+
     hrH3MReader reader;
 
     QString filename = hrApplication::getMapName();
@@ -76,5 +85,14 @@ void hrWindow::keyPressEvent(QKeyEvent *event)
     if (event->key() == Qt::Key_F11)
     {
         setWindowState(windowState() ^ Qt::WindowFullScreen);
+        hrSettings::get().isGameFullscreen = windowState() & Qt::WindowFullScreen;
+        //hrSettings::get().save();
     }
+}
+
+void hrWindow::moveEvent(QMoveEvent *event)
+{
+    hrSettings::get().gameX = event->pos().x();
+    hrSettings::get().gameY = event->pos().y();
+    //hrSettings::get().save();
 }

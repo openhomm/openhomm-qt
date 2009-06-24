@@ -34,5 +34,6 @@ private:
 private slots:
     void resizeEvent(QResizeEvent *event);
     void keyPressEvent(QKeyEvent *event);
+    void moveEvent ( QMoveEvent * event );
 
 };
