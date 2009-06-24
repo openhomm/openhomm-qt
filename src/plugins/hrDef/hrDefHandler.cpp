@@ -575,7 +575,7 @@ bool hrDefHandler::read(QImage *image)
     return dr->read(image);
 }
 
-bool hrDefHandler::write(const QImage &image)
+bool hrDefHandler::write(const QImage &)
 {
     qWarning("%s: not supported", Q_FUNC_INFO);
     return false;
@@ -655,7 +655,7 @@ QVariant hrDefHandler::option(ImageOption option) const
     return QVariant();
 }
 
-void hrDefHandler::setOption(ImageOption option, const QVariant &value)
+void hrDefHandler::setOption(ImageOption, const QVariant &)
 {
     qWarning("%s: not supported", Q_FUNC_INFO);
 }

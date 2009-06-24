@@ -438,6 +438,7 @@ void hrGLWidget::mouseMoveEvent(QMouseEvent * event)
 
 void hrGLWidget::leaveEvent(QEvent * event)
 {
+    Q_UNUSED(event);
     if (scrollTimer.isActive())
     {
         scrollTimer.stop();

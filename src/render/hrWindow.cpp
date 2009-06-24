@@ -77,6 +77,7 @@ hrWindow::~hrWindow()
 
 void hrWindow::resizeEvent(QResizeEvent *event)
 {
+    Q_UNUSED(event);
     w->resize(width(), height());
 }
 
