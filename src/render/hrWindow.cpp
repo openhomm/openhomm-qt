@@ -18,7 +18,7 @@
 #include "hrWindow.hpp"
 #include "hrApplication.hpp"
 
-hrWindow::hrWindow(): QWidget()
+hrWindow::hrWindow(QWidget *parent): QWidget(parent), scene(NULL), w(NULL)
 {
     setWindowTitle("OpenHoMM, fullscreen - F11");//, zoom - +/-");
 

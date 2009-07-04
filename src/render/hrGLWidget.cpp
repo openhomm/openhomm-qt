@@ -48,7 +48,7 @@ hrGLWidget::hrGLWidget(QWidget *parent, hrScene *scene)
     connect(&animateTimer, SIGNAL(timeout()), this, SLOT(animate()));
 
     setMouseTracking(true);
-    setCursor(scene->getCursor(0));
+    setCursor(scene->getCursor(CURSOR_POINTER));
 
     makeCurrent();
     texs.setMaxCost(1000);
@@ -372,49 +372,49 @@ void hrGLWidget::mouseMoveEvent(QMouseEvent * event)
     {
         // top left
         dx = c; dy = c;
-        setCursor(scene->getCursor(39));
+        setCursor(scene->getCursor(CURSOR_SCROLL_TOPLEFT));
     }
     else if (pos.x() > width() - border && pos.y() < border)
     {
         // top right
         dx = -c; dy = c;
-        setCursor(scene->getCursor(33));
+        setCursor(scene->getCursor(CURSOR_SCROLL_TOPRIGHT));
     }
     else if (pos.x() > width() - border && pos.y() > height() - border)
     {
         // bottom right
         dx = -c; dy = -c;
-        setCursor(scene->getCursor(35));
+        setCursor(scene->getCursor(CURSOR_SCROLL_DOWNRIGHT));
     }
     else if (pos.x() < border && pos.y() > height() - border)
     {
         // bottom left
         dx = c; dy = -c;
-        setCursor(scene->getCursor(37));
+        setCursor(scene->getCursor(CURSOR_SCROLL_DOWNLEFT));
     }
     else if (pos.x() < border)
     {
         // left
         dx = c; dy = 0;
-        setCursor(scene->getCursor(38));
+        setCursor(scene->getCursor(CURSOR_SCROLL_LEFT));
     }
     else if (pos.x() > width() - border)
     {
         // right
         dx = -c; dy = 0;
-        setCursor(scene->getCursor(34));
+        setCursor(scene->getCursor(CURSOR_SCROLL_RIGHT));
     }
     else if (pos.y() < border)
     {
         // up
         dx = 0; dy = c;
-        setCursor(scene->getCursor(32));
+        setCursor(scene->getCursor(CURSOR_SCROLL_TOP));
     }
     else if (pos.y() > height() - border)
     {
         // down
         dx = 0; dy = -c;
-        setCursor(scene->getCursor(36));
+        setCursor(scene->getCursor(CURSOR_SCROLL_DOWN));
     }
     else
     {

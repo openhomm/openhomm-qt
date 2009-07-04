@@ -24,7 +24,7 @@ class hrWindow : public QWidget
     Q_OBJECT
 
 public:
-    hrWindow();
+    hrWindow(QWidget *parent = 0);
     ~hrWindow();
 
 private:
