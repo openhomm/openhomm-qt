@@ -1,8 +1,9 @@
 include(../../base.pri)
-DESTDIR     = $$join(DESTDIR,,,/imageformats)
-OBJECTS_DIR = $$join(OBJECTS_DIR,,,/imageformats/$$TARGET)
-MOC_DIR     = $$join(MOC_DIR,,,/imageformats)
-RCC_DIR     = $$join(RCC_DIR,,,/imageformats)
+
+DESTDIR     = $$DESTDIR/imageformats
+OBJECTS_DIR = $$OBJECTS_DIR/imageformats/$$TARGET
+MOC_DIR     = $$MOC_DIR/imageformats/$$TARGET
+RCC_DIR     = $$RCC_DIR/imageformats
 
 CONFIG += qt plugin
 TEMPLATE = lib

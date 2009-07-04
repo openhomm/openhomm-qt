@@ -1,0 +1,32 @@
+#include "version.hpp"
+
+1 VERSIONINFO
+ FILEVERSION VERSION_STR
+ PRODUCTVERSION VERSION_STR
+ FILEFLAGSMASK 0x17L
+ FILEFLAGS 0x0L
+ FILEOS 0x4L
+ FILETYPE 0x1L
+ FILESUBTYPE 0x0L
+BEGIN
+    BLOCK "StringFileInfo"
+    BEGIN
+        BLOCK "000004b0"
+        BEGIN
+            VALUE "FileDescription", "OpenHoMM Engine"
+            VALUE "FileVersion", VERSION_RELEASE_STR
+            VALUE "InternalName", "openhomm"
+            VALUE "LegalCopyright", "Copyright (C) 2009 OpenHoMM Developer Team"
+            VALUE "OriginalFilename", "OpenHoMM3.exe"
+            VALUE "ProductName", "OpenHoMM Engine"
+            VALUE "ProductVersion", VERSION_RELEASE_STR
+            VALUE "URL", "http://launchpad.net/openhomm"
+            VALUE "Release", VERSION_RELEASE_STR
+        END
+    END
+    BLOCK "VarFileInfo"
+    BEGIN
+        VALUE "Translation", 0x0, 1200
+    END
+END
+

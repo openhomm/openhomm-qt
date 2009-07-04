@@ -1,5 +1,5 @@
 include(../base.pri)
-DESTDIR     = $$join(DESTDIR,,,/)
-OBJECTS_DIR = $$join(OBJECTS_DIR,,,/tools/$$TARGET)
-MOC_DIR     = $$join(MOC_DIR,,,/tools/$$TARGET)
-RCC_DIR     = $$join(RCC_DIR,,,/tools/$$TARGET)
+
+OBJECTS_DIR = $$OBJECTS_DIR/tools/$$TARGET
+MOC_DIR     = $$MOC_DIR/tools/$$TARGET
+RCC_DIR     = $$RCC_DIR/tools/$$TARGET
