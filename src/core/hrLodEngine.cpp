@@ -24,7 +24,6 @@ static LodFiles static_lodFiles;
 
 QAbstractFileEngine* hrLodEngineHandler::create(const QString &filename) const
 {
-    //qDebug() << Q_FUNC_INFO;
     if ( filename.size() > 0 && filename.startsWith("lod:/", Qt::CaseInsensitive) )
     {
         return new hrLodEngine(filename);

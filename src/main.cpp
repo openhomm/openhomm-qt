@@ -36,6 +36,7 @@ void myMessageOutput(QtMsgType type, const char *msg)
         abort();
     }
 }
+
 int main(int argc, char** argv)
 {
     QT_REQUIRE_VERSION(argc, argv, "4.5.0");
@@ -44,9 +45,6 @@ int main(int argc, char** argv)
 
     hrWindow w;
     w.show();
-
-    //hrH3MReader reader;
-    //reader.load("maps/All for One.h3m");
 
     return app.exec();
 }

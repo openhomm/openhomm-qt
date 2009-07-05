@@ -50,20 +50,6 @@ QDataStream &operator>>(QDataStream &in, hrObjectOptions &s)
     return in;
 }
 
-void hrObject::dump()
-{
-    qDebug() << filename;
-//    for ( quint32 i = 0; i < sizeof(junk); i++ )
-//        qDebug() << '\t' << junk[i];
-}
-
-void hrObjectOptions::dump()
-{
-    qDebug("%d - {%d,%d,%d}\n", objectID, coord[0], coord[1], coord[2]);
-//    for ( quint32 i = 0; i < sizeof(junk); i++ )
-//        qDebug() << '\t' << junk[i];
-}
-
 QDataStream &operator<<(QDataStream &out, const SecondarySkill_t &)
 {
     qWarning("%s is not yet implemented", Q_FUNC_INFO);
@@ -597,7 +583,7 @@ QDataStream &operator>>(QDataStream &in, ObjectProphet &s)
     };
 
     in >> s.time_limit;
-    qDebug("s.time_limit = %d", s.time_limit);
+
     in >> s.quest_begin >> s.quest_inprocess >> s.quest_end;
 
     in >> s.reward;

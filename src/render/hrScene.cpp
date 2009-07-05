@@ -191,7 +191,7 @@ void hrScene::removeObject(int x, int y)
 {
     Q_UNUSED(x);
     Q_UNUSED(y);
-    ; // TODO ???
+    // TODO ???
 }
 
 void hrScene::setCursor(const QString &name)

@@ -35,14 +35,12 @@ struct hrObject {
     quint8 object_group;
     quint8 isOverlay;
     quint8 junk[16]; // need more info
-    void dump();
 };
 
 struct hrObjectOptions {
     quint8 coord[3]; // x, y, z;
     quint32 objectID;
     quint8 junk[5]; // need more info
-    void dump();
 };
 
 struct Guard_t {

@@ -87,7 +87,6 @@ void hrWindow::keyPressEvent(QKeyEvent *event)
     {
         setWindowState(windowState() ^ Qt::WindowFullScreen);
         hrSettings::get().isGameFullscreen = windowState() & Qt::WindowFullScreen;
-        //hrSettings::get().save();
     }
 }
 
@@ -95,5 +94,4 @@ void hrWindow::moveEvent(QMoveEvent *event)
 {
     hrSettings::get().gameX = event->pos().x();
     hrSettings::get().gameY = event->pos().y();
-    //hrSettings::get().save();
 }

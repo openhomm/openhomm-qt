@@ -113,9 +113,6 @@ void hrGLWidget::resizeGL(int w, int h)
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
     glOrtho(0, w, h, 0, -999999, 999999);
-
-    //Begin();
-    //glViewport(0, 0, w, h);
 }
 
 void hrGLWidget::Begin()
@@ -125,7 +122,7 @@ void hrGLWidget::Begin()
     glLoadIdentity();
     glOrtho(0, width(), height(), 0, -999999, 999999);
 
-     // Make sure depth testing and lighting are disabled for 2D rendering
+    // Make sure depth testing and lighting are disabled for 2D rendering
     glDisable(GL_DEPTH_TEST);
     glDisable(GL_LIGHTING);
 
@@ -297,7 +294,6 @@ void hrGLWidget::drawAtlasImage(const QPoint &point
 
 void hrGLWidget::paintGL()
 {
-    //Begin();
     glClear(GL_COLOR_BUFFER_BIT);
 
     glEnable(GL_TEXTURE_2D);
@@ -311,8 +307,6 @@ void hrGLWidget::paintGL()
     glEnable(textureTarget);
     drawObjects();
     glDisable(textureTarget);
-
-    //End();
 }
 
 
@@ -422,7 +416,7 @@ void hrGLWidget::mouseMoveEvent(QMouseEvent * event)
         // stop
         dx = 0; dy = 0;
         startScrollTimer = false;
-        setCursor(scene->getCursor(0));
+        setCursor(scene->getCursor(CURSOR_POINTER));
     }
 
     if (startScrollTimer)

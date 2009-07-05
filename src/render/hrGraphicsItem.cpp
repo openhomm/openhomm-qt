@@ -58,7 +58,6 @@ const QImage& hrGraphicsItem::getFrame()
 void hrGraphicsItem::addImage(const QImage &im)
 {
     rect = im.rect();
-    //blocks[curBlock].frames.append(QGLWidget::convertToGLFormat(im));
     blocks[curBlock].frames.append(im);
 }
 

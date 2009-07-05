@@ -70,17 +70,7 @@ bool hrH3MReader::load(const QString &name)
 {
     QByteArray data;
 
-    {
-//        QFile map(name);
-//        if ( ! map.open(QIODevice::ReadOnly) )
-//        {
-//            qWarning("Can't open file: %s", qPrintable(name));
-//            return false;
-//        }
-
-        data = unpack(name);
-//        map.close();
-    }
+    data = unpack(name);
 
     QBuffer map(&data);
     if ( !map.open(QIODevice::ReadOnly) )
@@ -132,7 +122,6 @@ bool hrH3MReader::load(const QString &name)
     for ( quint32 i = 0; i < objectQuantity; i++ )
     {
         m >> objects[i];
-        //objects[i].dump();
     }
 
     m >> objectOptions;
@@ -456,7 +445,6 @@ QDataStream &operator>>(QDataStream &in, SpecialVictoryCondition_t &s)
 
     if ( s.id != 0xFF )
     {
-        //return in;
         in >> s.canStandardEnd >> s.canComputer;
 
         switch(s.id)

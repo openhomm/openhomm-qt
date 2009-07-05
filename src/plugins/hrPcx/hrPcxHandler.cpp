@@ -14,11 +14,11 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
-#include "qimage.h"
-#include "qpixmap.h"
-#include "qpainter.h"
-#include "qvariant.h"
-#include "qdebug.h"
+#include <qimage.h>
+#include <qpixmap.h>
+#include <qpainter.h>
+#include <qvariant.h>
+#include <qdebug.h>
 
 #include "hrPcxHandler.hpp"
 
