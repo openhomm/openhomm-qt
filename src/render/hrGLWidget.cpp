@@ -222,7 +222,6 @@ void hrGLWidget::drawImage(const QPoint &point, const QRect &src)
         y2 = src.height();
     }
 
-    glEnable(textureTarget);
     glBegin(GL_QUADS);
     {
         glTexCoord2i(x1, y2); glVertex2i(r.x(), r.y());
@@ -231,7 +230,6 @@ void hrGLWidget::drawImage(const QPoint &point, const QRect &src)
         glTexCoord2i(x1, y1); glVertex2i(r.x(), r.y() + r.height());
     }
     glEnd();
-    glDisable(textureTarget);
 }
 
 void hrGLWidget::drawAtlasTiles()
@@ -287,7 +285,6 @@ void hrGLWidget::drawAtlasImage(const QPoint &point
         qSwap(y1, y2);
     }
 
-    glEnable(GL_TEXTURE_2D);
     glBegin(GL_QUADS);
     {
         glTexCoord2f(x1, y2); glVertex2f(r.x(), r.y());
@@ -296,7 +293,6 @@ void hrGLWidget::drawAtlasImage(const QPoint &point
         glTexCoord2f(x1, y1); glVertex2f(r.x(), r.y() + r.height());
     }
     glEnd();
-    glDisable(GL_TEXTURE_2D);
 }
 
 void hrGLWidget::paintGL()
@@ -304,12 +300,17 @@ void hrGLWidget::paintGL()
     //Begin();
     glClear(GL_COLOR_BUFFER_BIT);
 
+    glEnable(GL_TEXTURE_2D);
     drawAtlasTiles();
 
     if (isAnimate)
         animateObjects();
 
+    glDisable(GL_TEXTURE_2D);
+
+    glEnable(textureTarget);
     drawObjects();
+    glDisable(textureTarget);
 
     //End();
 }
