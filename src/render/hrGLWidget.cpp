@@ -302,9 +302,12 @@ void hrGLWidget::paintGL()
     if (isAnimate)
         animateObjects();
 
-    glDisable(GL_TEXTURE_2D);
+    if ( textureTarget != GL_TEXTURE_2D ) {
+        glDisable(GL_TEXTURE_2D);
 
-    glEnable(textureTarget);
+        glEnable(textureTarget);
+    }
+
     drawObjects();
     glDisable(textureTarget);
 }
