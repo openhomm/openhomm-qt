@@ -101,7 +101,7 @@ struct hrSettings
     {
         QSettings settings("settings.ini", QSettings::IniFormat);
         isGameFullscreen = settings.value("isGameFullscreen", false).toBool();
-        isGameShowMenu = settings.value("isGameShowMenu", false).toBool();
+        isGameShowMenu = settings.value("isGameShowMenu", true).toBool();
         gameX = settings.value("gameX", 0).toInt();
         gameY = settings.value("gameY", 0).toInt();
     }

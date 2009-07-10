@@ -17,10 +17,14 @@
 #include "precompiled.hpp"
 #include "hrWindow.hpp"
 #include "hrApplication.hpp"
+#include "version.hpp"
 
-hrWindow::hrWindow(QWidget *parent): QWidget(parent), scene(NULL), w(NULL)
+//hrWindow::hrWindow(QWidget *parent): QWidget(parent), scene(NULL), w(NULL)
+hrWindow::hrWindow(QMainWindow *parent): QMainWindow(parent), scene(NULL), w(NULL)
 {
     setWindowTitle("OpenHoMM, fullscreen - F11");//, zoom - +/-");
+
+    createMenu();
 
     if ( hrSettings::get().isGameFullscreen )
         setWindowState(windowState() | Qt::WindowFullScreen );
@@ -65,7 +69,14 @@ hrWindow::hrWindow(QWidget *parent): QWidget(parent), scene(NULL), w(NULL)
     scene->setCursor("cradvntr.def");
 
     w = new hrGLWidget(this, scene);
-    w->resize(800, 600);
+    setCentralWidget(w);
+    if ( hrSettings::get().isGameShowMenu == true) //{
+//        resize(800,576+menuBar->sizeHint().height()+1);
+        menuBar->show();
+//    } else {
+        resize(800,600);
+//    }
+
     w->startAnimate(200);
 }
 
@@ -78,7 +89,6 @@ hrWindow::~hrWindow()
 void hrWindow::resizeEvent(QResizeEvent *event)
 {
     Q_UNUSED(event);
-    w->resize(width(), height());
 }
 
 void hrWindow::keyPressEvent(QKeyEvent *event)
@@ -94,4 +104,32 @@ void hrWindow::moveEvent(QMoveEvent *event)
 {
     hrSettings::get().gameX = event->pos().x();
     hrSettings::get().gameY = event->pos().y();
+}
+
+void hrWindow::createMenu()
+{
+    menuBar = new QMenuBar(this);
+    menuBar->hide();
+    QMenu *file = new QMenu("File", this);
+    QMenu *help = new QMenu("Help", this);
+
+    actFileExit = new QAction("Exit", this);
+    connect(actFileExit, SIGNAL(triggered()), hrApplication::instance(), SLOT(quit()));
+    actHelpAboutQt = new QAction("About Qt", this);
+    connect(actHelpAboutQt, SIGNAL(triggered()), hrApplication::instance(), SLOT(aboutQt()));
+    actHelpAbout = new QAction("About", this);
+    connect(actHelpAbout, SIGNAL(triggered()), this, SLOT(about()));
+
+    file->addAction(actFileExit);
+    help->addAction(actHelpAbout);
+    help->addAction(actHelpAboutQt);
+
+    menuBar->addMenu(file);
+    menuBar->addMenu(help);
+    this->setMenuBar(menuBar);
+}
+
+void hrWindow::about()
+{
+    QMessageBox::information(this, "About OpenHoMM", VERSION_RELEASE_STR);
 }

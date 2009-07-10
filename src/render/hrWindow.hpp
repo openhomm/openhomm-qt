@@ -19,18 +19,24 @@
 #include "hrScene.hpp"
 #include "hrH3MReader.hpp"
 
-class hrWindow : public QWidget
+class hrWindow : public QMainWindow
 {
     Q_OBJECT
 
 public:
-    hrWindow(QWidget *parent = 0);
+    hrWindow(QMainWindow *parent = 0);
     ~hrWindow();
 
 private:
     hrGLWidget *w;
     hrScene *scene;
-
+    QMenuBar * menuBar;
+    QAction *actHelpAbout;
+    QAction *actFileExit;
+    QAction *actHelpAboutQt;
+    void createMenu();
+public slots:
+    void about();
 private slots:
     void resizeEvent(QResizeEvent *event);
     void keyPressEvent(QKeyEvent *event);
