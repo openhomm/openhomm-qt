@@ -90,7 +90,7 @@ public:
     }
     bool operator<(const hrSceneTile& s) const
     {
-        if (this->id < s.getId())
+        if (id < s.id)
             return true;
         return false;
     }

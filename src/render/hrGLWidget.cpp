@@ -16,6 +16,7 @@
 //
 #include "precompiled.hpp"
 #include "hrGLWidget.hpp"
+#include "hrApplication.hpp"
 
 #ifndef GL_TEXTURE_RECTANGLE_ARB
 #define GL_TEXTURE_RECTANGLE_ARB 0x84F5
@@ -125,9 +126,13 @@ void hrGLWidget::Begin()
     // Make sure depth testing and lighting are disabled for 2D rendering
     glDisable(GL_DEPTH_TEST);
     glDisable(GL_LIGHTING);
+    glDisable(GL_DITHER);
+    glShadeModel(GL_FLAT);
 
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     glEnable(GL_BLEND);
+    glEnableClientState(GL_VERTEX_ARRAY);
+    glEnableClientState(GL_TEXTURE_COORD_ARRAY);
 }
 
 void hrGLWidget::End()
@@ -175,14 +180,6 @@ GLuint hrGLWidget::bindImage(const QImage &im, GLuint target)
     tx = new GLTexture(param);
     glBindTexture(target, tx->getId());
 
-    /*if (generateMipmap) // it's slow
-    {
-        glHint(GL_GENERATE_MIPMAP_HINT_SGIS, GL_NICEST);
-        glTexParameteri(textureTarget, GL_GENERATE_MIPMAP_SGIS, GL_TRUE);
-        glTexParameteri(textureTarget, GL_TEXTURE_MAG_FILTER, GL_NEAREST_MIPMAP_NEAREST);
-        glTexParameterf(textureTarget, GL_TEXTURE_MIN_FILTER, GL_NEAREST_MIPMAP_LINEAR);
-    }*/
-
     if (!textureRects)
     {
         glTexParameteri(target, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
@@ -219,14 +216,14 @@ void hrGLWidget::drawImage(const QPoint &point, const QRect &src)
         y2 = src.height();
     }
 
-    glBegin(GL_QUADS);
-    {
-        glTexCoord2i(x1, y2); glVertex2i(r.x(), r.y());
-        glTexCoord2i(x2, y2); glVertex2i(r.x() + r.width(), r.y());
-        glTexCoord2i(x2, y1); glVertex2i(r.x() + r.width(), r.y() + r.height());
-        glTexCoord2i(x1, y1); glVertex2i(r.x(), r.y() + r.height());
-    }
-    glEnd();
+
+    GLfloat v[] = { r.x(), r.y(), r.x() + r.width(), r.y(), r.x()+r.width(), r.y() + r.height(), r.x(), r.y() + r.height() };
+    GLfloat t[] = { x1, y2, x2, y2, x2, y1, x1, y1 };
+
+    glVertexPointer(2, GL_FLOAT, 0, v);
+    glTexCoordPointer(2, GL_FLOAT, 0, t);
+
+    glDrawArrays(GL_QUADS, 0, 4);
 }
 
 void hrGLWidget::drawAtlasTiles()
@@ -259,14 +256,14 @@ void hrGLWidget::drawAtlasImage(const QPoint &point
                                , bool vertical
                                )
 {
-    double x1, y1, x2, y2;
+    float x1, y1, x2, y2;
     const QRect r(point.x(), point.y(), coord::dim, coord::dim);
 
-    x1 = src.x() / (double) dim;
-    x2 = x1 + src.width() / (double) dim;
+    x1 = src.x() / (float) dim;
+    x2 = x1 + src.width() / (float) dim;
 
-    y2 = 1 - src.y() / (double) dim;
-    y1 = y2 - src.height() / (double) dim;
+    y2 = 1 - src.y() / (float) dim;
+    y1 = y2 - src.height() / (float) dim;
 
     if (horizontal && vertical)
     {
@@ -282,20 +279,17 @@ void hrGLWidget::drawAtlasImage(const QPoint &point
         qSwap(y1, y2);
     }
 
-    glBegin(GL_QUADS);
-    {
-        glTexCoord2f(x1, y2); glVertex2f(r.x(), r.y());
-        glTexCoord2f(x2, y2); glVertex2f(r.x() + r.width(), r.y());
-        glTexCoord2f(x2, y1); glVertex2f(r.x() + r.width(), r.y() + r.height());
-        glTexCoord2f(x1, y1); glVertex2f(r.x(), r.y() + r.height());
-    }
-    glEnd();
+    GLfloat v[] = { r.x(), r.y(), r.x() + r.width(), r.y(), r.x()+r.width(), r.y() + r.height(), r.x(), r.y() + r.height() };
+    GLfloat t[] = { x1, y2, x2, y2, x2, y1, x1, y1 };
+
+    glVertexPointer(2, GL_FLOAT, 0, v);
+    glTexCoordPointer(2, GL_FLOAT, 0, t);
+
+    glDrawArrays(GL_QUADS, 0, 4);
 }
 
 void hrGLWidget::paintGL()
 {
-    glClear(GL_COLOR_BUFFER_BIT);
-
     glEnable(GL_TEXTURE_2D);
     drawAtlasTiles();
 

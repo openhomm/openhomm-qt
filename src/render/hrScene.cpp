@@ -272,7 +272,7 @@ QList<hrSceneTile> hrScene::getViewportTiles() const
             }
         }
 
-    qStableSort(lst);
+    qSort(lst);
     return lst;
 }
 
@@ -293,13 +293,14 @@ const hrTile& hrScene::getTile(int x, int y) const
 QList<hrSceneObject> hrScene::getViewportObjects() const
 {
     QList<hrSceneObject> lst;
-    QListIterator<hrSceneObject> it(objects);
-    hrSceneObject obj;
-    while (it.hasNext())
+    QList<hrSceneObject>::const_iterator it = objects.begin();
+    QList<hrSceneObject>::const_iterator end = objects.end();
+
+    for (  ; it != end; ++it)
     {
-        obj = it.next();
+        const hrSceneObject &obj = *it;//it.next();
         if (viewport.intersects(obj.getRect()))
-        {            
+        {
             lst.append(obj);
         }
     }
@@ -329,5 +330,5 @@ QRect hrScene::getSceneViewport() const
 
 void hrScene::sortObjects()
 {
-    qStableSort(objects.begin(), objects.end());
+    qSort(objects);
 }
