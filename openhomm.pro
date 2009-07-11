@@ -30,5 +30,5 @@ OPENHOMM_PATCH = 0
 }
 
 TEMPLATE = subdirs
-SUBDIRS = src src\plugins tools
+SUBDIRS = src src/plugins tools
 

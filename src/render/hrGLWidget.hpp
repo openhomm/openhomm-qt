@@ -19,6 +19,8 @@
 
 #include "hrScene.hpp"
 #include "hrCoord.hpp"
+#include <QtCore/QTimer>
+#include <QtCore/QCache>
 
 class hrGLWidget : public QGLWidget
 {

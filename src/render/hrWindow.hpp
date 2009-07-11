@@ -18,6 +18,10 @@
 #include "hrGLWidget.hpp"
 #include "hrScene.hpp"
 #include "hrH3MReader.hpp"
+#include <QMainWindow>
+
+class QAction;
+class QMenuBar;
 
 class hrWindow : public QMainWindow
 {

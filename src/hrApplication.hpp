@@ -18,6 +18,7 @@
 
 #include <QApplication>
 #include <QObject>
+#include <QSettings>
 
 class hrLodEngineHandler;
 class hrSndEngineHandler;
