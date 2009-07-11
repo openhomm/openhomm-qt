@@ -217,13 +217,15 @@ void hrGLWidget::drawImage(const QPoint &point, const QRect &src)
     }
 
 
-    GLfloat v[] = { r.x(), r.y(), r.x() + r.width(), r.y(), r.x()+r.width(), r.y() + r.height(), r.x(), r.y() + r.height() };
-    GLfloat t[] = { x1, y2, x2, y2, x2, y1, x1, y1 };
+    glEnable(textureTarget);
+    GLint v[] = { r.x(), r.y(), r.x() + r.width(), r.y(), r.x() + r.width(), r.y() + r.height(), r.x(), r.y() + r.height() };
+    GLint t[] = { x1, y2, x2, y2, x2, y1, x1, y1 };
 
-    glVertexPointer(2, GL_FLOAT, 0, v);
-    glTexCoordPointer(2, GL_FLOAT, 0, t);
+    glVertexPointer(2, GL_INT, 0, v);
+    glTexCoordPointer(2, GL_INT, 0, t);
 
     glDrawArrays(GL_QUADS, 0, 4);
+    glDisable(textureTarget);
 }
 
 void hrGLWidget::drawAtlasTiles()
@@ -296,14 +298,14 @@ void hrGLWidget::paintGL()
     if (isAnimate)
         animateObjects();
 
-    if ( textureTarget != GL_TEXTURE_2D ) {
+    /*if ( textureTarget != GL_TEXTURE_2D ) {
         glDisable(GL_TEXTURE_2D);
 
         glEnable(textureTarget);
-    }
+    }*/
 
     drawObjects();
-    glDisable(textureTarget);
+    //glDisable(textureTarget);
 }
 
 
@@ -356,7 +358,7 @@ void hrGLWidget::mouseMoveEvent(QMouseEvent * event)
 {
     QPoint pos = event->pos();
     const int border = 50;
-    const int c = 16;
+    const int c = 32;
     const int delay = 20;
     bool startScrollTimer = true;
 
