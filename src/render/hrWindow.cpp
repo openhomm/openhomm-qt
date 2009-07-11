@@ -26,9 +26,6 @@ hrWindow::hrWindow(QMainWindow *parent): QMainWindow(parent), scene(NULL), w(NUL
 
     createMenu();
 
-    if ( hrSettings::get().isGameFullscreen )
-        setWindowState(windowState() | Qt::WindowFullScreen );
-
     int gameX = hrSettings::get().gameX,
         gameY = hrSettings::get().gameY;
 
@@ -70,12 +67,20 @@ hrWindow::hrWindow(QMainWindow *parent): QMainWindow(parent), scene(NULL), w(NUL
 
     w = new hrGLWidget(this, scene);
     setCentralWidget(w);
-    if ( hrSettings::get().isGameShowMenu == true) //{
+//    if ( hrSettings::get().isGameShowMenu == true) //{
 //        resize(800,576+menuBar->sizeHint().height()+1);
-        menuBar->show();
+//        menuBar->show();
 //    } else {
         resize(800,600);
 //    }
+
+    if ( hrSettings::get().isGameFullscreen )
+        {
+        setWindowState(windowState() | Qt::WindowFullScreen );
+        menuBar->hide();
+        }
+    else if ( hrSettings::get().isGameShowMenu )
+        menuBar->show();
 
     w->startAnimate(200);
 }
@@ -97,13 +102,20 @@ void hrWindow::keyPressEvent(QKeyEvent *event)
     {
         setWindowState(windowState() ^ Qt::WindowFullScreen);
         hrSettings::get().isGameFullscreen = windowState() & Qt::WindowFullScreen;
+	    if (hrSettings::get().isGameFullscreen)
+            menuBar->hide();
+        else if (hrSettings::get().isGameShowMenu)
+            menuBar->show();
     }
 }
 
 void hrWindow::moveEvent(QMoveEvent *event)
 {
-    hrSettings::get().gameX = event->pos().x();
-    hrSettings::get().gameY = event->pos().y();
+    if (hrSettings::get().isGameFullscreen)
+        {
+        hrSettings::get().gameX = event->pos().x();
+        hrSettings::get().gameY = event->pos().y();
+        }
 }
 
 void hrWindow::createMenu()

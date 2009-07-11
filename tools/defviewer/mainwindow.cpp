@@ -22,7 +22,6 @@ MainWindow::MainWindow(QWidget *parent)
     connect(&timer, SIGNAL(timeout()), this, SLOT(onJumpToImage()));
 
     QGraphicsView &view = *ui->graphicsView;
-    //view.setViewport(new QGLWidget());
     view.resize(600, 400);
     view.setScene(&scene);
 

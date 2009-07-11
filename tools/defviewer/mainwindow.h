@@ -2,7 +2,6 @@
 #define MAINWINDOW_H
 
 #include <QtGui>
-#include <QtOpenGL>
 
 namespace Ui
 {
