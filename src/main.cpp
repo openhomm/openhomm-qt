@@ -37,11 +37,24 @@ void myMessageOutput(QtMsgType type, const char *msg)
     }
 }
 
+void checkPlugins()
+{
+    QList<QByteArray> formats = QImageReader::supportedImageFormats();
+
+    if ( !formats.contains("def") || !formats.contains("pcx" )) {
+        QMessageBox::critical(NULL, "Critical error!", "Plugins didn't load. Files maybe corrupted. Try to re-install application.");
+        exit(1);
+    }
+}
+
 int main(int argc, char** argv)
 {
     QT_REQUIRE_VERSION(argc, argv, "4.5.0");
     qInstallMsgHandler(myMessageOutput);
+
     hrApplication app(argc, argv);
+
+    checkPlugins();
 
     hrWindow w;
     w.show();
