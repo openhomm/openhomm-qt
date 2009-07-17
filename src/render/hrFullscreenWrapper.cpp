@@ -14,10 +14,26 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
-#include <QtCore>
-#include <QtGui>
+#include "precompiled.hpp"
+#include "hrFullscreenWrapper.hpp"
 
-#ifdef Q_WS_WIN
-#define WIN32_LEAN_AND_MEAN
-#include <windows.h>
-#endif 
+DEVMODE hrDevMode;
+
+bool hrFullscreenWrapper::enableFullscreen(const QSize& resolution)
+{
+    EnumDisplaySettings(NULL, ENUM_CURRENT_SETTINGS, &hrDevMode);
+    hrDevMode.dmPelsWidth = (unsigned long) resolution.width();
+    hrDevMode.dmPelsHeight = (unsigned long) resolution.height();
+    if(ChangeDisplaySettings(&hrDevMode, CDS_TEST) != DISP_CHANGE_SUCCESSFUL)
+        return false;
+    if(ChangeDisplaySettings(&hrDevMode, CDS_FULLSCREEN) != DISP_CHANGE_SUCCESSFUL)
+        return false;
+    return true;
+}
+
+bool hrFullscreenWrapper::disableFullscreen(void)
+{
+    if(ChangeDisplaySettings(NULL, 0) == DISP_CHANGE_SUCCESSFUL)
+	    return true;
+    return false;
+}

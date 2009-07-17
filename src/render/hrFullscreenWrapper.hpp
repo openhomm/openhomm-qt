@@ -14,10 +14,11 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
-#include <QtCore>
-#include <QtGui>
+#pragma once
 
-#ifdef Q_WS_WIN
-#define WIN32_LEAN_AND_MEAN
-#include <windows.h>
-#endif 
+class hrFullscreenWrapper
+{
+public:
+    static bool enableFullscreen(const QSize& resolution);
+    static bool disableFullscreen(void);
+};
