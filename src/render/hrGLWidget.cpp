@@ -17,6 +17,8 @@
 #include "precompiled.hpp"
 #include "hrGLWidget.hpp"
 #include "hrApplication.hpp"
+#include "hrScene.hpp"
+#include "hrCoord.hpp"
 
 #ifndef GL_TEXTURE_RECTANGLE_ARB
 #define GL_TEXTURE_RECTANGLE_ARB 0x84F5
@@ -298,14 +300,9 @@ void hrGLWidget::paintGL()
     if (isAnimate)
         animateObjects();
 
-    /*if ( textureTarget != GL_TEXTURE_2D ) {
-        glDisable(GL_TEXTURE_2D);
-
-        glEnable(textureTarget);
-    }*/
+    glDisable(GL_TEXTURE_2D);
 
     drawObjects();
-    //glDisable(textureTarget);
 }
 
 

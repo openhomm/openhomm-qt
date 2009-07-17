@@ -16,7 +16,6 @@
 //
 #include "precompiled.hpp"
 #include "hrH3MReader.hpp"
-#include "hrString.hpp"
 #include <zlib.h>
 
 QByteArray unpack(const QString &filename)

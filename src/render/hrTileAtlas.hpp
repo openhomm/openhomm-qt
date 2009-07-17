@@ -16,8 +16,6 @@
 //
 #pragma once
 
-#include "hrCoord.hpp"
-
 class hrTileAtlas
 {
 public:

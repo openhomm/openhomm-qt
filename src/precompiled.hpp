@@ -16,8 +16,11 @@
 //
 #include <QtCore>
 #include <QtGui>
+#include <QtOpenGL>
 
 #ifdef Q_WS_WIN
-#define WIN32_LEAN_AND_MEAN
-#include <windows.h>
+#   define WIN32_LEAN_AND_MEAN
+#   include <windows.h>
 #endif 
+
+#include "hrString.hpp"

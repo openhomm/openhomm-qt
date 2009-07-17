@@ -16,7 +16,6 @@
 //
 #pragma once
 
-#include "hrString.hpp"
 #include "hrTile.hpp"
 #include "hrObject.hpp"
 #include "hrSceneObject.hpp"

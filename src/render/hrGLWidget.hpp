@@ -41,7 +41,6 @@ protected:
     void resizeGL(int w, int h);
     void paintGL();
 
-    //void paintEvent(QPaintEvent *event);
 private:
     hrScene *scene;
 

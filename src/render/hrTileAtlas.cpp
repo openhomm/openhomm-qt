@@ -16,6 +16,7 @@
 //
 #include "precompiled.hpp"
 #include "hrTileAtlas.hpp"
+#include "hrCoord.hpp"
 
 hrTileAtlas::hrTileAtlas(int dim)
     : x(0), y(0), dim(dim), curFrame(0)

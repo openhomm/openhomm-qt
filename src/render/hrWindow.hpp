@@ -15,14 +15,13 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
 #pragma once
-#include "hrGLWidget.hpp"
-#include "hrScene.hpp"
-#include "hrH3MReader.hpp"
+
 #include <QMainWindow>
 
 class QAction;
 class QMenuBar;
-
+class hrGLWidget;
+class hrScene;
 class hrWindow : public QMainWindow
 {
     Q_OBJECT
@@ -45,5 +44,4 @@ private slots:
     void resizeEvent(QResizeEvent *event);
     void keyPressEvent(QKeyEvent *event);
     void moveEvent ( QMoveEvent * event );
-
 };

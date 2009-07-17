@@ -19,6 +19,6 @@ CONFIG(release, debug|release) {
 }
 
 win32-msvc2* {
-	DEFINES += "_CRT_SECURE_NO_WARNINGS" "_CRT_NON_CONFORMING_SWPRINTFS"
-	RC_FILE = $$PWD/src/version.rc
+    DEFINES += "_CRT_SECURE_NO_WARNINGS" "_CRT_NON_CONFORMING_SWPRINTFS"
+    RC_FILE = $$PWD/src/version.rc
 }
