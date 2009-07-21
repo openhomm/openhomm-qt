@@ -16,7 +16,6 @@
 //
 #pragma once
 
-#include "hrString.hpp"
 struct SecondarySkill_t {
     quint8 skillID;
     quint8 skillLevel;

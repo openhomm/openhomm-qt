@@ -17,10 +17,12 @@
 #include "precompiled.hpp"
 #include "hrFullscreenWrapper.hpp"
 
+#ifdef Q_WS_WIN32
 DEVMODE hrDevMode;
 
 bool hrFullscreenWrapper::enableFullscreen(const QSize& resolution)
 {
+
     EnumDisplaySettings(NULL, ENUM_CURRENT_SETTINGS, &hrDevMode);
     hrDevMode.dmPelsWidth = (unsigned long) resolution.width();
     hrDevMode.dmPelsHeight = (unsigned long) resolution.height();
@@ -31,9 +33,22 @@ bool hrFullscreenWrapper::enableFullscreen(const QSize& resolution)
     return true;
 }
 
-bool hrFullscreenWrapper::disableFullscreen(void)
+bool hrFullscreenWrapper::disableFullscreen()
 {
     if(ChangeDisplaySettings(NULL, 0) == DISP_CHANGE_SUCCESSFUL)
 	    return true;
     return false;
 }
+#else
+
+bool hrFullscreenWrapper::enableFullscreen(const QSize& resolution)
+{
+    return false;
+}
+
+bool hrFullscreenWrapper::disableFullscreen()
+{
+    return false;
+}
+
+#endif

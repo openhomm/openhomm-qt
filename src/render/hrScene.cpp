@@ -53,7 +53,7 @@ void hrScene::addTileItem(int id, const QString &name)
         }
 
         hrTileAtlas *atlas = new hrTileAtlas(dim);
-        QImageReader ir("lod:/data/h3sprite.lod/" + name);
+        QImageReader ir("lod:/Data/H3sprite.lod/" + name);
         QImage im;
         for (int i = 0; ir.jumpToImage(i); i++)
             if (ir.read(&im))
@@ -72,7 +72,7 @@ void hrScene::addItem(int id, const QString &name)
     if (!items_obj.contains(id))
     {
         hrGraphicsItem *item = new hrGraphicsItem();
-        QImageReader ir("lod:/data/h3sprite.lod/" + name);
+        QImageReader ir("lod:/Data/H3sprite.lod/" + name);
         QImage im;
         for (int i = 0; ir.jumpToImage(i); i++)
             if (ir.read(&im))
@@ -196,7 +196,7 @@ void hrScene::removeObject(int x, int y)
 
 void hrScene::setCursor(const QString &name)
 {
-    QImageReader ir("lod:/data/h3sprite.lod/" + name);
+    QImageReader ir("lod:/Data/H3sprite.lod/" + name);
     QImage im;
     for (int i = 0; ir.jumpToImage(i); i++)
         if (ir.read(&im))

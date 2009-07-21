@@ -20,5 +20,5 @@ class hrFullscreenWrapper
 {
 public:
     static bool enableFullscreen(const QSize& resolution);
-    static bool disableFullscreen(void);
+    static bool disableFullscreen();
 };
