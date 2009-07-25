@@ -20,7 +20,12 @@
 
 #include "hrWindow.hpp"
 
-#include "client/windows/handler/exception_handler.h"
+#ifdef Q_WS_WIN32
+#   include "client/windows/handler/exception_handler.h"
+#elif defined(Q_WS_X11)
+#   include "client/linux/handler/exception_handler.h"
+#endif
+
 void myMessageOutput(QtMsgType type, const char *msg)
 {
     switch (type) {
@@ -61,6 +66,8 @@ bool callback(
                      MDRawAssertionInfo *assertion,
 #endif
                      bool succeeded) {
+    printf("true");
+    qWarning("%s", dump_path);
   if (succeeded) {
     qWarning("Dump is successfull");
   } else {
@@ -75,20 +82,14 @@ int main(int argc, char** argv)
     qInstallMsgHandler(myMessageOutput);
 
 
-    google_breakpad::ExceptionHandler eh(
-#ifdef Q_WS_WIN32
-      L".",
-#else
-      ".",
-#endif
-      NULL, callback, NULL,
-#ifdef Q_WS_WIN32
-      google_breakpad::ExceptionHandler::HANDLER_ALL
-#else
-      true
-#endif
-      );
 
+#ifdef Q_WS_WIN32
+    google_breakpad::ExceptionHandler eh(L".", NULL, callback, NULL,
+        google_breakpad::ExceptionHandler::HANDLER_ALL );
+
+#else
+    google_breakpad::ExceptionHandler eh(".", NULL, callback, NULL, true);
+#endif
 
     hrApplication app(argc, argv);
 
