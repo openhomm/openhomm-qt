@@ -19,6 +19,8 @@
 #include "hrH3MReader.hpp"
 
 #include "hrWindow.hpp"
+
+#include "client/windows/handler/exception_handler.h"
 void myMessageOutput(QtMsgType type, const char *msg)
 {
     switch (type) {
@@ -47,10 +49,46 @@ void checkPlugins()
     }
 }
 
+bool callback(
+#ifdef Q_WS_WIN32
+        const wchar_t *dump_path, const wchar_t *id,
+#else
+        const char *dump_path, const char *id,
+#endif
+                     void *context,
+#ifdef Q_WS_WIN32
+                     EXCEPTION_POINTERS *exinfo,
+                     MDRawAssertionInfo *assertion,
+#endif
+                     bool succeeded) {
+  if (succeeded) {
+    qWarning("Dump is successfull");
+  } else {
+    qWarning("Dump failed");
+  }
+  return succeeded;
+}
+
 int main(int argc, char** argv)
 {
     QT_REQUIRE_VERSION(argc, argv, "4.5.0");
     qInstallMsgHandler(myMessageOutput);
+
+
+    google_breakpad::ExceptionHandler eh(
+#ifdef Q_WS_WIN32
+      L".",
+#else
+      ".",
+#endif
+      NULL, callback, NULL,
+#ifdef Q_WS_WIN32
+      google_breakpad::ExceptionHandler::HANDLER_ALL
+#else
+      true
+#endif
+      );
+
 
     hrApplication app(argc, argv);
 
