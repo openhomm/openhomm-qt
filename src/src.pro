@@ -19,4 +19,6 @@ SOURCES += main.cpp \
 include(gui/gui.pri)
 include(render/render.pri)
 include(core/core.pri)
-HEADERS += hrApplication.hpp
+HEADERS += hrApplication.hpp \
+    precompiled.hpp
+QMAKE_DISTCLEAN += version.hpp

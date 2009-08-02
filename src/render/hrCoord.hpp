@@ -19,11 +19,28 @@
 namespace coord
 {
     const int dim = 32;
-    int toPix(int x);
-    int toCell(int x);
-    QPoint toPix(const QPoint &p);
-    QPoint toCell(const QPoint &p);
-    QRect toPix(const QRect &r);
-    QRect toCell(const QRect &r);
+    HR_INLINE int toPix(int x)
+    {
+        return x * dim;
+    }
+    HR_INLINE int toCell(int x)
+    {
+        return x / dim;
+    }
+    HR_INLINE QPoint toPix(const QPoint &p)
+    {
+        return QPoint(toPix(p.x()), toPix(p.y()));
+    }
+    HR_INLINE QPoint toCell(const QPoint &p)
+    {
+        return QPoint(toCell(p.x()), toCell(p.y()));
+    }
+    HR_INLINE QRect toPix(const QRect &r)
+    {
+        return QRect(toPix(r.x()), toPix(r.y()), toPix(r.width()), toPix(r.height()));
+    }
+    HR_INLINE QRect toCell(const QRect &r)
+    {
+        return QRect(toCell(r.x()), toCell(r.y()), toCell(r.width()), toCell(r.height()));
+    }
 }
-

@@ -14,31 +14,25 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
-#include "precompiled.hpp"
-#include "hrCoord.hpp"
+#pragma once
 
-int coord::toPix(int x)
-{
-    return x * 32;
-}
-int coord::toCell(int x)
-{
-    return x / 32;
-}
-QPoint coord::toPix(const QPoint &p)
-{
-    return QPoint(toPix(p.x()), toPix(p.y()));
-}
-QPoint coord::toCell(const QPoint &p)
-{
-    return QPoint(toCell(p.x()), toCell(p.y()));
-}
-QRect coord::toPix(const QRect &r)
-{
-    return QRect(toPix(r.x()), toPix(r.y()), toPix(r.width()), toPix(r.height()));
-}
-QRect coord::toCell(const QRect &r)
-{
-    return QRect(toCell(r.x()), toCell(r.y()), toCell(r.width()), toCell(r.height()));
-}
+#ifdef _MSC_VER
+#   define COMPILER_MSC
+#elif __INTEL_COMPILER
+#   define COMPILER_ICC
+#elif __GNUC__
+#   define COMPILER_GCC
+#else
+#   error "Unknown compiler!"
+#endif
 
+#if defined(Q_WS_WIN32) && defined(COMPILER_GCC)
+#   define COMPILER_MINGW
+#endif
+
+// Definitions
+#ifdef COMPILER_MSC
+#   define HR_INLINE __forceinline
+#else
+#   define HR_INLINE inline
+#endif

@@ -6,11 +6,10 @@ HEADERS += hrGLWidget.hpp \
     hrGraphicsItem.hpp \
     hrCoord.hpp \
     hrTileAtlas.hpp \
-	hrFullscreenWrapper.hpp
+    hrFullscreenWrapper.hpp
 SOURCES += hrGLWidget.cpp \
     hrScene.cpp \
     hrWindow.cpp \
     hrGraphicsItem.cpp \
-    hrCoord.cpp \
     hrTileAtlas.cpp \
-	hrFullscreenWrapper.cpp
+    hrFullscreenWrapper.cpp
