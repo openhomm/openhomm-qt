@@ -61,7 +61,7 @@ bool callback(
         const char *dump_path, const char *id,
 #endif
                      void *context,
-#ifdef Q_WS_WIN32
+#if defined(Q_WS_WIN32) && defined(_MSC_VER)
                      EXCEPTION_POINTERS *exinfo,
                      MDRawAssertionInfo *assertion,
 #endif
