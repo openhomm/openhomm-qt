@@ -46,6 +46,7 @@
 #include <functional>
 #include <list>
 #include <vector>
+#include <map>
 #include <string.h>
 
 #include "common/linux/dump_symbols.h"
@@ -94,8 +95,6 @@ struct FuncInfo {
   uint32_t size;
   // Total size of stack parameters.
   uint32_t stack_param_size;
-  // Is there any lines included from other files?
-  bool has_sol;
   // Line information array.
   LineInfoList line_info;
 };
@@ -116,12 +115,34 @@ struct SourceFileInfo {
   FuncInfoList func_info;
 };
 
-typedef std::list<struct SourceFileInfo> SourceFileInfoList;
+// A simple std::list of pointers to SourceFileInfo structures, that
+// owns the structures pointed to: destroying the list destroys them,
+// as well.
+class SourceFileInfoList : public std::list<SourceFileInfo *> {
+ public:
+  ~SourceFileInfoList() {
+    for (iterator it = this->begin(); it != this->end(); it++)
+      delete *it;
+  }
+};
 
 // Information of a symbol table.
 // This is the root of all types of symbol.
 struct SymbolInfo {
   SourceFileInfoList source_file_info;
+
+  // An array of some addresses at which a file boundary occurs.
+  //
+  // The STABS information describing a compilation unit gives the
+  // unit's start address, but not its ending address or size.  Those
+  // must be inferred by finding the start address of the next file.
+  // For the last compilation unit, or when one compilation unit ends
+  // before the next one starts, STABS includes an N_SO entry whose
+  // filename is the empty string; such an entry's address serves
+  // simply to mark the end of the preceding compilation unit.  Rather
+  // than create FuncInfoList for such entries, we record their
+  // addresses here.  These are not necessarily sorted.
+  std::vector<ElfW(Addr)> file_boundaries;
 
   // The next source id for newly found source file.
   int next_source_id;
@@ -217,7 +238,6 @@ static int LoadLineInfo(struct nlist *list,
                         const struct SourceFileInfo &source_file_info,
                         struct FuncInfo *func_info) {
   struct nlist *cur_list = list;
-  func_info->has_sol = false;
   // Records which source file the following lines belongs. Default
   // to the file we are handling. This helps us handling inlined source.
   // When encountering N_SOL, we will change this to the source file
@@ -232,8 +252,6 @@ static int LoadLineInfo(struct nlist *list,
       // N_SOL means source lines following it will be from
       // another source file.
       if (cur_list->n_type == N_SOL) {
-        func_info->has_sol = true;
-
         if (cur_list->n_un.n_strx > 0 &&
             cur_list->n_un.n_strx != current_source_name_index) {
           // The following lines will be from this source file.
@@ -251,6 +269,9 @@ static int LoadLineInfo(struct nlist *list,
       // Don't set it here.
       // Will be processed in later pass.
       line.source_id = -1;
+      // Compiler worries about uninitialized fields in copy for 'push_back'.
+      line.size = 0;
+      line.rva_to_base = 0;
       func_info->line_info.push_back(line);
       ++cur_list;
     }
@@ -285,7 +306,6 @@ static int LoadFuncSymbols(struct nlist *list,
       func_info.rva_to_base = 0;
       func_info.size = 0;
       func_info.stack_param_size = 0;
-      func_info.has_sol = 0;
 
       // Stack parameter size.
       cur_list += LoadStackParamSize(cur_list, list_end, &func_info);
@@ -307,87 +327,29 @@ static int LoadFuncSymbols(struct nlist *list,
   return cur_list - list;
 }
 
-// Comapre the address.
-// The argument should have a memeber named "addr"
-template<class T1, class T2>
-static bool CompareAddress(T1 *a, T2 *b) {
-  return a->addr < b->addr;
-}
-
-// Sort the array into increasing ordered array based on the virtual address.
-// Return vector of pointers to the elements in the incoming array. So caller
-// should make sure the returned vector lives longer than the incoming vector.
-template<class Container>
-static std::vector<typename Container::value_type *> SortByAddress(
-    Container *container) {
-  typedef typename Container::iterator It;
-  typedef typename Container::value_type T;
-  std::vector<T *> sorted_array_ptr;
-  sorted_array_ptr.reserve(container->size());
-  for (It it = container->begin(); it != container->end(); it++)
-    sorted_array_ptr.push_back(&(*it));
-  std::sort(sorted_array_ptr.begin(),
-            sorted_array_ptr.end(),
-            std::ptr_fun(CompareAddress<T, T>));
-
-  return sorted_array_ptr;
-}
-
-// Find the address of the next function or source file symbol in the symbol
-// table. The address should be bigger than the current function's address.
-static ElfW(Addr) NextAddress(
-    std::vector<struct FuncInfo *> *sorted_functions,
-    std::vector<struct SourceFileInfo *> *sorted_files,
-    const struct FuncInfo &func_info) {
-  std::vector<struct FuncInfo *>::iterator next_func_iter =
-    std::find_if(sorted_functions->begin(),
-                 sorted_functions->end(),
-                 std::bind1st(
-                     std::ptr_fun(
-                         CompareAddress<struct FuncInfo,
-                                        struct FuncInfo>
-                         ),
-                     &func_info)
-                );
-  if (next_func_iter != sorted_functions->end())
-    return (*next_func_iter)->addr;
-
-  std::vector<struct SourceFileInfo *>::iterator next_file_iter =
-    std::find_if(sorted_files->begin(),
-                 sorted_files->end(),
-                 std::bind1st(
-                     std::ptr_fun(
-                         CompareAddress<struct FuncInfo,
-                                        struct SourceFileInfo>
-                         ),
-                     &func_info)
-                );
-  if (next_file_iter != sorted_files->end()) {
-    return (*next_file_iter)->addr;
-  }
-  return 0;
-}
-
-static int FindFileByNameIdx(uint32_t name_index,
-                             SourceFileInfoList &files) {
-  for (SourceFileInfoList::iterator it = files.begin();
-       it != files.end(); it++) {
-    if (it->name_index == name_index)
-      return it->source_id;
-  }
-
-  return -1;
-}
-
 // Add included file information.
 // Also fix the source id for the line info.
 static void AddIncludedFiles(struct SymbolInfo *symbols,
                              const ElfW(Shdr) *stabstr_section) {
+  // A map taking an offset into the string table to the SourceFileInfo
+  // structure whose name is at that offset.  LineInfo entries contain these
+  // offsets; we use this map to pair them up with their source files.
+  typedef std::map<unsigned int, struct SourceFileInfo *> FileByOffsetMap;
+  FileByOffsetMap index_to_file;
+
+  // Populate index_to_file with the source files we have now.
+  for (SourceFileInfoList::iterator source_file_it = 
+	 symbols->source_file_info.begin();
+       source_file_it != symbols->source_file_info.end();
+       ++source_file_it) {
+    index_to_file[(*source_file_it)->name_index] = *source_file_it;
+  }
+
   for (SourceFileInfoList::iterator source_file_it =
 	 symbols->source_file_info.begin();
        source_file_it != symbols->source_file_info.end();
        ++source_file_it) {
-    struct SourceFileInfo &source_file = *source_file_it;
+    struct SourceFileInfo &source_file = **source_file_it;
 
     for (FuncInfoList::iterator func_info_it = source_file.func_info.begin(); 
 	 func_info_it != source_file.func_info.end();
@@ -406,22 +368,23 @@ static void AddIncludedFiles(struct SymbolInfo *symbols,
         if (line_info.source_name_index != source_file.name_index) {
           // This line is not from the current source file, check if this
           // source file has been added before.
-          int found_source_id = FindFileByNameIdx(line_info.source_name_index,
-                                                  symbols->source_file_info);
-          if (found_source_id < 0) {
+          struct SourceFileInfo **file_map_entry
+            = &index_to_file[line_info.source_name_index];
+          if (! *file_map_entry) {
             // Got a new included file.
             // Those included files don't have address or line information.
-            SourceFileInfo new_file;
-            new_file.name_index = line_info.source_name_index;
-            new_file.name = reinterpret_cast<char *>(new_file.name_index +
-                                                     stabstr_section->sh_offset);
-            new_file.addr = 0;
-            new_file.source_id = symbols->next_source_id++;
-            line_info.source_id = new_file.source_id;
+            SourceFileInfo *new_file = new(SourceFileInfo);
+            new_file->name_index = line_info.source_name_index;
+            new_file->name = reinterpret_cast<char *>(new_file->name_index
+                                                 + stabstr_section->sh_offset);
+            new_file->addr = 0;
+            new_file->source_id = symbols->next_source_id++;
+            line_info.source_id = new_file->source_id;
             symbols->source_file_info.push_back(new_file);
+            *file_map_entry = new_file;
           } else {
             // The file has been added.
-            line_info.source_id = found_source_id;
+            line_info.source_id = (*file_map_entry)->source_id;
           }
         } else {
           // The line belongs to the file.
@@ -436,20 +399,38 @@ static void AddIncludedFiles(struct SymbolInfo *symbols,
 // Compute size and rva information based on symbols loaded from stab section.
 static bool ComputeSizeAndRVA(ElfW(Addr) loading_addr,
                               struct SymbolInfo *symbols) {
-  std::vector<struct SourceFileInfo *> sorted_files =
-    SortByAddress(&(symbols->source_file_info));
-  for (size_t i = 0; i < sorted_files.size(); ++i) {
-    struct SourceFileInfo &source_file = *sorted_files[i];
-    std::vector<struct FuncInfo *> sorted_functions =
-      SortByAddress(&(source_file.func_info));
-    for (size_t j = 0; j < sorted_functions.size(); ++j) {
-      struct FuncInfo &func_info = *sorted_functions[j];
+  SourceFileInfoList::iterator file_it;
+  FuncInfoList::iterator func_it;
+  LineInfoList::iterator line_it;
+
+  // A table of all the addresses at which files and functions start
+  // or end.  We build this from the file boundary list and our lists
+  // of files and functions, sort it, and then use it to find the ends
+  // of functions and source lines for which we have no size
+  // information.
+  std::vector<ElfW(Addr)> boundaries = symbols->file_boundaries;
+  for (file_it = symbols->source_file_info.begin();
+       file_it != symbols->source_file_info.end(); file_it++) {
+    boundaries.push_back((*file_it)->addr);
+    for (func_it = (*file_it)->func_info.begin();
+         func_it != (*file_it)->func_info.end(); func_it++)
+      boundaries.push_back(func_it->addr);
+  }
+  std::sort(boundaries.begin(), boundaries.end());
+
+  int no_next_addr_count = 0;
+  for (file_it = symbols->source_file_info.begin();
+       file_it != symbols->source_file_info.end(); file_it++) {
+    for (func_it = (*file_it)->func_info.begin();
+         func_it != (*file_it)->func_info.end(); func_it++) {
+      struct FuncInfo &func_info = *func_it;
       assert(func_info.addr >= loading_addr);
       func_info.rva_to_base = func_info.addr - loading_addr;
       func_info.size = 0;
-      ElfW(Addr) next_addr = NextAddress(&sorted_functions,
-                                         &sorted_files,
-                                         func_info);
+      std::vector<ElfW(Addr)>::iterator boundary
+        = std::upper_bound(boundaries.begin(), boundaries.end(),
+                           func_info.addr);
+      ElfW(Addr) next_addr = (boundary == boundaries.end()) ? 0 : *boundary;
       // I've noticed functions with an address bigger than any other functions
       // and source files modules, this is probably the last function in the
       // module, due to limitions of Linux stab symbol, it is impossible to get
@@ -468,7 +449,6 @@ static bool ComputeSizeAndRVA(ElfW(Addr) loading_addr,
       // }
       // TODO(liuli): Find a better solution.
       static const int kDefaultSize = 0x10000000;
-      static int no_next_addr_count = 0;
       if (next_addr != 0) {
         func_info.size = next_addr - func_info.addr;
       } else {
@@ -485,15 +465,15 @@ static bool ComputeSizeAndRVA(ElfW(Addr) loading_addr,
         func_info.size = kDefaultSize;
       }
       // Compute line size.
-      for (LineInfoList::iterator line_info_it = func_info.line_info.begin(); 
-	   line_info_it != func_info.line_info.end(); line_info_it++) {
-        struct LineInfo &line_info = *line_info_it;
-	LineInfoList::iterator next_line_info_it = line_info_it;
-	next_line_info_it++;
+      for (line_it = func_info.line_info.begin(); 
+	   line_it != func_info.line_info.end(); line_it++) {
+        struct LineInfo &line_info = *line_it;
+	LineInfoList::iterator next_line_it = line_it;
+	next_line_it++;
         line_info.size = 0;
-        if (next_line_info_it != func_info.line_info.end()) {
+        if (next_line_it != func_info.line_info.end()) {
           line_info.size =
-            next_line_info_it->rva_to_func - line_info.rva_to_func;
+            next_line_it->rva_to_func - line_info.rva_to_func;
         } else {
           // The last line in the function.
           // If we can find a function or source file symbol immediately
@@ -531,19 +511,23 @@ static bool LoadSymbols(const ElfW(Shdr) *stab_section,
     int step = 1;
     struct nlist *cur_list = lists + i;
     if (cur_list->n_type == N_SO) {
-      // FUNC <address> <length> <param_stack_size> <function>
-      struct SourceFileInfo source_file_info;
-      source_file_info.name_index = cur_list->n_un.n_strx;
-      source_file_info.name = reinterpret_cast<char *>(cur_list->n_un.n_strx +
-                                 stabstr_section->sh_offset);
-      source_file_info.addr = cur_list->n_value;
-      if (strchr(source_file_info.name, '.'))
-        source_file_info.source_id = symbols->next_source_id++;
-      else
-        source_file_info.source_id = -1;
-      step = LoadFuncSymbols(cur_list, lists + nstab,
-                             stabstr_section, &source_file_info);
-      symbols->source_file_info.push_back(source_file_info);
+      if (cur_list->n_un.n_strx) {
+        struct SourceFileInfo *source_file_info = new SourceFileInfo;
+        source_file_info->name_index = cur_list->n_un.n_strx;
+        source_file_info->name = reinterpret_cast<char *>(cur_list->n_un.n_strx
+                                                 + stabstr_section->sh_offset);
+        source_file_info->addr = cur_list->n_value;
+        if (strchr(source_file_info->name, '.'))
+          source_file_info->source_id = symbols->next_source_id++;
+        else
+          source_file_info->source_id = -1;
+        step = LoadFuncSymbols(cur_list, lists + nstab,
+                               stabstr_section, source_file_info);
+        symbols->source_file_info.push_back(source_file_info);
+      } else {
+        // N_SO entries with no name mark file boundary addresses.
+        symbols->file_boundaries.push_back(cur_list->n_value);
+      }
     }
     i += step;
   }
@@ -620,9 +604,9 @@ static bool WriteSourceFileInfo(FILE *file, const struct SymbolInfo &symbols) {
   for (SourceFileInfoList::const_iterator it =
 	 symbols.source_file_info.begin();
        it != symbols.source_file_info.end(); it++) {
-    if (it->source_id != -1) {
-      const char *name = it->name;
-      if (0 > fprintf(file, "FILE %d %s\n", it->source_id, name))
+    if ((*it)->source_id != -1) {
+      const char *name = (*it)->name;
+      if (0 > fprintf(file, "FILE %d %s\n", (*it)->source_id, name))
         return false;
     }
   }
@@ -665,7 +649,7 @@ static bool WriteFunctionInfo(FILE *file, const struct SymbolInfo &symbols) {
   for (SourceFileInfoList::const_iterator it =
 	 symbols.source_file_info.begin();
        it != symbols.source_file_info.end(); it++) {
-    const struct SourceFileInfo &file_info = *it;
+    const struct SourceFileInfo &file_info = **it;
     for (FuncInfoList::const_iterator fiIt = file_info.func_info.begin(); 
 	 fiIt != file_info.func_info.end(); fiIt++) {
       const struct FuncInfo &func_info = *fiIt;

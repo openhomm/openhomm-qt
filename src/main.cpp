@@ -20,7 +20,7 @@
 
 #include "hrWindow.hpp"
 
-#ifdef Q_WS_WIN32
+#if defined(Q_WS_WIN32) && defined(_MSC_VER)
 #   include "client/windows/handler/exception_handler.h"
 #elif defined(Q_WS_X11)
 #   include "client/linux/handler/exception_handler.h"
@@ -55,7 +55,7 @@ void checkPlugins()
 }
 
 bool callback(
-#ifdef Q_WS_WIN32
+#if defined Q_WS_WIN32
         const wchar_t *dump_path, const wchar_t *id,
 #else
         const char *dump_path, const char *id,
@@ -66,8 +66,7 @@ bool callback(
                      MDRawAssertionInfo *assertion,
 #endif
                      bool succeeded) {
-    printf("true");
-    qWarning("%s", dump_path);
+
   if (succeeded) {
     qWarning("Dump is successfull");
   } else {
@@ -83,11 +82,13 @@ int main(int argc, char** argv)
 
 
 
-#ifdef Q_WS_WIN32
+#if defined(Q_WS_WIN32) && defined(_MSC_VER)
     google_breakpad::ExceptionHandler eh(L".", NULL, callback, NULL,
         google_breakpad::ExceptionHandler::HANDLER_ALL );
 
-#else
+#endif
+
+#ifdef Q_WS_LINUX
     google_breakpad::ExceptionHandler eh(".", NULL, callback, NULL, true);
 #endif
 
