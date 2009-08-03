@@ -22,6 +22,22 @@ static LodFiles static_lodFiles;
 
 // TODO: refactor
 
+hrLodEngineHandler::hrLodEngineHandler()
+{
+}
+
+hrLodEngineHandler::~hrLodEngineHandler()
+{
+    QHashIterator<QString, LodFile*> it(static_lodFiles);
+
+    while(it.hasNext())
+    {
+        LodFile *f = it.next().value();
+        delete f;
+    }
+    static_lodFiles.clear();
+}
+
 QAbstractFileEngine* hrLodEngineHandler::create(const QString &filename) const
 {
     if ( filename.size() > 0 && filename.startsWith("lod:/", Qt::CaseInsensitive) )

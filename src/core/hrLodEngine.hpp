@@ -42,6 +42,7 @@ struct LodFile
     LodFat fat;
     QFile *file;
     LodFile() : file(NULL){}
+    ~LodFile() { delete file; }
 };
 
 typedef QHash<QString, LodFile*> LodFiles;
@@ -85,5 +86,7 @@ private:
 class hrLodEngineHandler : public QAbstractFileEngineHandler
 {
 public:
+    hrLodEngineHandler();
+    ~hrLodEngineHandler();
     QAbstractFileEngine *create(const QString &fileName) const;
 };

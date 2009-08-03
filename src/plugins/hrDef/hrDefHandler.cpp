@@ -565,7 +565,7 @@ hrDefHandler::hrDefHandler(QIODevice *device)
 
 hrDefHandler::~hrDefHandler()
 {
-    if (!dr) delete dr;
+    delete dr;
 }
 
 bool hrDefHandler::read(QImage *image)
