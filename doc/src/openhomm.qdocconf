@@ -1,0 +1,61 @@
+project                 = OpenHoMM
+versionsym              = 1.0.0.64
+#version                 = 1.0.0.64
+description             = OpenHoMM Documentation
+url                     = http://openheroes.draghost.ru/doc/index.html
+modules					= 
+
+qhp.projects            = OpenHoMM
+
+qhp.OpenHoMM.file            = openhomm.qhp
+qhp.OpenHoMM.namespace       = org.openhomm.100
+qhp.OpenHoMM.virtualFolder   = qdoc
+qhp.OpenHoMM.indexTitle      = OpenHoMM Reference Documentation
+qhp.OpenHoMM.indexRoot       = 
+qhp.OpenHoMM.extraFiles      = classic.css
+
+qhp.OpenHoMM.filterAttributes = openhomm 1.0.0 ohrefdoc
+qhp.OpenHoMM.customFilters.openhomm.name = OpenHoMM 1.0.0
+qhp.OpenHoMM.customFilters.openhomm.filterAttributes = openhomm 1.0.0
+qhp.OpenHoMM.subprojects = classes overviews examples
+qhp.OpenHoMM.subprojects.classes.title = Classes
+qhp.OpenHoMM.subprojects.classes.indexTitle = OpenHoMM's Classes
+qhp.OpenHoMM.subprojects.classes.selectors = class fake:headerfile
+qhp.OpenHoMM.subprojects.classes.sortPages = true
+qhp.OpenHoMM.subprojects.overviews.title = Overviews
+qhp.OpenHoMM.subprojects.overviews.indexTitle = All Overviews and HOWTOs
+qhp.OpenHoMM.subprojects.overviews.selectors = fake:page,group,module
+qhp.OpenHoMM.subprojects.examples.title = Tutorials and Examples
+qhp.OpenHoMM.subprojects.examples.indexTitle = OpenHoMM Examples
+qhp.OpenHoMM.subprojects.examples.selectors = fake:example
+language				= Cpp
+
+headerdirs				= $OPENHOMMDIR/src
+sourcedirs				= $OPENHOMMDIR/src $OPENHOMMDIR/doc/src
+sources.fileextensions	= "*.cpp *.qdoc *.mm"
+
+outputdir				= $OPENHOMMDIR/doc/html
+tagfile					= $OPENHOMMDIR/doc/html/openhomm.tags
+base					= file:$OPENHOMMDIR/doc/html
+
+HTML.stylesheets        = classic.css
+HTML.postheader         = "<table border=\"0\" cellpadding=\"0\" cellspacing=\"0\" width=\"100%\">\n" \
+                          "<tr>\n" \
+                          "<td width=\"1\">&nbsp;&nbsp;</td>" \
+                          "<td class=\"postheader\" valign=\"center\">" \
+                          "<a href=\"index.html\">" \
+                          "<font color=\"#004faf\">Home</font></a>&nbsp;&middot;" \
+                          " <a href=\"classes.html\">" \
+                          "<font color=\"#004faf\">All&nbsp;Classes</font></a>&nbsp;&middot;" \
+                          " <a href=\"groups.html\">" \
+                          "<font color=\"#004faf\">Grouped&nbsp;Classes</font></a>&nbsp;&middot;" \
+                          " <a href=\"functions.html\">" \
+                          "<font color=\"#004faf\">Functions</font></a>" \
+                          "</td>\n" \
+                          "</tr></table>"
+
+HTML.footer             = "<p /><address><hr /><div align=\"center\">\n" \
+                          "<table width=\"100%\" cellspacing=\"0\" border=\"0\"><tr class=\"address\">\n" \
+                          "<td width=\"50%\" align=\"left\">Copyright &copy; 2009 OpenHoMM Developer Team</td>\n" \
+                          "<td width=\"50%\" align=\"right\"><div align=\"right\">OpenHoMM \\version</div></td>\n" \
+                          "</tr></table></div></address>"

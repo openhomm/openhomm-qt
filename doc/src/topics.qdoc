@@ -1,0 +1,110 @@
+/****************************************************************************
+**
+** Copyright (C) 2009 Nokia Corporation and/or its subsidiary(-ies).
+** Contact: Nokia Corporation (qt-info@nokia.com)
+**
+** This file is part of the documentation of the Qt Toolkit.
+**
+** $QT_BEGIN_LICENSE:LGPL$
+** Commercial Usage
+** Licensees holding valid Qt Commercial licenses may use this file in
+** accordance with the Qt Commercial License Agreement provided with the
+** Software or, alternatively, in accordance with the terms contained in
+** a written agreement between you and Nokia.
+**
+** GNU Lesser General Public License Usage
+** Alternatively, this file may be used under the terms of the GNU Lesser
+** General Public License version 2.1 as published by the Free Software
+** Foundation and appearing in the file LICENSE.LGPL included in the
+** packaging of this file.  Please review the following information to
+** ensure the GNU Lesser General Public License version 2.1 requirements
+** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+**
+** In addition, as a special exception, Nokia gives you certain
+** additional rights. These rights are described in the Nokia Qt LGPL
+** Exception version 1.0, included in the file LGPL_EXCEPTION.txt in this
+** package.
+**
+** GNU General Public License Usage
+** Alternatively, this file may be used under the terms of the GNU
+** General Public License version 3.0 as published by the Free Software
+** Foundation and appearing in the file LICENSE.GPL included in the
+** packaging of this file.  Please review the following information to
+** ensure the GNU General Public License version 3.0 requirements will be
+** met: http://www.gnu.org/copyleft/gpl.html.
+**
+** If you are unsure which license is appropriate for your use, please
+** contact the sales department at http://www.qtsoftware.com/contact.
+** $QT_END_LICENSE$
+**
+****************************************************************************/
+
+/*!
+\group topics
+\title Topics
+
+This page provides a collection of documents grouped by topic.
+
+The \l{Grouped Classes} page contains a similar list of groups for
+OpenHoMM's class documentation.
+
+\generatelist{related}
+*/
+
+/*!
+\group architecture
+\title Architecture
+\ingroup topics
+\brief Documents about OpenHoMM's architecture and design.
+
+\generatelist{related}
+*/
+
+/*!
+\group classlists
+\title Class and Function Indexes
+\ingroup topics
+\brief Collections of classes and functions grouped together into lists.
+
+The following documents contain collections of classes, grouped by
+subject area or related to particular functionality, or comprehensive
+lists of classes and functions.
+
+\generatelist{related}
+*/
+
+/*!
+\group howto
+\title How To Guides and Learning Resources
+\ingroup topics
+\brief Guides providing help on aspects of using OpenHoMM.
+
+These guides provide specific help about specific OpenHoMM-related topics.
+
+\generatelist{related}
+*/
+
+/*!
+\group platform-notes
+\title Platform-Specific Notes
+\ingroup topics
+\brief Documents describing platform-specific features of OpenHoMM.
+
+These documents describe platform-specific features provided by OpenHoMM, and
+discuss issues related to particular platforms and environments.
+
+\generatelist{related}
+*/
+
+/*!
+\group scripting
+\title Scripting with ECMAScript
+\ingroup topics
+\brief Guides and references covering application scripting with ECMAScript.
+
+OpenHoMM provides support for application scripting with ECMAScript.
+The following guides and references cover aspects of programming with
+ECMAScript and OpenHoMM.
+
+\generatelist{related}
+*/

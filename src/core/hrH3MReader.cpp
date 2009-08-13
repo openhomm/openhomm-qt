@@ -44,7 +44,10 @@ QByteArray unpack(const QString &filename)
 
     return array;
 }
-
+/*!
+  \class hrH3MReader
+  \brief The hrH3MReader class
+*/
 hrH3MReader::hrH3MReader() : ground(NULL), underground(NULL), objects(NULL), obj(NULL)
 {
 }

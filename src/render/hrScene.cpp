@@ -17,6 +17,10 @@
 #include "precompiled.hpp"
 #include "hrScene.hpp"
 
+/*!
+  \class hrScene
+  \brief The hrScene class
+*/
 void hrScene::addTileItem(int id, const QString &name)
 {
     if (!items_atlas.contains(id))

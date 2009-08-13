@@ -21,7 +21,6 @@
 static LodFiles static_lodFiles;
 
 // TODO: refactor
-
 hrLodEngineHandler::hrLodEngineHandler()
 {
 }
@@ -46,6 +45,11 @@ QAbstractFileEngine* hrLodEngineHandler::create(const QString &filename) const
     }
     return 0;
 }
+
+/*!
+  \class hrLodEngine
+  \brief The hrLodEngine class
+*/
 
 hrLodEngine::hrLodEngine(const QString& path) : QAbstractFileEngine(), _lf(NULL), _buffer(NULL)
 {

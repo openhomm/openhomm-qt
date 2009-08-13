@@ -17,6 +17,10 @@
 #include "precompiled.hpp"
 #include "hrGraphicsItem.hpp"
 
+/*!
+  \class hrGraphicsItem
+  \brief The hrGraphicsItem class
+*/
 hrGraphicsItem::hrGraphicsItem() : curFrame(0), curBlock(0)
 {
     isNextFrame = false;

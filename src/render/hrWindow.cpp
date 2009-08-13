@@ -23,6 +23,10 @@
 #include "hrFullscreenWrapper.hpp"
 #include "hrH3MReader.hpp"
 
+/*!
+  \class hrWindow
+  \brief The hrWindow class
+*/
 hrWindow::hrWindow(QMainWindow *parent): QMainWindow(parent), scene(NULL), w(NULL)
 {
     setWindowTitle("OpenHoMM, fullscreen - F11, menu - F12");

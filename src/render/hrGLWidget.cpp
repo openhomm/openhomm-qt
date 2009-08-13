@@ -41,6 +41,11 @@
 #define GL_CLAMP_TO_EDGE 0x812F
 #endif
 
+/*!
+  \class hrGLWidget
+  \brief The hrGLWidget class
+*/
+
 hrGLWidget::hrGLWidget(QWidget *parent, hrScene *scene)
  : QGLWidget(parent)
  , scene(scene)

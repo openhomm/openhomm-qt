@@ -16,3 +16,8 @@
 //
 #include "precompiled.hpp"
 #include "hrTile.hpp"
+
+/*!
+  \class hrTile
+  \brief The hrTile class
+*/

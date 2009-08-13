@@ -17,6 +17,10 @@
 #include "precompiled.hpp"
 #include "hrSceneObject.hpp"
 
+/*!
+  \class hrSceneObject
+  \brief The hrSceneObject class
+*/
 bool hrSceneObject::operator<(const hrSceneObject& s) const
 {
     if ( this->isOverlay() && !s.isOverlay() )

@@ -18,6 +18,10 @@
 #include "hrTileAtlas.hpp"
 #include "hrCoord.hpp"
 
+/*!
+  \class hrTileAtlas
+  \brief The hrTileAtlas class
+*/
 hrTileAtlas::hrTileAtlas(int dim)
     : x(0), y(0), dim(dim), curFrame(0)
 {

@@ -28,7 +28,10 @@ QAbstractFileEngine* hrSndEngineHandler::create(const QString &filename) const
     }
     return 0;
 }
-
+/*!
+  \class hrSndEngine
+  \brief The hrSndEngine class
+*/
 hrSndEngine::hrSndEngine(const QString& path) : QAbstractFileEngine(), _sf(NULL), _buffer(NULL)
 {
     this->setFileName(path);
