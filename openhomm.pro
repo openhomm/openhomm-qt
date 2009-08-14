@@ -28,7 +28,8 @@ OPENHOMM_PATCH = 0
     system($$VERSION_RELEASE_STR >> src/version.hpp)
     system($$VERSION_STR  >> src/version.hpp)
 }
-
+OPENHOMMDIR = $$PWD
+include(doc/doc.pri)
 TEMPLATE = subdirs
 SUBDIRS = src src/plugins tools
 

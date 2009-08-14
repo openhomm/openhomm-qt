@@ -17,17 +17,7 @@ qhp.OpenHoMM.extraFiles      = classic.css
 qhp.OpenHoMM.filterAttributes = openhomm 1.0.0 ohrefdoc
 qhp.OpenHoMM.customFilters.openhomm.name = OpenHoMM 1.0.0
 qhp.OpenHoMM.customFilters.openhomm.filterAttributes = openhomm 1.0.0
-qhp.OpenHoMM.subprojects = classes overviews examples
-qhp.OpenHoMM.subprojects.classes.title = Classes
-qhp.OpenHoMM.subprojects.classes.indexTitle = OpenHoMM's Classes
-qhp.OpenHoMM.subprojects.classes.selectors = class fake:headerfile
-qhp.OpenHoMM.subprojects.classes.sortPages = true
-qhp.OpenHoMM.subprojects.overviews.title = Overviews
-qhp.OpenHoMM.subprojects.overviews.indexTitle = All Overviews and HOWTOs
-qhp.OpenHoMM.subprojects.overviews.selectors = fake:page,group,module
-qhp.OpenHoMM.subprojects.examples.title = Tutorials and Examples
-qhp.OpenHoMM.subprojects.examples.indexTitle = OpenHoMM Examples
-qhp.OpenHoMM.subprojects.examples.selectors = fake:example
+
 language				= Cpp
 
 headerdirs				= $OPENHOMMDIR/src
