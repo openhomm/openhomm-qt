@@ -490,25 +490,19 @@ void hrGLWidget::ImageToPOT(hrGraphicsItem *item, const QImage &im) const
     }
 }
 
-// returns the highest number closest to v, which is a power of 2
+/*!
+  returns the highest number closest to v, which is a power of 2
+
+  \sa http://graphics.stanford.edu/~seander/bithacks.html#RoundUpPowerOf2
+*/
 qint32 hrGLWidget::NearestGLTextureSize(qint32 v) const
 {
-    qint32 n = 0, last = 0;
-    qint32 s;
-
-    for (s = 0; s < 32; ++s)
-    {
-        if (((v >> s) & 1) == 1)
-        {
-            ++n;
-            last = s;
-        }
-    }
-
-    if (n > 1)
-        s = 1 << (last + 1);
-    else
-        s = 1 << last;
-
-    return qMin(s, textureMaxDim);
+    v--;
+    v |= v >> 1;
+    v |= v >> 2;
+    v |= v >> 4;
+    v |= v >> 8;
+    v |= v >> 16;
+    v++;
+    return v;
 }
