@@ -22,7 +22,7 @@
 
 #if defined(Q_WS_WIN32) && defined(_MSC_VER)
 #   include "client/windows/handler/exception_handler.h"
-#elif defined(Q_WS_X11)
+#elif Q_WS_LINUX && !defined(__x86_64__)
 #   include "client/linux/handler/exception_handler.h"
 #endif
 
@@ -54,6 +54,7 @@ void checkPlugins()
     }
 }
 
+#ifndef __x86_64__
 bool callback(
 #if defined Q_WS_WIN32
         const wchar_t *dump_path, const wchar_t *id,
@@ -74,6 +75,7 @@ bool callback(
   }
   return succeeded;
 }
+#endif
 
 int main(int argc, char** argv)
 {
@@ -88,7 +90,7 @@ int main(int argc, char** argv)
 
 #endif
 
-#ifdef Q_WS_LINUX
+#if defined(Q_WS_LINUX) && !defined(__x86_64__)
     google_breakpad::ExceptionHandler eh(".", NULL, callback, NULL, true);
 #endif
 

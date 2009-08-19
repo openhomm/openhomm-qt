@@ -11,6 +11,7 @@ win32-msvc2* {
 }
 
 linux-* {
+    !contains(QT_ARCH, x86_64) {
     SOURCES +=  src/client/linux/handler/exception_handler.cc \
                 src/client/linux/handler/minidump_generator.cc \
                 src/client/linux/handler/linux_thread.cc \
@@ -20,4 +21,5 @@ linux-* {
                 src/common/md5.c \
                 src/common/convert_UTF.c \
                 src/common/string_conversion.cc
+	}
 }
