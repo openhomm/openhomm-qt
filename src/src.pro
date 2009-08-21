@@ -13,12 +13,16 @@ INCLUDEPATH += . \
     render \
     core
 
-PRECOMPILED_HEADER = precompiled.hpp
-SOURCES += main.cpp \
-    hrApplication.cpp
 include(gui/gui.pri)
 include(render/render.pri)
 include(core/core.pri)
+
+PRECOMPILED_HEADER = precompiled.hpp
+
+SOURCES += main.cpp \
+    hrApplication.cpp \
+
 HEADERS += hrApplication.hpp \
     precompiled.hpp
+
 QMAKE_DISTCLEAN += version.hpp

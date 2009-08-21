@@ -26,3 +26,4 @@
 #include "hrPlatform.hpp"
 
 #include "hrString.hpp"
+#include "hrSettings.hpp"

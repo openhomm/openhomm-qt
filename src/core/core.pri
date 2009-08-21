@@ -13,7 +13,8 @@ HEADERS += hrString.hpp \
     hrTile.hpp \
     hrObject.hpp \
     hrSceneObject.hpp \
-    hrPlatform.hpp
+    hrPlatform.hpp \
+    hrSettings.hpp
 SOURCES += hrString.cpp \
     hrLodEngine.cpp \
     hrLodEngineIterator.cpp \
@@ -22,4 +23,5 @@ SOURCES += hrString.cpp \
     hrH3MReader.cpp \
     hrTile.cpp \
     hrObject.cpp \
-    hrSceneObject.cpp
+    hrSceneObject.cpp \
+    hrSettings.cpp

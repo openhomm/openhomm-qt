@@ -23,28 +23,6 @@
 QString hrApplication::mapName = "";
 
 /*!
-  \class hrSettings
-  \brief The hrSettings class stores settings for further manipulation. Also, it loads/saves.
-  Used the simple singleton pattern. Non-thread safe.
-*/
-
-/*!
-  \fn static hrSettings& hrSettings::get()
-  Returns a reference to the application's hrSettings instance.
-  \sa hrApplication
-*/
-
-/*!
-  \fn void hrSettings::load()
-  Load settings from INI file.
-*/
-
-/*!
-  \fn void hrSettings::save()
-  Save settings to INI file.
-*/
-
-/*!
   \class hrApplication
 */
 
@@ -57,6 +35,7 @@ hrApplication::hrApplication(int &argc, char **argv):
         lodHandler(NULL),
         sndHandler(NULL)
 {
+    hrSettings::get();
     mapName = "";
     this->createFileEngineHandlers();
 
@@ -64,17 +43,15 @@ hrApplication::hrApplication(int &argc, char **argv):
         mapName = argv[1];
         qDebug() << mapName;
     }
-    hrSettings::get().load();
 }
 
 /*!
-  Destroys the hrApplication object and saves application settings.
+  Destroys the hrApplication object.
   \sa hrSettings
   */
 hrApplication::~hrApplication()
 {
     this->destroyFileEngineHandlers();
-    hrSettings::get().save();
 }
 
 void hrApplication::createFileEngineHandlers()

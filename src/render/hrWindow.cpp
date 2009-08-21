@@ -33,8 +33,8 @@ hrWindow::hrWindow(QMainWindow *parent): QMainWindow(parent), scene(NULL), w(NUL
 
     createMenu();
 
-    int gameX = hrSettings::get().gameX,
-        gameY = hrSettings::get().gameY;
+    int gameX = hrSettings::get().x(),
+        gameY = hrSettings::get().y();
 
     if ( gameX > 0 && gameY > 0 )
         move(gameX, gameY);
@@ -42,10 +42,10 @@ hrWindow::hrWindow(QMainWindow *parent): QMainWindow(parent), scene(NULL), w(NUL
     hrH3MReader reader;
 
     QString filename = hrApplication::getMapName();
-    qDebug() << filename;
+
     bool isMapLoad;
     if ( filename.isEmpty() )
-        isMapLoad = reader.load("maps/Back For Revenge.h3m");
+        isMapLoad = reader.load("Maps/Back For Revenge.h3m");
     else
         isMapLoad = reader.load(filename);
 
@@ -76,14 +76,14 @@ hrWindow::hrWindow(QMainWindow *parent): QMainWindow(parent), scene(NULL), w(NUL
     setCentralWidget(w);
     resize(800,600);
 
-    if ( hrSettings::get().isGameFullscreen )
+    if ( hrSettings::get().isFullscreen() )
         {
         QSize windowmode_resolution(800,600);
         hrFullscreenWrapper::enableFullscreen(windowmode_resolution);
         setWindowState(windowState() | Qt::WindowFullScreen );
         menuBar->hide();
         }
-    else if ( hrSettings::get().isGameShowMenu )
+    else if ( hrSettings::get().isShowmenu() )
         menuBar->show();
 
     w->startAnimate(200);
@@ -104,8 +104,8 @@ void hrWindow::keyPressEvent(QKeyEvent *event)
 {
     if (event->key() == Qt::Key_F11)
     {
-        hrSettings::get().isGameFullscreen = !hrSettings::get().isGameFullscreen;
-        if(hrSettings::get().isGameFullscreen)
+        hrSettings::get().setFullscreen( !hrSettings::get().isFullscreen() );
+        if(hrSettings::get().isFullscreen())
         {
             QSize windowmode_resolution(800,600);
             hrFullscreenWrapper::enableFullscreen(windowmode_resolution);
@@ -117,14 +117,14 @@ void hrWindow::keyPressEvent(QKeyEvent *event)
             hrFullscreenWrapper::disableFullscreen();
             setWindowState(windowState() ^ Qt::WindowFullScreen );
 
-            if ( hrSettings::get().isGameShowMenu )
+            if ( hrSettings::get().isShowmenu() )
                 menuBar->show();
         }
     }
     if (event->key() == Qt::Key_F12)
     {
-        hrSettings::get().isGameShowMenu = !hrSettings::get().isGameShowMenu;
-        if ( hrSettings::get().isGameShowMenu && !hrSettings::get().isGameFullscreen)
+        hrSettings::get().setShowmenu(!hrSettings::get().isShowmenu());
+        if ( hrSettings::get().isShowmenu() && !hrSettings::get().isFullscreen())
             menuBar->show();
         else
             menuBar->hide();
@@ -133,10 +133,10 @@ void hrWindow::keyPressEvent(QKeyEvent *event)
 
 void hrWindow::moveEvent(QMoveEvent *event)
 {
-    if (hrSettings::get().isGameFullscreen)
+    if (hrSettings::get().isFullscreen())
     {
-        hrSettings::get().gameX = event->pos().x();
-        hrSettings::get().gameY = event->pos().y();
+        hrSettings::get().setX(event->pos().x());
+        hrSettings::get().setY(event->pos().y());
     }
 }
 
