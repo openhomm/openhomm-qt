@@ -2,6 +2,9 @@ DESTDIR     = $$PWD/bin/$$(QMAKESPEC)
 OBJECTS_DIR = $$PWD/obj/$$(QMAKESPEC)
 MOC_DIR     = $$PWD/moc/$$(QMAKESPEC)
 RCC_DIR     = $$PWD/rcc/$$(QMAKESPEC)
+UI_DIR      = $$PWD/ui
+
+CONFIG += precompile_header debug_and_release debug_and_release_target
 
 CONFIG(debug,debug|release) { 
     CONFIG += console

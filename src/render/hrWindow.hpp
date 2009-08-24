@@ -16,10 +16,6 @@
 //
 #pragma once
 
-#include <QMainWindow>
-
-class QAction;
-class QMenuBar;
 class hrGLWidget;
 class hrScene;
 class hrWindow : public QMainWindow

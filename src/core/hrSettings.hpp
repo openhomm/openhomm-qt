@@ -16,8 +16,6 @@
 //
 #pragma once
 
-#include <QObject>
-
 // List settings from Heroes 3. Delete later
 
 //Animate SpellBook=dword:00000001
