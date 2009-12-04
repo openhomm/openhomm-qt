@@ -18,10 +18,12 @@
 
 #include <qimageiohandler.h>
 
+QT_BEGIN_NAMESPACE
 class QImage;
 class QByteArray;
 class QIODevice;
 class QVariant;
+QT_END_NAMESPACE
 class DefReader;
 
 class hrDefHandler : public QImageIOHandler

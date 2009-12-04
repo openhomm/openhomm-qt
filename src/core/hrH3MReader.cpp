@@ -368,7 +368,7 @@ hrSceneObject hrH3MReader::getObject(quint32 index) const
                          , QPoint(obj[index].coord[0], obj[index].coord[1])
                          );
 }
-
+QT_BEGIN_NAMESPACE
 QDataStream &operator<<(QDataStream &out, const BasicParametres_t &)
 {
     qWarning("%s is not yet implemented", Q_FUNC_INFO);
@@ -427,6 +427,7 @@ QDataStream &operator>>(QDataStream &in, PlayerAttributes_t &p)
     }
     return in;
 }
+QT_END_NAMESPACE
 PlayerAttributes_t::PlayerAttributes_t()
 {
 }
@@ -435,7 +436,7 @@ PlayerAttributes_t::~PlayerAttributes_t()
 {
     heroes.clear();
 }
-
+QT_BEGIN_NAMESPACE
 QDataStream &operator<<(QDataStream &out, const SpecialVictoryCondition_t &)
 {
     qWarning("%s is not yet implemented", Q_FUNC_INFO);
@@ -696,3 +697,4 @@ QDataStream &operator>>(QDataStream &in, HeroOptions_enabled &h)
 
     return in;
 }
+QT_END_NAMESPACE

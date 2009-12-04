@@ -55,8 +55,9 @@
 //Video Subtitles=dword:00000001
 //Walk Speed=dword:00000002
 //Window Scroll Speed=dword:00000001
-
+QT_BEGIN_NAMESPACE
 class QSettings;
+QT_END_NAMESPACE
 
 class hrSettings : public QObject
 {

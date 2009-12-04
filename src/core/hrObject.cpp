@@ -17,6 +17,7 @@
 #include "precompiled.hpp"
 #include "hrObject.hpp"
 
+QT_BEGIN_NAMESPACE
 //QDataStream &operator<<(QDataStream &out, const hrObject &)
 //{
 //    qWarning("%s is not yet implemented", Q_FUNC_INFO);
@@ -629,3 +630,4 @@ QDataStream &operator>>(QDataStream &in, ObjectProphet &s)
 
     return in;
 }
+QT_END_NAMESPACE

@@ -32,15 +32,19 @@ struct BasicParametres_t {
     quint8  difficult;
     quint8  levelLimit;
 };
+QT_BEGIN_NAMESPACE
 QDataStream &operator<<(QDataStream &, const BasicParametres_t &);
 QDataStream &operator>>(QDataStream &, BasicParametres_t &);
+QT_END_NAMESPACE
 
 struct Hero_t {
     quint8 portret;
     hrString name;
 };
+QT_BEGIN_NAMESPACE
 QDataStream &operator<<(QDataStream &, const Hero_t &);
 QDataStream &operator>>(QDataStream &, Hero_t &);
+QT_END_NAMESPACE
 
 struct PlayerAttributes_t {
     PlayerAttributes_t();
@@ -87,8 +91,10 @@ struct PlayerAttributes_t {
     QVector<Hero_t> heroes;
 //  }
 };
+QT_BEGIN_NAMESPACE
 QDataStream &operator<<(QDataStream &, const PlayerAttributes_t &);
 QDataStream &operator>>(QDataStream &, PlayerAttributes_t &);
+QT_END_NAMESPACE
 
 struct SpecialVictoryCondition_t
 {
@@ -131,8 +137,10 @@ struct SpecialVictoryCondition_t
         };
     };
 };
+QT_BEGIN_NAMESPACE
 QDataStream &operator<<(QDataStream &, const SpecialVictoryCondition_t &);
 QDataStream &operator>>(QDataStream &, SpecialVictoryCondition_t &);
+QT_END_NAMESPACE
 
 struct SpecialLossCondition_t
 {
@@ -145,8 +153,10 @@ struct SpecialLossCondition_t
         quint16 days;
     };
 };
+QT_BEGIN_NAMESPACE
 QDataStream &operator<<(QDataStream &, const SpecialLossCondition_t &);
 QDataStream &operator>>(QDataStream &, SpecialLossCondition_t &);
+QT_END_NAMESPACE
 
 struct Teams_t
 {
@@ -155,8 +165,10 @@ struct Teams_t
     // if quantity > 0
     quint8 commands[8];
 };
+QT_BEGIN_NAMESPACE
 QDataStream &operator<<(QDataStream &, const Teams_t &);
 QDataStream &operator>>(QDataStream &, Teams_t &);
+QT_END_NAMESPACE
 
 struct TunedHero_t
 {
@@ -165,8 +177,10 @@ struct TunedHero_t
     hrString name;
     quint8 players;
 };
+QT_BEGIN_NAMESPACE
 QDataStream &operator<<(QDataStream &, const TunedHero_t &);
 QDataStream &operator>>(QDataStream &, TunedHero_t &);
+QT_END_NAMESPACE
 
 struct FreeHeroes_t
 {
@@ -178,45 +192,57 @@ struct FreeHeroes_t
 
     quint8 junk2[31];   // need more info
 };
+QT_BEGIN_NAMESPACE
 QDataStream &operator<<(QDataStream &, const FreeHeroes_t &);
 QDataStream &operator>>(QDataStream &, FreeHeroes_t &);
+QT_END_NAMESPACE
 
 struct Artefacts_t
 {
     quint8 artefacts[18];
 };
+QT_BEGIN_NAMESPACE
 QDataStream &operator<<(QDataStream &, const Artefacts_t &);
 QDataStream &operator>>(QDataStream &, Artefacts_t &);
+QT_END_NAMESPACE
 
 struct Spells_t
 {
     quint8 spells[9];
 };
+QT_BEGIN_NAMESPACE
 QDataStream &operator<<(QDataStream &, const Spells_t &);
 QDataStream &operator>>(QDataStream &, Spells_t &);
+QT_END_NAMESPACE
 
 struct SecSkills_t
 {
     quint8 skills[4];
 };
+QT_BEGIN_NAMESPACE
 QDataStream &operator<<(QDataStream &, const SecSkills_t &);
 QDataStream &operator>>(QDataStream &, SecSkills_t &);
+QT_END_NAMESPACE
 
 struct Rumor_t
 {
     hrString rumor_name;
     hrString rumor_text;
 };
+QT_BEGIN_NAMESPACE
 QDataStream &operator<<(QDataStream &, const Rumor_t &);
 QDataStream &operator>>(QDataStream &, Rumor_t &);
+QT_END_NAMESPACE
 
 struct Rumors_t
 {
     quint32 quantity;
     QVector<Rumor_t> rumors;
 };
+QT_BEGIN_NAMESPACE
 QDataStream &operator<<(QDataStream &, const Rumors_t &);
 QDataStream &operator>>(QDataStream &, Rumors_t &);
+QT_END_NAMESPACE
 
 struct HeroOptions_enabled {
     quint8 isExp;
@@ -280,8 +306,10 @@ struct HeroOptions_enabled {
     quint8 knowledge;
 //}
 };
+QT_BEGIN_NAMESPACE
 QDataStream &operator<<(QDataStream &, const HeroOptions_enabled &);
 QDataStream &operator>>(QDataStream &, HeroOptions_enabled &);
+QT_END_NAMESPACE
 
 //struct HeroOptions_t {
 //    int i;
