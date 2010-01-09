@@ -15,6 +15,7 @@ CONFIG(debug,debug|release) {
 }
 
 CONFIG(release, debug|release) {
+    CONFIG += console
     DESTDIR     = $$DESTDIR/release
     OBJECTS_DIR = $$OBJECTS_DIR/release
     MOC_DIR     = $$MOC_DIR/release

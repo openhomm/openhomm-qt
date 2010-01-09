@@ -17,34 +17,9 @@
 #include "precompiled.hpp"
 #include "hrLodEngineIterator.hpp"
 #include "hrLodEngine.hpp"
+#include "hrFilesystem.hpp"
 
-static LodFiles static_lodFiles;
-
-// TODO: refactor
-hrLodEngineHandler::hrLodEngineHandler()
-{
-}
-
-hrLodEngineHandler::~hrLodEngineHandler()
-{
-    QHashIterator<QString, LodFile*> it(static_lodFiles);
-
-    while(it.hasNext())
-    {
-        LodFile *f = it.next().value();
-        delete f;
-    }
-    static_lodFiles.clear();
-}
-
-QAbstractFileEngine* hrLodEngineHandler::create(const QString &filename) const
-{
-    if ( filename.size() > 0 && filename.startsWith("lod:/", Qt::CaseInsensitive) )
-    {
-        return new hrLodEngine(filename);
-    }
-    return 0;
-}
+LodFiles hrLodEngine::_cache;
 
 /*!
   \class hrLodEngine
@@ -54,15 +29,6 @@ QAbstractFileEngine* hrLodEngineHandler::create(const QString &filename) const
 hrLodEngine::hrLodEngine(const QString& path) : QAbstractFileEngine(), _lf(NULL), _buffer(NULL)
 {
     this->setFileName(path);
-    if ( ! _archivename.isEmpty() )
-    {
-        if ( static_lodFiles.find ( _archivename ) == static_lodFiles.end())
-        {
-            static_lodFiles.insert(_archivename, new LodFile);
-        }
-        _lf = static_lodFiles[_archivename];
-        preload_fat();
-    }
 }
 
 hrLodEngine::~hrLodEngine()
@@ -91,22 +57,20 @@ bool hrLodEngine::open(QIODevice::OpenMode flags)
     if ( flags & QIODevice::WriteOnly )
         qWarning("Write mode not supported. Ignored");
 
-    if ( static_lodFiles.find ( _archivename ) == static_lodFiles.end())
+
+    if ( _cache.find(_archivename) == _cache.end() )
     {
-        static_lodFiles.insert(_archivename, new LodFile);
+        qWarning("File %s not found in cache", qPrintable(_archivename));
+        return false;
     }
+    _lf = _cache[_archivename];
 
-    _lf = static_lodFiles[_archivename];
+    bool res = false;
 
-    bool res = preload_fat();
-
-    if ( res == true )
-    {
-        if ( !_filename.isEmpty() )
-            res = preload_file();
-        else
-            res = false;
-    }
+    if ( !_filename.isEmpty() )
+        res = preload_file();
+    else
+        res = false;
 
     return res;
 }
@@ -195,53 +159,6 @@ bool hrLodEngine::supportsExtension(Extension ext) const
     return ext == QAbstractFileEngine::AtEndExtension;
 }
 
-bool hrLodEngine::preload_fat()
-{
-    Q_ASSERT(_lf != NULL);
-    if ( _lf->file != NULL )
-    {
-        if ( _lf->file->isOpen() )
-        {
-            if ( !_lf->fat.isEmpty() )
-            {
-                return true;
-            }
-        }
-    }
-    else
-    {
-        _lf->file = new QFile(_archivename);
-
-        if ( _lf->file->open(QIODevice::ReadOnly) )
-        {
-            LodHeader head;
-            _lf->file->read((char *)&head, sizeof(head));
-            if ( head.magic != LOD_MAGIC )
-            {
-                setError(QFile::OpenError, QString("%1 is not LOD archive").arg(_archivename));
-                return false;
-            }
-
-            _lf->file->seek(0x5C);
-
-            for ( quint32 i = 0; i < head.files; ++i )
-            {
-                LodEntry entry;
-                _lf->file->read((char *)&entry, sizeof(entry));
-                _lf->fat.insert(QString(entry.name).toLower(), entry);
-            }
-
-            return true;
-        }
-        else
-        {
-            setError(QFile::OpenError, QString("Can't open: %1").arg(_archivename));
-            return false;
-        }
-    }
-    return false;
-}
-
 bool hrLodEngine::preload_file()
 {
     if ( _buffer == NULL )
@@ -278,4 +195,39 @@ bool hrLodEngine::preload_file()
     }
 
     return false;
+}
+
+void hrLodEngine::fillInternalCache(const QString &filename)
+{
+    LodFile* lf = new LodFile;
+
+    lf->file = new QFile(filename);
+
+    if ( lf->file->open(QIODevice::ReadOnly) )
+    {
+        LodHeader head;
+        lf->file->read((char *)&head, sizeof(head));
+        if ( head.magic != LOD_MAGIC )
+        {
+            qCritical("%s is not LOD archive", filename.toAscii().data());
+            return;
+        }
+
+        lf->file->seek(0x5C);
+
+        for ( quint32 i = 0; i < head.files; ++i )
+        {
+            LodEntry entry;
+            lf->file->read((char *)&entry, sizeof(entry));
+            lf->fat.insert(QString(entry.name).toLower(), entry);
+            hrFilesystem::fillGeneralCache(QString(entry.name).toLower(), filename);
+        }
+        _cache.insert(filename, lf);
+    }
+    else
+    {
+        qCritical("Can't open %s", filename.toAscii().data());
+        delete lf->file;
+        delete lf;
+    }
 }

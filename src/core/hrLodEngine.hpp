@@ -46,6 +46,7 @@ struct LodFile
 };
 
 typedef QHash<QString, LodFile*> LodFiles;
+typedef QHashIterator<QString, LodFile*> LodFilesIterator;
 
 class hrLodEngine: public QAbstractFileEngine
 {
@@ -72,6 +73,8 @@ public:
     virtual Iterator *beginEntryList(QDir::Filters filters, const QStringList &filterNames);
 
     bool supportsExtension(Extension) const;
+
+    static void fillInternalCache(const QString &filename);
 private:
     bool preload_fat();
     bool preload_file();
@@ -81,12 +84,6 @@ private:
     QString _filename, _archivename;
     QBuffer *_buffer;
     bool compressed;
-};
 
-class hrLodEngineHandler : public QAbstractFileEngineHandler
-{
-public:
-    hrLodEngineHandler();
-    ~hrLodEngineHandler();
-    QAbstractFileEngine *create(const QString &fileName) const;
+    static LodFiles _cache;
 };

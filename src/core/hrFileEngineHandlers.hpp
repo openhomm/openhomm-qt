@@ -13,32 +13,22 @@
 //
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
-//
 #pragma once
 
-class hrLodEngineHandler;
-class hrSndEngineHandler;
-class hrVfsEngineHandler;
-
-class hrApplication : public QApplication
+class hrSndEngineHandler : public QAbstractFileEngineHandler
 {
-    Q_OBJECT
 public:
-    hrApplication(int &argc, char **argv);
-    ~hrApplication();
-    static QString getMapName()
-    {
-        return mapName;
-    }
-private:
-    void createFileEngineHandlers();
-    void destroyFileEngineHandlers();
-    void loadSettings();
-// data
-private:
-    hrLodEngineHandler *lodHandler;
-    hrSndEngineHandler *sndHandler;
-    hrVfsEngineHandler *vfsHandler;
+    QAbstractFileEngine *create(const QString &fileName) const;
+};
 
-    static QString mapName;
+class hrLodEngineHandler : public QAbstractFileEngineHandler
+{
+public:
+    QAbstractFileEngine *create(const QString &fileName) const;
+};
+
+class hrVfsEngineHandler : public QAbstractFileEngineHandler
+{
+public:
+    QAbstractFileEngine *create(const QString &fileName) const;
 };
