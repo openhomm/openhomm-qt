@@ -69,8 +69,6 @@ bool hrLodEngine::open(QIODevice::OpenMode flags)
 
     if ( !_filename.isEmpty() )
         res = preloadFile();
-    else
-        res = false;
 
     return res;
 }
