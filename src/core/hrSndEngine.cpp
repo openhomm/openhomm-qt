@@ -20,14 +20,6 @@
 
 static SndFiles static_sndFiles;
 
-QAbstractFileEngine* hrSndEngineHandler::create(const QString &filename) const
-{
-    if ( filename.size() > 0 && filename.startsWith("snd:/", Qt::CaseInsensitive) )
-    {
-        return new hrSndEngine(filename);
-    }
-    return 0;
-}
 /*!
   \class hrSndEngine
   \brief The hrSndEngine class

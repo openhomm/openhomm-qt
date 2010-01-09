@@ -16,29 +16,21 @@
 //
 #pragma once
 
-class hrLodEngineHandler;
-class hrSndEngineHandler;
-class hrVfsEngineHandler;
+typedef QHash<QString, QString> fileSystemCache;
+typedef QHashIterator<QString, QString> fileSystemCacheIterator;
 
-class hrApplication : public QApplication
+class hrFilesystem
 {
-    Q_OBJECT
 public:
-    hrApplication(int &argc, char **argv);
-    ~hrApplication();
-    static QString getMapName()
-    {
-        return mapName;
-    }
-private:
-    void createFileEngineHandlers();
-    void destroyFileEngineHandlers();
-    void loadSettings();
-// data
-private:
-    hrLodEngineHandler *lodHandler;
-    hrSndEngineHandler *sndHandler;
-    hrVfsEngineHandler *vfsHandler;
+    hrFilesystem();
+    ~hrFilesystem();
 
-    static QString mapName;
+    bool mount(const QString &path);
+    bool umount(const QString &path);
+
+    static void fillGeneralCache(const QString& filename, const QString &archive);
+    static bool findInCache(const QString& filename, QString &archive);
+
+private:
+    static fileSystemCache _cache;
 };

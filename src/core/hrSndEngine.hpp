@@ -64,9 +64,3 @@ private:
     QString _filename, _archivename;
     QBuffer *_buffer;
 };
-
-class hrSndEngineHandler : public QAbstractFileEngineHandler
-{
-public:
-    QAbstractFileEngine *create(const QString &fileName) const;
-};

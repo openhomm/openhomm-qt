@@ -17,7 +17,7 @@
 #include "precompiled.hpp"
 #include "hrApplication.hpp"
 #include "hrH3MReader.hpp"
-
+#include "hrFilesystem.hpp"
 #include "hrWindow.hpp"
 
 #if defined(Q_WS_WIN32) && defined(_MSC_VER)
@@ -82,8 +82,6 @@ int main(int argc, char** argv)
     QT_REQUIRE_VERSION(argc, argv, "4.5.0");
     qInstallMsgHandler(myMessageOutput);
 
-
-
 #if defined(Q_WS_WIN32) && defined(_MSC_VER)
     google_breakpad::ExceptionHandler eh(L".", NULL, callback, NULL,
         google_breakpad::ExceptionHandler::HANDLER_ALL );
@@ -97,6 +95,11 @@ int main(int argc, char** argv)
     hrApplication app(argc, argv);
 
     checkPlugins();
+
+    hrFilesystem fs;
+
+    fs.mount("Data/h3sprite.lod");
+    fs.mount("data/h3bitmap.lod");
 
     hrWindow w;
     w.show();

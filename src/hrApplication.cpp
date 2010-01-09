@@ -17,8 +17,7 @@
 #include "precompiled.hpp"
 #include "hrApplication.hpp"
 #include "hrPushButton.hpp"
-#include "hrLodEngine.hpp"
-#include "hrSndEngine.hpp"
+#include "hrFileEngineHandlers.hpp"
 
 QString hrApplication::mapName = "";
 
@@ -33,7 +32,8 @@ QString hrApplication::mapName = "";
 hrApplication::hrApplication(int &argc, char **argv):
         QApplication(argc, argv),
         lodHandler(NULL),
-        sndHandler(NULL)
+        sndHandler(NULL),
+        vfsHandler(NULL)
 {
     hrSettings::get();
     mapName = "";
@@ -58,12 +58,17 @@ void hrApplication::createFileEngineHandlers()
 {
     lodHandler = new hrLodEngineHandler;
     sndHandler = new hrSndEngineHandler;
+    vfsHandler = new hrVfsEngineHandler;
 }
 
 void hrApplication::destroyFileEngineHandlers()
 {
     delete lodHandler;
     lodHandler = NULL;
+
     delete sndHandler;
     sndHandler = NULL;
+
+    delete vfsHandler;
+    vfsHandler = NULL;
 }
