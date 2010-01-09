@@ -76,8 +76,7 @@ public:
 
     static void fillInternalCache(const QString &filename);
 private:
-    bool preload_fat();
-    bool preload_file();
+    bool preloadFile();
 
 private:
     LodFile* _lf;

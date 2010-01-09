@@ -68,7 +68,7 @@ bool hrLodEngine::open(QIODevice::OpenMode flags)
     bool res = false;
 
     if ( !_filename.isEmpty() )
-        res = preload_file();
+        res = preloadFile();
     else
         res = false;
 
@@ -159,7 +159,7 @@ bool hrLodEngine::supportsExtension(Extension ext) const
     return ext == QAbstractFileEngine::AtEndExtension;
 }
 
-bool hrLodEngine::preload_file()
+bool hrLodEngine::preloadFile()
 {
     if ( _buffer == NULL )
         _buffer = new QBuffer;
