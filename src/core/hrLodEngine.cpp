@@ -207,7 +207,7 @@ void hrLodEngine::fillInternalCache(const QString &filename)
         lf->file->read((char *)&head, sizeof(head));
         if ( head.magic != LOD_MAGIC )
         {
-            qCritical("%s is not LOD archive", filename.toAscii().data());
+            qCritical("%s is not LOD archive", qPrintable(filename));
             return;
         }
 
@@ -224,8 +224,7 @@ void hrLodEngine::fillInternalCache(const QString &filename)
     }
     else
     {
-        qCritical("Can't open %s", filename.toAscii().data());
-        delete lf->file;
+        qCritical("Can't open %s", qPrintable(filename));
         delete lf;
     }
 }
