@@ -17,8 +17,12 @@
 #include "precompiled.hpp"
 #include "hrFilesystem.hpp"
 #include "hrLodEngine.hpp"
+#include "hrSndEngine.hpp"
 
 fileSystemCache hrFilesystem::_cache;
+
+const char * MOUNT_SUCCESSFULLY = "Successfully mounted: %s";
+const char * MOUNT_FAILED       = "Failed to mount: %s";
 
 hrFilesystem::hrFilesystem()
 {
@@ -48,8 +52,22 @@ bool hrFilesystem::mount(const QString &path)
         }
     }
     normalPath.remove(normalPath.length() -1, 1); // remove last slash
-    qDebug("Try to mount: %s", qPrintable(normalPath));
-    hrLodEngine::fillInternalCache(normalPath);
+    qDebug("Trying to mount: %s", qPrintable(normalPath));
+
+    if ( normalPath.indexOf(".lod", 0, Qt::CaseInsensitive) != -1 )
+    {
+        if ( hrLodEngine::fillInternalCache(normalPath) )
+            qDebug(MOUNT_SUCCESSFULLY, qPrintable(normalPath));
+        else
+            qCritical(MOUNT_FAILED, qPrintable(normalPath));
+    }
+    else if ( normalPath.indexOf(".snd", 0, Qt::CaseInsensitive) != -1 )
+    {
+        if ( hrSndEngine::fillInternalCache(normalPath) )
+            qDebug(MOUNT_SUCCESSFULLY, qPrintable(normalPath));
+        else
+            qCritical(MOUNT_FAILED, qPrintable(normalPath));
+    }
 
     return true;
 }

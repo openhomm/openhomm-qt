@@ -31,6 +31,7 @@ struct SndFile
     QFile *file;
     SndFat fat;
     SndFile() : file(NULL){}
+    ~SndFile() { delete file; }
 };
 
 typedef QHash<QString, SndFile*> SndFiles;
@@ -56,11 +57,14 @@ public:
     virtual QString fileName(QAbstractFileEngine::FileName file) const;
     virtual Iterator *beginEntryList(QDir::Filters filters, const QStringList &filterNames);
     bool supportsExtension(Extension) const;
+
+    static bool fillInternalCache(const QString &filename);
 private:
-    bool preload_fat();
-    bool preload_file();
+    bool preloadFile();
 private:
     SndFile * _sf;
     QString _filename, _archivename;
     QBuffer *_buffer;
+
+    static SndFiles _cache;
 };

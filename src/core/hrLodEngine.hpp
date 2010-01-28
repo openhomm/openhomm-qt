@@ -74,7 +74,7 @@ public:
 
     bool supportsExtension(Extension) const;
 
-    static void fillInternalCache(const QString &filename);
+    static bool fillInternalCache(const QString &filename);
 private:
     bool preloadFile();
 

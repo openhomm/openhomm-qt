@@ -195,7 +195,7 @@ bool hrLodEngine::preloadFile()
     return false;
 }
 
-void hrLodEngine::fillInternalCache(const QString &filename)
+bool hrLodEngine::fillInternalCache(const QString &filename)
 {
     LodFile* lf = new LodFile;
 
@@ -208,7 +208,7 @@ void hrLodEngine::fillInternalCache(const QString &filename)
         if ( head.magic != LOD_MAGIC )
         {
             qCritical("%s is not LOD archive", qPrintable(filename));
-            return;
+            return false;
         }
 
         lf->file->seek(0x5C);
@@ -221,10 +221,12 @@ void hrLodEngine::fillInternalCache(const QString &filename)
             hrFilesystem::fillGeneralCache(QString(entry.name).toLower(), filename);
         }
         _cache.insert(filename, lf);
+        return true;
     }
     else
     {
         qCritical("Can't open %s", qPrintable(filename));
         delete lf;
     }
+    return false;
 }

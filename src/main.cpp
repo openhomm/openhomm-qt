@@ -100,6 +100,7 @@ int main(int argc, char** argv)
 
     fs.mount("Data/h3sprite.lod");
     fs.mount("data/h3bitmap.lod");
+    fs.mount("data/heroes3.snd");
 
     hrWindow w;
     w.show();

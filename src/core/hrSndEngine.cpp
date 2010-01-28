@@ -17,9 +17,9 @@
 #include "precompiled.hpp"
 #include "hrSndEngineIterator.hpp"
 #include "hrSndEngine.hpp"
+#include "hrFilesystem.hpp"
 
-static SndFiles static_sndFiles;
-
+SndFiles hrSndEngine::_cache;
 /*!
   \class hrSndEngine
   \brief The hrSndEngine class
@@ -27,15 +27,6 @@ static SndFiles static_sndFiles;
 hrSndEngine::hrSndEngine(const QString& path) : QAbstractFileEngine(), _sf(NULL), _buffer(NULL)
 {
     this->setFileName(path);
-    if ( ! _archivename.isEmpty() )
-    {
-        if ( static_sndFiles.find ( _archivename ) == static_sndFiles.end())
-        {
-            static_sndFiles.insert(_archivename, new SndFile);
-        }
-        _sf = static_sndFiles[_archivename];
-        preload_fat();
-    }
 }
 
 hrSndEngine::~hrSndEngine()
@@ -64,22 +55,18 @@ bool hrSndEngine::open(QIODevice::OpenMode flags)
     if ( flags & QIODevice::WriteOnly )
         qWarning("Write mode not supported. Ignored");
 
-    if ( static_sndFiles.find ( _archivename ) == static_sndFiles.end())
+    if ( _cache.find(_archivename) == _cache.end() )
     {
-        static_sndFiles.insert(_archivename, new SndFile);
+        qWarning("File %s not found in cache", qPrintable(_archivename));
+        return false;
     }
 
-    _sf = static_sndFiles[_archivename];
+    _sf = _cache[_archivename];
 
-    bool res = preload_fat();
+    bool res = false;
 
-    if ( res == true )
-    {
-        if ( !_filename.isEmpty() )
-            res = preload_file();
-        else
-            res = false;
-    }
+    if ( !_filename.isEmpty() )
+        res = preloadFile();
 
     return res;
 }
@@ -168,62 +155,49 @@ bool hrSndEngine::supportsExtension(Extension ext) const
     return ext == QAbstractFileEngine::AtEndExtension;
 }
 
-bool hrSndEngine::preload_fat()
+bool hrSndEngine::fillInternalCache(const QString &filename)
 {
-    Q_ASSERT(_sf != NULL);
-    if ( _sf->file != NULL )
+    SndFile *sf = new SndFile;
+    sf->file = new QFile(filename);
+
+    if ( sf->file->open(QIODevice::ReadOnly ) )
     {
-        if ( _sf->file->isOpen() )
+        quint32 count = 0;
+
+        if ( sf->file->read( (char *) &count, 4 ) == 4 )
         {
-            if ( !_sf->fat.isEmpty() )
+            for ( quint32 i = 0; i < count; ++i )
             {
-                return true;
+                SndEntry entry;
+                memset(&entry, 0, sizeof(entry) );
+
+                sf->file->read( (char *) &entry, sizeof(SndEntry));
+                for ( int i = 0; i < 40; ++i )
+                {
+                    if ( entry.name[i] == '\0' )
+                    {
+                        entry.name[i] = '.';
+                        break;
+                    }
+                }
+
+                sf->fat.insert(QString(entry.name).toLower(), entry);
+                hrFilesystem::fillGeneralCache(QString(entry.name).toLower(), filename);
             }
         }
+        _cache.insert(filename, sf);
+        return true;
     }
     else
     {
-        _sf->file = new QFile(_archivename);
-        QFile *file = _sf->file;
-
-        if ( file->open(QIODevice::ReadOnly) )
-        {
-            quint32 count;
-
-            if ( file->read( (char *) &count, 4) == 4)
-            {
-                for ( quint32 i = 0; i < count; ++i )
-                {
-                    SndEntry entry;
-                    memset(&entry,0,sizeof(entry));
-
-                    file->read( (char *) &entry, sizeof(SndEntry));
-
-                    for ( int i = 0; i < 40; ++i)
-                    {
-                        if ( entry.name[i] == '\0' )
-                        {
-                            entry.name[i] = '.';
-                            break;
-                        }
-                    }
-
-                    _sf->fat.insert(QString(entry.name).toLower(), entry);
-                }
-            }
-
-            return true;
-        }
-        else
-        {
-            setError(QFile::OpenError, QString("Can't open: %1").arg(_archivename));
-            return false;
-        }
+        qCritical("Can't open %s", qPrintable(filename));
+        delete sf;
     }
+
     return false;
 }
 
-bool hrSndEngine::preload_file()
+bool hrSndEngine::preloadFile()
 {
     if ( _buffer == NULL )
         _buffer = new QBuffer;
