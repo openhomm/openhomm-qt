@@ -27,7 +27,6 @@ const char * MOUNT_FAILED       = "Failed to mount: %s";
 
 hrFilesystem::hrFilesystem()
 {
-    hrSndEngine::fillInternalCache("Data/Heroes3.snd");
 }
 
 hrFilesystem::~hrFilesystem()
