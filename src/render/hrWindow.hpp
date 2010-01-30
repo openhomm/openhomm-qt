@@ -27,8 +27,8 @@ public:
     ~hrWindow();
 
 private:
-    hrGLWidget *w;
     hrScene *scene;
+    hrGLWidget *w;
     QMenuBar * menuBar;
     QAction *actHelpAbout;
     QAction *actFileExit;

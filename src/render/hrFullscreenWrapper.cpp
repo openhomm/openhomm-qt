@@ -43,6 +43,7 @@ bool hrFullscreenWrapper::disableFullscreen()
 
 bool hrFullscreenWrapper::enableFullscreen(const QSize& resolution)
 {
+    Q_UNUSED(resolution);
     return false;
 }
 
