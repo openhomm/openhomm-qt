@@ -43,11 +43,7 @@ hrWindow::hrWindow(QMainWindow *parent): QMainWindow(parent), scene(NULL), w(NUL
 
     QString filename = hrApplication::getMapName();
 
-    bool isMapLoad;
-    if ( filename.isEmpty() )
-        isMapLoad = reader.load("Maps/Back For Revenge.h3m");
-    else
-        isMapLoad = reader.load(filename);
+    bool isMapLoad = reader.load(filename);
 
     int size = reader.getSize();
     scene = new hrScene(size, size);

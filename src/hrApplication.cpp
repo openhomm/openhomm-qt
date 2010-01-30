@@ -35,14 +35,16 @@ hrApplication::hrApplication(int &argc, char **argv):
         sndHandler(NULL),
         vfsHandler(NULL)
 {
-    hrSettings::get();
-    mapName = "";
+    mapName = hrSettings::get().gameDir() + '/';
+
+    // isMapLoad = reader.load("Maps/Back For Revenge.h3m");
     this->createFileEngineHandlers();
 
     if ( argc > 1 ) {
         mapName = argv[1];
         qDebug() << mapName;
-    }
+    } else
+        mapName += "Maps/Back For Revenge.h3m";
 }
 
 /*!

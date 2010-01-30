@@ -18,6 +18,7 @@
 #include "hrFilesystem.hpp"
 #include "hrLodEngine.hpp"
 #include "hrSndEngine.hpp"
+#include "hrSettings.hpp"
 
 fileSystemCache hrFilesystem::_cache;
 
@@ -26,6 +27,7 @@ const char * MOUNT_FAILED       = "Failed to mount: %s";
 
 hrFilesystem::hrFilesystem()
 {
+    hrSndEngine::fillInternalCache("Data/Heroes3.snd");
 }
 
 hrFilesystem::~hrFilesystem()
@@ -36,10 +38,9 @@ bool hrFilesystem::mount(const QString &path)
 {
     QStringList pathElements = path.split('/');
 
-    // FIXME: don't change current dir before this code!!!
-    QDir current(QDir::current());
+    QDir current(hrSettings::get().gameDir());
 
-    QString normalPath;
+    QString normalPath = hrSettings::get().gameDir() + '/' ;
 
     for ( int j = 0; j < pathElements.size(); j++ )
     {
@@ -51,6 +52,7 @@ bool hrFilesystem::mount(const QString &path)
                 current.cd(el[0]);
         }
     }
+
     normalPath.remove(normalPath.length() -1, 1); // remove last slash
     qDebug("Trying to mount: %s", qPrintable(normalPath));
 

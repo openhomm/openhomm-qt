@@ -32,6 +32,7 @@ hrSettings::hrSettings(QObject *parent) : QObject(parent)
     _x              = _settings->value("x", 0).toInt();
     _y              = _settings->value("y", 0).toInt();
     _windowScrollSpeed = _settings->value("windowScrollSpeed", 2).toUInt();
+    _gameDir        = _settings->value("gamedir", ".").toString();
 }
 
 hrSettings::~hrSettings()
@@ -78,5 +79,12 @@ void hrSettings::setWindowScrollSpeed(quint8 speed)
 {
     _windowScrollSpeed = speed;
     _settings->setValue("windowScrollSpeed", speed);
+    _settings->sync();
+}
+
+void hrSettings::setGameDir(const QString &gamedir)
+{
+    _gameDir = gamedir;
+    _settings->setValue("gamedir", gamedir);
     _settings->sync();
 }

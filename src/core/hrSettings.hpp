@@ -94,6 +94,12 @@ class hrSettings : public QObject
       By default, this property is 2
     */
     Q_PROPERTY(quint8 windowScrollSpeed READ windowScrollSpeed WRITE setWindowScrollSpeed)
+
+    /*!
+        This property stores the location of the game.
+        By default, this property indicates the current directory.
+    */
+    Q_PROPERTY(QString gameDir READ gameDir WRITE setGameDir)
 public:
     hrSettings(QObject *parent = 0);
     ~hrSettings();
@@ -124,6 +130,9 @@ public:
 
     quint8 windowScrollSpeed() const { return _windowScrollSpeed; }
     void setWindowScrollSpeed(quint8 speed);
+
+    QString gameDir() const { return _gameDir; }
+    void setGameDir(const QString &gamedir);
 private:
     bool _isAnimateSpellBook;    // not used yet
     bool _isAutosave;            // not used yet
@@ -134,6 +143,7 @@ private:
     bool _isShowmenu;
     qint32 _x, _y;
     QString _render;
+    QString _gameDir;
     quint8 _musicVolume;         // not used yet
     bool _isQuickCombat;         // not used yet
     bool _isShowCombatGrid;      // not used yet
