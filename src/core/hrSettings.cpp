@@ -32,7 +32,14 @@ hrSettings::hrSettings(QObject *parent) : QObject(parent)
     _x              = _settings->value("x", 0).toInt();
     _y              = _settings->value("y", 0).toInt();
     _windowScrollSpeed = _settings->value("windowScrollSpeed", 2).toUInt();
-    _gameDir        = _settings->value("gamedir", ".").toString();
+
+    if ( qgetenv("OPENHOMM_ORIGGAMEDIR").isEmpty() )
+        _gameDir = _settings->value("gamedir", ".").toString();
+    else
+    {
+        _gameDir = QString(qgetenv("OPENHOMM_ORIGGAMEDIR"));
+        qDebug("OPENHOMM_ORIGGAMEDIR environment vairable set to %s", getenv("OPENHOMM_ORIGGAMEDIR"));
+    }
 }
 
 hrSettings::~hrSettings()
