@@ -18,6 +18,7 @@
 #include "hrApplication.hpp"
 #include "hrPushButton.hpp"
 #include "hrFileEngineHandlers.hpp"
+#include "hrSettings.hpp"
 
 QString hrApplication::mapName = "";
 

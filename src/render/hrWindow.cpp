@@ -22,6 +22,7 @@
 #include "version.hpp"
 #include "hrFullscreenWrapper.hpp"
 #include "hrH3MReader.hpp"
+#include "hrSettings.hpp"
 
 /*!
   \class hrWindow
