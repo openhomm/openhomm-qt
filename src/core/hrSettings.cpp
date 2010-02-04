@@ -25,13 +25,20 @@
 
 hrSettings::hrSettings(QObject *parent) : QObject(parent)
 {
+#if defined(linux) || defined(_linux_) || defined(__linux__)
+    _settings = new QSettings(QSettings::UserScope, "openhomm", "settings");
+#endif
+#if defined (WIN32) || defined(__WIN32__) || defined(WIN)
     _settings = new QSettings("settings.ini", QSettings::IniFormat);
+#endif
+    
     _isFullscreen   = _settings->value("video/fullscreen", false).toBool();
     _render         = _settings->value("video/render").toString();
     _isShowmenu     = _settings->value("showmenu", true).toBool();
     _x              = _settings->value("x", 0).toInt();
     _y              = _settings->value("y", 0).toInt();
     _windowScrollSpeed = _settings->value("windowScrollSpeed", 2).toUInt();
+    _logType        = _settings->value("log", "console").toString();
 
     if ( qgetenv("OPENHOMM_ORIGGAMEDIR").isEmpty() )
         _gameDir = _settings->value("gamedir", ".").toString();
@@ -93,5 +100,12 @@ void hrSettings::setGameDir(const QString &gamedir)
 {
     _gameDir = gamedir;
     _settings->setValue("gamedir", gamedir);
+    _settings->sync();
+}
+
+void hrSettings::setLogType(const QString &type)
+{
+    _logType = type;
+    _settings->setValue("log", type);
     _settings->sync();
 }

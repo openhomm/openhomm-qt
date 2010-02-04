@@ -59,6 +59,17 @@ QT_BEGIN_NAMESPACE
 class QSettings;
 QT_END_NAMESPACE
 
+#define addSettings(type,name,path, set, get) \
+    private: type _##name; \
+    public: type get() { return _##name; } \
+        void set(type p) { \
+            _##name = p; \
+            _settings->setValue(path, p);\
+            _settings->sync(); \
+                               }
+
+
+
 class hrSettings : public QObject
 {
     Q_OBJECT
@@ -100,6 +111,11 @@ class hrSettings : public QObject
         By default, this property indicates the current directory.
     */
     Q_PROPERTY(QString gameDir READ gameDir WRITE setGameDir)
+
+    /*!
+      Possible values: null - don't log, console - log to console
+    */
+    Q_PROPERTY(QString logType READ logType WRITE setLogType);
 public:
     hrSettings(QObject *parent = 0);
     ~hrSettings();
@@ -133,6 +149,9 @@ public:
 
     QString gameDir() const { return _gameDir; }
     void setGameDir(const QString &gamedir);
+
+    QString logType() const { return _logType; }
+    void setLogType(const QString &type );
 private:
     bool _isAnimateSpellBook;    // not used yet
     bool _isAutosave;            // not used yet
@@ -154,5 +173,8 @@ private:
     bool _isVideoSubtitles;      // not used yet
     quint8 _walkSpeed;           // not used yet
     quint8 _windowScrollSpeed;
+
+    QString _logType;
+
     QSettings * _settings;
 };

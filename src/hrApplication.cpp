@@ -19,6 +19,7 @@
 #include "hrPushButton.hpp"
 #include "hrFileEngineHandlers.hpp"
 #include "hrSettings.hpp"
+#include "hrMessageOutput.hpp"
 
 QString hrApplication::mapName = "";
 
@@ -38,7 +39,13 @@ hrApplication::hrApplication(int &argc, char **argv):
 {
     mapName = hrSettings::get().gameDir() + '/';
 
-    // isMapLoad = reader.load("Maps/Back For Revenge.h3m");
+    QString logType = hrSettings::get().logType();
+
+    if ( logType == QLatin1String("console") )
+        qInstallMsgHandler(logConsole);
+    else if ( logType == QLatin1String("null") )
+        qInstallMsgHandler(logNull);
+
     this->createFileEngineHandlers();
 
     if ( argc > 1 ) {

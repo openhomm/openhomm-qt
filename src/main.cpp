@@ -26,24 +26,6 @@
 #   include "client/linux/handler/exception_handler.h"
 #endif
 
-void myMessageOutput(QtMsgType type, const char *msg)
-{
-    switch (type) {
-    case QtDebugMsg:
-        fprintf(stdout, "Debug: %s\n", msg);
-        break;
-    case QtWarningMsg:
-        fprintf(stdout, "Warning: %s\n", msg);
-        break;
-    case QtCriticalMsg:
-        fprintf(stdout, "Critical: %s\n", msg);
-        break;
-    case QtFatalMsg:
-        fprintf(stdout, "Fatal: %s\n", msg);
-        abort();
-    }
-}
-
 void checkPlugins()
 {
     QList<QByteArray> formats = QImageReader::supportedImageFormats();
@@ -80,7 +62,6 @@ bool callback(
 int main(int argc, char** argv)
 {
     QT_REQUIRE_VERSION(argc, argv, "4.5.0");
-    qInstallMsgHandler(myMessageOutput);
 
 #if defined(Q_WS_WIN32) && defined(_MSC_VER)
     google_breakpad::ExceptionHandler eh(L".", NULL, callback, NULL,
