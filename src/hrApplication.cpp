@@ -45,6 +45,8 @@ hrApplication::hrApplication(int &argc, char **argv):
         qInstallMsgHandler(logConsole);
     else if ( logType == QLatin1String("null") )
         qInstallMsgHandler(logNull);
+    else if ( logType == QLatin1String("console2") )
+        qInstallMsgHandler(logColoredConsole);
 
     this->createFileEngineHandlers();
 

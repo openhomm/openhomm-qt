@@ -113,7 +113,7 @@ class hrSettings : public QObject
     Q_PROPERTY(QString gameDir READ gameDir WRITE setGameDir)
 
     /*!
-      Possible values: null - don't log, console - log to console
+      Possible values: null - don't log, console - log to console, console2 - colored log to console
     */
     Q_PROPERTY(QString logType READ logType WRITE setLogType);
 public:

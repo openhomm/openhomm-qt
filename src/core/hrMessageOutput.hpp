@@ -18,3 +18,4 @@
 
 void logConsole (QtMsgType type, const char *msg);
 void logNull (QtMsgType type, const char* msg);
+void logColoredConsole (QtMsgType type, const char* msg);
