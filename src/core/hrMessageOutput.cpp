@@ -68,15 +68,6 @@
     #define C_BLINK         6
 #endif
 
-#if defined(linux) || defined(__linux) || defined(__linux__)
-    #define COLOURF(cletter) printf("\e[%dm",cletter);
-    #define CRESET() printf("\e[0m");
-#endif
-#if defined(__WIN32__) || defined(WIN) || defined(WIN32)
-    #define COLOURF(cletter)
-    #define CRESET() SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE),0);
-#endif
-
 static void COLOR_set(short color)
 {
 #if defined(linux) || defined(__linux) || defined(__linux__)
