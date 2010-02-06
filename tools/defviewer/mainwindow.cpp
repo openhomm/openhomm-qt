@@ -22,7 +22,11 @@ MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent), ui(new Ui::MainWindowClass)
 {
     ui->setupUi(this);
-    QTreeView &tree = *ui->treeView;
+    QGridLayout &grid = *ui->gridLayout;
+    grid.addWidget(&tree, 0, 0, 0, 1);
+    connect(&tree, SIGNAL(clicked(QModelIndex)), this, SLOT(onTreeActivated(QModelIndex)));
+    connect(&tree, SIGNAL(activated(QModelIndex)), this, SLOT(onTreeActivated(QModelIndex)));
+    connect(&tree, SIGNAL(highlighted(QModelIndex)), this, SLOT(onTreeActivated(QModelIndex)));
     model.setLazyChildCount(true);
     model.setSorting(QDir::DirsFirst);
     tree.setModel(&model);
@@ -31,8 +35,6 @@ MainWindow::MainWindow(QWidget *parent)
     QTreeWidget &treeFrames = *ui->treeWidgetFrames;
     treeFrames.setColumnCount(1);
     treeFrames.setHeaderLabels(QStringList("Frames"));
-
-    //view.setOptimizationFlag(QGraphicsView::DontClipPainter, true);
 
     delay = 100;
     connect(&timer, SIGNAL(timeout()), this, SLOT(onJumpToImage()));
@@ -130,12 +132,7 @@ void MainWindow::JumpToImage(QModelIndex index)
 
 
 
-void MainWindow::on_treeView_activated(QModelIndex index)
-{
-    LoadImage(index);
-}
-
-void MainWindow::on_treeView_clicked(QModelIndex index)
+void MainWindow::onTreeActivated(QModelIndex index)
 {
     LoadImage(index);
 }

@@ -14,10 +14,10 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
-#ifndef MAINWINDOW_H
-#define MAINWINDOW_H
-
+#pragma once
 #include <QtGui>
+#include "hrTreeView.hpp"
+
 
 QT_BEGIN_NAMESPACE
 namespace Ui
@@ -40,6 +40,7 @@ public slots:
 private:
     Ui::MainWindowClass *ui;
 
+    hrTreeView tree;
     QDirModel model;
     QGraphicsScene scene;
     QPainter painter;
@@ -59,8 +60,7 @@ private slots:
     void on_checkBox_toggled(bool checked);
     void on_treeWidgetFrames_clicked(QModelIndex index);
     void on_treeWidgetFrames_activated(QModelIndex index);
-    void on_treeView_clicked(QModelIndex index);
-    void on_treeView_activated(QModelIndex index);
+
+    void onTreeActivated(QModelIndex index);
 };
 
-#endif // MAINWINDOW_H
