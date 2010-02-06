@@ -30,6 +30,7 @@ OPENHOMM_PATCH = 0
 }
 OPENHOMMDIR = $$PWD
 include(doc/doc.pri)
+CONFIG += debug_and_release debug_and_release_target
 TEMPLATE = subdirs
 SUBDIRS = src src/plugins tools
 
