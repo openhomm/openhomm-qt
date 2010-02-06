@@ -288,6 +288,7 @@ void hrGLWidget::drawAtlasImage(const QPoint &point
         qSwap(y1, y2);
     }
 
+    glEnable(GL_TEXTURE_2D);
     GLfloat v[] = { r.x(), r.y(), r.x() + r.width(), r.y(), r.x()+r.width(), r.y() + r.height(), r.x(), r.y() + r.height() };
     GLfloat t[] = { x1, y2, x2, y2, x2, y1, x1, y1 };
 
@@ -295,17 +296,15 @@ void hrGLWidget::drawAtlasImage(const QPoint &point
     glTexCoordPointer(2, GL_FLOAT, 0, t);
 
     glDrawArrays(GL_QUADS, 0, 4);
+    glDisable(GL_TEXTURE_2D);
 }
 
 void hrGLWidget::paintGL()
 {
-    glEnable(GL_TEXTURE_2D);
     drawAtlasTiles();
 
     if (isAnimate)
         animateObjects();
-
-    glDisable(GL_TEXTURE_2D);
 
     drawObjects();
 }

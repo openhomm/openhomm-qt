@@ -1,5 +1,5 @@
 // openhomm - open source clone of Heroes of Might and Magic III
-// Copyright (C) 2009-2010 openhomm developers team (see AUTHORS)
+// Copyright (C) 2009-2010 openhomm device()elopers team (see AUTHORS)
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -15,133 +15,21 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
 #include "hrDefHandler.hpp"
-#include <QImage>
-#include <QVector>
-#include <QRgb>
-#include <QVariant>
+#include <QtDebug>
 
-struct DefHeader
+int hrDefHandler::imageCount() const
 {
-    quint32 type;
-    quint32 width;
-    quint32 height;
-    quint32 countBlocks;
-};
-
-struct BlockHeader
-{
-    quint32 index;
-    quint32 countFrames;
-    quint8 junk[8];
-};
-
-struct FrameHeader
-{
-    quint32 size;
-    quint32 type;
-    quint32 widthFull;
-    quint32 heightFull;
-    quint32 widthFrame;
-    quint32 heightFrame;
-    quint32 marginLeft;
-    quint32 marginTop;
-};
-
-struct Block
-{
-    int countFrames;
-    QVector<quint32> offsets;
-};
-
-class DefReader
-{
-public:
-    DefReader(QIODevice *device);
-    ~DefReader();
-    bool read(QImage *image);
-    int currentImageNumber() const;
-    bool jumpToImage(int imageNumber);
-    bool jumpToNextImage();
-
-    int count();
-    int getWidth();
-    int getHeight();
-
-    static bool canRead(QIODevice *device);
-
-private:
-    bool readHeader();
-    bool readPalette();
-    bool readBlockHeaders();
-
-    bool readFrame0(quint8 *imageBuffer, const FrameHeader &fh) const;
-    bool readFrame1(quint8 *imageBuffer, quint8 *buf, const FrameHeader &fh) const;
-    bool readFrame2(quint8 *imageBuffer, quint8 *buf, const FrameHeader &fh) const;
-    bool readFrame3(quint8 *imageBuffer, quint8 *buf, const FrameHeader &fh) const;
-
-    bool checkFrame(const FrameHeader &fh) const;
-    void fillFrameBorders(quint8 *imageBuffer, const FrameHeader &fh) const;
-
-    QIODevice *dev;
-
-    QVector<Block> blocks;
-    QVector<QRgb> colors;
-    int curFrame;
-    int countFrames;
-    int curBlock;
-    int countBlocks;
-    int height;
-    int width;
-
-    bool isHeaderRead;
-};
-
-DefReader::DefReader(QIODevice *device)
-{
-    dev = device;
-    curFrame = 0;
-    countFrames = 0;
-    curBlock = 0;
-    countBlocks = 0;
-    height = 0;
-    width = 0;
-    isHeaderRead = false;
-}
-
-DefReader::~DefReader()
-{
-}
-
-int DefReader::count()
-{
-    if (countFrames == 0 && !isHeaderRead)
-        if (readHeader())
-            isHeaderRead = true;
     return countFrames;
 }
 
-int DefReader::getWidth()
-{
-    if (!isHeaderRead)
-        readHeader();
-    return width;
-}
-
-int DefReader::getHeight()
-{
-    if (!isHeaderRead)
-        readHeader();
-    return width;
-}
-
-int DefReader::currentImageNumber() const
+int hrDefHandler::currentImageNumber() const
 {
     return curFrame;
 }
 
-bool DefReader::jumpToImage(int imageNumber)
+bool hrDefHandler::jumpToImage(int imageNumber)
 {
-    if (!count())
+    if (!readHeader())
         return false;
 
     if (imageNumber < 0)
@@ -159,19 +47,20 @@ bool DefReader::jumpToImage(int imageNumber)
     return true;
 }
 
-bool DefReader::jumpToNextImage()
+bool hrDefHandler::jumpToNextImage()
 {
-    if (!count())
+    if (!readHeader())
         return false;
 
     curFrame < countFrames - 1 ? curFrame++ : curFrame = 0;
     return true;
 }
 
-bool DefReader::readPalette()
+bool hrDefHandler::readPalette()
 {
+    qWarning("%s", Q_FUNC_INFO);
     quint8 buf[256 * 3];
-    if (dev->read((char*)buf, 256 * 3) == 256 * 3)
+    if (device()->read((char*)buf, 256 * 3) == 256 * 3)
     {
         QRgb rgb;
         // first color is alpha
@@ -181,10 +70,10 @@ bool DefReader::readPalette()
         rgb = qRgba(0, 0, 0, 64);
         colors.append(rgb);
         // only used in Tshre.def and AvGnoll.def
-        rgb = qRgba(0, 0, 0, 128);//qRgb(buf[6], buf[7], buf[8]);
+        rgb = /*qRgba(0, 0, 0, 128);*/qRgb(buf[6], buf[7], buf[8]);
         colors.append(rgb);
         // only used in Tshre.def
-        rgb = qRgba(0, 0, 0, 64);//qRgb(buf[9], buf[10], buf[11]);
+        rgb = /*qRgba(0, 0, 0, 64);*/qRgb(buf[9], buf[10], buf[11]);
         colors.append(rgb);
         // strong shadow
         rgb = qRgba(0, 0, 0, 128);
@@ -201,24 +90,24 @@ bool DefReader::readPalette()
     return false;
 }
 
-bool DefReader::readBlockHeaders()
+bool hrDefHandler::readBlockHeaders()
 {
     BlockHeader bh;
     for (int i = 0; i < countBlocks; i++)
     {
         Block block;
-        if (dev->read((char*)&bh, sizeof(bh)) == sizeof(bh))
+        if (device()->read((char*)&bh, sizeof(bh)) == sizeof(bh))
         {
             block.countFrames = bh.countFrames;
             if (i == 0)
                 countFrames = bh.countFrames;
 
-            if (!dev->seek(dev->pos() + bh.countFrames * 13)) // skip names
+            if (!device()->seek(device()->pos() + bh.countFrames * 13)) // skip names
                 return false;
 
             int cnt = bh.countFrames;
             quint32 *offsets = new quint32[cnt];
-            if (dev->read((char*)offsets, cnt * 4) == cnt * 4)
+            if (device()->read((char*)offsets, cnt * 4) == cnt * 4)
             {
                 for (int j = 0; j < cnt; j++)
                     block.offsets.append(offsets[j]);
@@ -236,21 +125,28 @@ bool DefReader::readBlockHeaders()
     return true;
 }
 
-bool DefReader::readHeader()
+bool hrDefHandler::readHeader()
 {
+    if (isHeaderRead)
+        return true;
+
     DefHeader dh;
-    if (dev->read((char*)&dh, sizeof(dh)) == sizeof(dh))
+    if (device()->read((char*)&dh, sizeof(dh)) == sizeof(dh))
     {
         width = dh.width;
         height = dh.height;
         countBlocks = dh.countBlocks;
 
-        return readPalette() && readBlockHeaders();
+        if (readPalette() && readBlockHeaders())
+        {
+            isHeaderRead = true;
+            return true;
+        }
     }
     return false;
 }
 
-bool DefReader::checkFrame(const FrameHeader &fh) const
+bool hrDefHandler::checkFrame(const FrameHeader &fh) const
 {
     if (fh.marginLeft + fh.widthFrame <= fh.widthFull
         && fh.marginTop + fh.heightFrame <= fh.heightFull)
@@ -259,16 +155,16 @@ bool DefReader::checkFrame(const FrameHeader &fh) const
         return false;
 }
 
-bool DefReader::readFrame0(quint8 *imageBuffer, const FrameHeader &fh) const
+bool hrDefHandler::readFrame0(quint8 *imageBuffer, const FrameHeader &fh) const
 {
-    if (dev->read((char*)imageBuffer, fh.size) == fh.size)
+    if (device()->read((char*)imageBuffer, fh.size) == fh.size)
     {
         return true;
     }
     return false;
 }
 
-void DefReader::fillFrameBorders(quint8 *imageBuffer, const FrameHeader &fh) const
+void hrDefHandler::fillFrameBorders(quint8 *imageBuffer, const FrameHeader &fh) const
 {
     if (fh.widthFrame == fh.widthFull
         && fh.heightFrame == fh.heightFull)
@@ -295,7 +191,7 @@ void DefReader::fillFrameBorders(quint8 *imageBuffer, const FrameHeader &fh) con
             *line++ = 0;
 }
 
-bool DefReader::readFrame1(quint8 *imageBuffer, quint8 *buf, const FrameHeader & fh) const
+bool hrDefHandler::readFrame1(quint8 *imageBuffer, quint8 *buf, const FrameHeader & fh) const
 {
     quint32 *offsets = (quint32*)&buf[0];
 
@@ -327,7 +223,10 @@ bool DefReader::readFrame1(quint8 *imageBuffer, quint8 *buf, const FrameHeader &
             quint8 typeSegment = line[offset];
             quint32 lenSegment = line[++offset] + 1;
             if (offsetImageLine + lenSegment > fh.widthFrame)
-                return false;
+            {
+                qWarning("offsetImageLine + lenSegment > fh.widthFrame");
+                //return false;
+            }
 
             if (typeSegment == 0xFF)
             {
@@ -350,7 +249,7 @@ bool DefReader::readFrame1(quint8 *imageBuffer, quint8 *buf, const FrameHeader &
     return true;
 }
 
-bool DefReader::readFrame2(quint8 *imageBuffer, quint8 *buf, const FrameHeader & fh) const
+bool hrDefHandler::readFrame2(quint8 *imageBuffer, quint8 *buf, const FrameHeader & fh) const
 {
     quint16 *offsets = (quint16*)&buf[0];
 
@@ -405,7 +304,7 @@ bool DefReader::readFrame2(quint8 *imageBuffer, quint8 *buf, const FrameHeader &
     return true;
 }
 
-bool DefReader::readFrame3(quint8 *imageBuffer, quint8 *buf, const FrameHeader &fh) const
+bool hrDefHandler::readFrame3(quint8 *imageBuffer, quint8 *buf, const FrameHeader &fh) const
 {
     quint16 *offsets = (quint16*)&buf[0];
 
@@ -474,16 +373,18 @@ bool DefReader::readFrame3(quint8 *imageBuffer, quint8 *buf, const FrameHeader &
 }
 
 
-bool DefReader::read(QImage *image)
+bool hrDefHandler::read(QImage *image)
 {
-    if (!count()) // forces header to be read
+    qWarning("read");
+    if (!readHeader())
         return false;
+    qWarning("header ok");
 
-    if (!dev->seek(blocks.at(curBlock).offsets.at(curFrame)))
+    if (!device()->seek(blocks.at(curBlock).offsets.at(curFrame)))
         return false;
 
     FrameHeader fh;
-    if (dev->read((char*)&fh, sizeof(fh)) != sizeof(fh))
+    if (device()->read((char*)&fh, sizeof(fh)) != sizeof(fh))
         return false;
 
     bool isFrameRead = false;
@@ -499,7 +400,7 @@ bool DefReader::read(QImage *image)
         {
             fillFrameBorders(imageBuffer, fh);
             quint8 *buf = new quint8[fh.size];
-            if (dev->read((char*)buf, fh.size) == fh.size)
+            if (device()->read((char*)buf, fh.size) == fh.size)
             {
                 if (fh.type == 1)
                 {
@@ -531,16 +432,22 @@ bool DefReader::read(QImage *image)
     return isFrameRead;
 }
 
-bool DefReader::canRead(QIODevice *device)
+bool hrDefHandler::canRead(QIODevice *device)
 {
     if (!device)
+    {
+        qWarning("hrDefHandler::canRead() empty device");
         return false;
+    }
+    if (device->isSequential())
+    {
+        qWarning("hrDefHandler::canRead() random access devices only");
+        return false;
+    }
+
     bool isProbablyDef = false;
-    qint64 oldPos = device->pos();
-    device->seek(0);
-    // def format does not have a magic number
     DefHeader dh;
-    if (device->read((char*)&dh, sizeof(dh)) == sizeof(dh))
+    if (device->peek((char*)&dh, sizeof(dh)) == sizeof(dh))
     {
         if (dh.type >= 64 && dh.type <= 73 // from tests
             && dh.width <= 800
@@ -551,28 +458,23 @@ bool DefReader::canRead(QIODevice *device)
             isProbablyDef = true;
         }
     }
-    device->seek(oldPos);
     return isProbablyDef;
 }
 
 
-
-hrDefHandler::hrDefHandler(QIODevice *device)
+hrDefHandler::hrDefHandler() :
+        curFrame(0)
+        , countFrames(0)
+        , curBlock(0)
+        , countBlocks(0)
+        , height(0)
+        , width(0)
+        , isHeaderRead(false)
 {
-    setDevice(device);
-    dr = new DefReader(device);
 }
 
 hrDefHandler::~hrDefHandler()
 {
-    delete dr;
-}
-
-bool hrDefHandler::read(QImage *image)
-{
-    /*if (!canRead())
-        return false;*/
-    return dr->read(image);
 }
 
 bool hrDefHandler::write(const QImage &)
@@ -581,77 +483,13 @@ bool hrDefHandler::write(const QImage &)
     return false;
 }
 
-int hrDefHandler::currentImageNumber() const
-{
-    return dr->currentImageNumber();
-}
-
-int hrDefHandler::imageCount() const
-{
-    return dr->count();
-}
-
-bool hrDefHandler::jumpToImage(int imageNumber)
-{
-    return dr->jumpToImage(imageNumber);
-}
-
-bool hrDefHandler::jumpToNextImage()
-{
-    return dr->jumpToNextImage();
-}
-
-int hrDefHandler::loopCount() const
-{
-    return 1;
-}
-
-int hrDefHandler::nextImageDelay() const
-{
-    return 0;
-}
-
 bool hrDefHandler::canRead() const
 {
     return canRead(device());
 }
 
-bool hrDefHandler::canRead(QIODevice *device)
-{
-    if (!device)
-    {
-        qWarning("hrDefHandler::canRead() empty device");
-        return false;
-    }
-/*
-    if (!device->isSequential())
-    {
-        qWarning("hrDefHandler::canRead() random access devices only");
-        return false;
-    }*/
-
-    if (!DefReader::canRead(device))
-    {
-        return false;
-    }
-
-    return true;
-}
-
-// todo: add Name and SubType
 QVariant hrDefHandler::option(ImageOption option) const
 {
-    if (option == Size)
-    {
-        QSize imageSize;
-        imageSize = QSize(dr->getWidth(), dr->getHeight());
-        if ( imageSize.isValid() )
-            return imageSize;
-    }
-    else
-        if (option == Animation)
-            return true;
-
     return QVariant();
 }
 
@@ -662,7 +500,7 @@ void hrDefHandler::setOption(ImageOption, const QVariant &)
 
 bool hrDefHandler::supportsOption(ImageOption option) const
 {
-    return option == Size;
+    return false;
 }
 
 QByteArray hrDefHandler::name() const

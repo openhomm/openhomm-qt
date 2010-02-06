@@ -17,6 +17,9 @@
 #pragma once
 #include "hrPlatform.hpp"
 
+class QPoint;
+class QRect;
+
 namespace coord
 {
     const int dim = 32;

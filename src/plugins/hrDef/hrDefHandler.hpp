@@ -17,19 +17,48 @@
 #pragma once
 
 #include <qimageiohandler.h>
+#include <QImage>
+#include <QVector>
+#include <QRgb>
+#include <QVariant>
 
-QT_BEGIN_NAMESPACE
-class QImage;
-class QByteArray;
-class QIODevice;
-class QVariant;
-QT_END_NAMESPACE
-class DefReader;
+struct DefHeader
+{
+    quint32 type;
+    quint32 width;
+    quint32 height;
+    quint32 countBlocks;
+};
+
+struct BlockHeader
+{
+    quint32 index;
+    quint32 countFrames;
+    quint8 junk[8];
+};
+
+struct FrameHeader
+{
+    quint32 size;
+    quint32 type;
+    quint32 widthFull;
+    quint32 heightFull;
+    quint32 widthFrame;
+    quint32 heightFrame;
+    quint32 marginLeft;
+    quint32 marginTop;
+};
+
+struct Block
+{
+    int countFrames;
+    QVector<quint32> offsets;
+};
 
 class hrDefHandler : public QImageIOHandler
 {
 public:
-    hrDefHandler(QIODevice *device);
+    hrDefHandler();
     ~hrDefHandler();
 
     virtual bool canRead() const;
@@ -39,8 +68,6 @@ public:
     virtual int imageCount() const;
     virtual bool jumpToImage(int imageNumber);
     virtual bool jumpToNextImage();
-    virtual int loopCount() const;
-    virtual int nextImageDelay() const;
 
     static bool canRead(QIODevice *device);
 
@@ -51,6 +78,29 @@ public:
     virtual QByteArray name() const;
 
 private:
-    DefReader *dr;
+
+    bool readHeader();
+    bool readPalette();
+    bool readBlockHeaders();
+
+    bool readFrame0(quint8 *imageBuffer, const FrameHeader &fh) const;
+    bool readFrame1(quint8 *imageBuffer, quint8 *buf, const FrameHeader &fh) const;
+    bool readFrame2(quint8 *imageBuffer, quint8 *buf, const FrameHeader &fh) const;
+    bool readFrame3(quint8 *imageBuffer, quint8 *buf, const FrameHeader &fh) const;
+
+    bool checkFrame(const FrameHeader &fh) const;
+    void fillFrameBorders(quint8 *imageBuffer, const FrameHeader &fh) const;
+
+    QVector<Block> blocks;
+    QVector<QRgb> colors;
+    int curFrame;
+    int countFrames;
+    int curBlock;
+    int countBlocks;
+    int height;
+    int width;
+
+    bool isHeaderRead;
+    //DefReader *dr;
 };
 

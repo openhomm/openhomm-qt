@@ -17,6 +17,7 @@
 #include "precompiled.hpp"
 #include "hrApplication.hpp"
 #include "hrPushButton.hpp"
+#include "hrSettings.hpp"
 #include "hrFileEngineHandlers.hpp"
 #include "hrSettings.hpp"
 #include "hrMessageOutput.hpp"

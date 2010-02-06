@@ -47,9 +47,10 @@ QImageIOPlugin::Capabilities hrDefPlugin::capabilities(QIODevice *device, const 
 
 QImageIOHandler* hrDefPlugin::create(QIODevice *device, const QByteArray &format) const
 {
-    hrDefHandler *hand = new hrDefHandler(device);
-    hand->setFormat(format);
-    return hand;
+    hrDefHandler *handler = new hrDefHandler();
+    handler->setDevice(device);
+    handler->setFormat(format);
+    return handler;
 }
 
 QStringList hrDefPlugin::keys() const
