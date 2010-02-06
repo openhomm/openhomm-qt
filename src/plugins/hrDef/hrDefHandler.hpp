@@ -33,9 +33,34 @@ struct DefHeader
 struct BlockHeader
 {
     quint32 index;
+    /*
+      0 - moving
+      1 - mouse over
+      02 - standing
+      03 - getting hit
+      04 - defend
+      05 - death
+      06 - ?
+      07 - turn left
+      08 - turn right
+      09 - turn left
+      10 - turn right
+      11 - attack up
+      12 - attack straight
+      13 - attack down
+      14 - shoot up
+      15 - shoot straight
+      16 - shoot down
+      17 - 2 hex attack up
+      18 - 2 hex attack straight
+      19 - 2 hex attack down
+      20 - start moving
+      21 - stop moving
+      */
     quint32 countFrames;
     quint8 junk[8];
 };
+
 
 struct FrameHeader
 {
@@ -91,7 +116,7 @@ private:
     bool checkFrame(const FrameHeader &fh) const;
     void fillFrameBorders(quint8 *imageBuffer, const FrameHeader &fh) const;
 
-    QVector<Block> blocks;
+    QMap<int, Block> blocks;
     QVector<QRgb> colors;
     int curFrame;
     int countFrames;
@@ -101,6 +126,5 @@ private:
     int width;
 
     bool isHeaderRead;
-    //DefReader *dr;
 };
 

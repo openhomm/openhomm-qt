@@ -34,7 +34,7 @@ bool hrDefHandler::jumpToImage(int imageNumber)
 
     if (imageNumber < 0)
     {
-        if (qAbs(imageNumber) > countBlocks)
+        if (!blocks.contains(qAbs(imageNumber) - 1))
             return false;
         curBlock = qAbs(imageNumber) - 1;
         curFrame = 0;
@@ -111,7 +111,7 @@ bool hrDefHandler::readBlockHeaders()
                 for (int j = 0; j < cnt; j++)
                     block.offsets.append(offsets[j]);
 
-                blocks.append(block);
+                blocks[bh.index] = block;
             }
             else
             {
@@ -377,7 +377,7 @@ bool hrDefHandler::read(QImage *image)
     if (!readHeader())
         return false;
 
-    if (!device()->seek(blocks.at(curBlock).offsets.at(curFrame)))
+    if (!device()->seek(blocks[curBlock].offsets.at(curFrame)))
         return false;
 
     FrameHeader fh;

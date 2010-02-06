@@ -72,23 +72,26 @@ void MainWindow::LoadImage(QModelIndex index)
 
         QList<QTreeWidgetItem *> items;
         treeFrames.clear();
-        for (int i = -1; ir.jumpToImage(i); i--)
+        for (int i = -1; i > -100; i--)
         {
-            QTreeWidgetItem *parent = new QTreeWidgetItem(
-                                    (QTreeWidget*)0
-                                    , QStringList(QString("Block %1").arg(qAbs(i) - 1))
-                                    );
-            items.append(parent);
-
-            for (int j = 0; j < ir.imageCount(); j++)
+            if (ir.jumpToImage(i))
             {
-                QTreeWidgetItem *child = new QTreeWidgetItem(
-                                    parent
-                                    , QStringList(QString("frame: %1").arg(j))
-                                    );
-                items.append(child);
+                QTreeWidgetItem *parent = new QTreeWidgetItem(
+                                        (QTreeWidget*)0
+                                        , QStringList(QString("Block %1").arg(qAbs(i) - 1))
+                                        );
+                items.append(parent);
+
+                for (int j = 0; j < ir.imageCount(); j++)
+                {
+                    QTreeWidgetItem *child = new QTreeWidgetItem(
+                                        parent
+                                        , QStringList(QString("frame: %1").arg(j))
+                                        );
+                    items.append(child);
+                }
+                treeFrames.addTopLevelItems(items);
             }
-            treeFrames.addTopLevelItems(items);
         }
         ir.jumpToImage(-1);
 
