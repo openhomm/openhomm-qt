@@ -16,3 +16,6 @@ bin/*
 res/*
 *.o
 *.a
+*.log
+doc/qch
+doc/html
