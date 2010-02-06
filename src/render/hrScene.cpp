@@ -57,7 +57,6 @@ void hrScene::addTileItem(int id, const QString &name)
         }
 
         hrTileAtlas *atlas = new hrTileAtlas(dim);
-        qDebug() << name;
         QImageReader ir("vfs:/" + name);
         QImage im;
         for (int i = 0; ir.jumpToImage(i); i++)

@@ -1,5 +1,5 @@
 // openhomm - open source clone of Heroes of Might and Magic III
-// Copyright (C) 2009-2010 openhomm device()elopers team (see AUTHORS)
+// Copyright (C) 2009-2010 openhomm developers team (see AUTHORS)
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -58,7 +58,6 @@ bool hrDefHandler::jumpToNextImage()
 
 bool hrDefHandler::readPalette()
 {
-    qWarning("%s", Q_FUNC_INFO);
     quint8 buf[256 * 3];
     if (device()->read((char*)buf, 256 * 3) == 256 * 3)
     {
@@ -225,7 +224,7 @@ bool hrDefHandler::readFrame1(quint8 *imageBuffer, quint8 *buf, const FrameHeade
             if (offsetImageLine + lenSegment > fh.widthFrame)
             {
                 qWarning("offsetImageLine + lenSegment > fh.widthFrame");
-                //return false;
+                return false;
             }
 
             if (typeSegment == 0xFF)
@@ -375,10 +374,8 @@ bool hrDefHandler::readFrame3(quint8 *imageBuffer, quint8 *buf, const FrameHeade
 
 bool hrDefHandler::read(QImage *image)
 {
-    qWarning("read");
     if (!readHeader())
         return false;
-    qWarning("header ok");
 
     if (!device()->seek(blocks.at(curBlock).offsets.at(curFrame)))
         return false;
