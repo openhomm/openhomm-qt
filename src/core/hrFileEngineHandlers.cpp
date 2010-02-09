@@ -35,7 +35,10 @@ QAbstractFileEngine* hrVfsEngineHandler::create(const QString &fileName) const
         QString file = fileName, archive;
 
         file.remove(0,5); // remove 'vfs:/' at the begining
-        if ( hrFilesystem::findInCache(file.toLower(),archive) )
+
+        archive = hrFilesystem::findInCache(file.toLower());
+
+        if ( !archive.isNull() )
         {
             if ( archive.indexOf(".lod") != -1 )
                 return new hrLodEngine(QString("lod:/") + archive + "/" + file);

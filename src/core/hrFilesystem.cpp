@@ -25,14 +25,6 @@ fileSystemCache hrFilesystem::_cache;
 const char * MOUNT_SUCCESSFULLY = "Successfully mounted: %s";
 const char * MOUNT_FAILED       = "Failed to mount: %s";
 
-hrFilesystem::hrFilesystem()
-{
-}
-
-hrFilesystem::~hrFilesystem()
-{
-}
-
 bool hrFilesystem::mount(const QString &path)
 {
     QStringList pathElements = path.split('/');
@@ -73,6 +65,9 @@ bool hrFilesystem::mount(const QString &path)
     return true;
 }
 
+/*!
+  not implemented yet
+*/
 bool hrFilesystem::umount(const QString &path)
 {
     Q_UNUSED(path);
@@ -84,15 +79,54 @@ void hrFilesystem::fillGeneralCache(const QString &filename, const QString &arch
     _cache.insert(filename, archive);
 }
 
-bool hrFilesystem::findInCache(const QString &filename, QString &archive)
+/*!
+  Try to find archive where the file located.
+  @param filename Filename to found.
+  @return Archive name or null string on error.
+*/
+QString hrFilesystem::findInCache(const QString &filename)
 {
     if ( _cache.find(filename) != _cache.end() )
     {
-        archive = _cache[filename];
-
-        return true;
+        return _cache[filename];
     }
 
     qWarning() << "Not found " << filename << __FILE__ << __LINE__;
-    return false;
+    return QString();
+}
+
+/**
+ *  Extract archive name from full path.
+ *  @param path a case-sensitive path
+ *  @param ext Must be ".lod" or ".snd" or something else
+ *  @return Archive name or null string on error.
+ */
+QString hrFilesystem::extractArchnameFromPath(const QString& path, const char* ext)
+{
+    QString archive;
+    int index = path.indexOf(ext);
+
+    if ( index == -1 )
+        return QString();
+
+    archive = path.left(index + qstrlen(ext));
+    archive.remove(0, qstrlen(ext) + 1);
+
+    return archive;
+}
+
+/**
+ *  Extract filename with path from full path.
+ *  @param path a case-sensitive path
+ *  @param ext Must be ".lod" or ".snd" or something else
+ *  @return Archive name or null string on error.
+ */
+QString hrFilesystem::extractFilenameFromPath(const QString& path, const char* ext)
+{
+    int index = path.indexOf(ext);
+
+    if ( index == -1 )
+        return QString();
+
+    return path.right(path.length() - index - qstrlen(ext) - 1 );
 }

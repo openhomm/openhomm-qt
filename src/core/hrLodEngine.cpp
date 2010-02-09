@@ -38,18 +38,10 @@ hrLodEngine::~hrLodEngine()
 
 void hrLodEngine::setFileName(const QString &file)
 {
-    int c = file.count('/');
+    _archivename = hrFilesystem::extractArchnameFromPath(file, ".lod");
+    _filename    = hrFilesystem::extractFilenameFromPath(file, ".lod");
 
-    if ( file.endsWith(".lod", Qt::CaseInsensitive) )
-    {
-        _archivename = file.section('/', 1, c);
-        _filename = "";
-    }
-    else
-    {
-        _archivename = file.section('/', c-(c-1), c-1);
-        _filename = file.section('/', c, c).toLower();
-    }
+    _filename = _filename.toLower();
 }
 
 bool hrLodEngine::open(QIODevice::OpenMode flags)

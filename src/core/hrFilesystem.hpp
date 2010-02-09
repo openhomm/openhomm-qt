@@ -22,15 +22,15 @@ typedef QHashIterator<QString, QString> fileSystemCacheIterator;
 class hrFilesystem
 {
 public:
-    hrFilesystem();
-    ~hrFilesystem();
-
     bool mount(const QString &path);
     bool umount(const QString &path);
 
     static void fillGeneralCache(const QString& filename, const QString &archive);
-    static bool findInCache(const QString& filename, QString &archive);
+    static QString findInCache(const QString& filename);
 
+
+    static QString extractFilenameFromPath(const QString& path, const char* ext);
+    static QString extractArchnameFromPath(const QString& path, const char* ext);
 private:
     static fileSystemCache _cache;
 };
