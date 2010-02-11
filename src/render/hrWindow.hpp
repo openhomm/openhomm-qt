@@ -16,8 +16,9 @@
 //
 #pragma once
 
-class hrGLWidget;
-class hrScene;
+class hrRender;
+class hrAdventureScreen;
+
 class hrWindow : public QMainWindow
 {
     Q_OBJECT
@@ -26,10 +27,13 @@ public:
     hrWindow(QMainWindow *parent = 0);
     ~hrWindow();
 
+    void AvdventureScreen();
+
 private:
-    hrScene *scene;
-    hrGLWidget *w;
-    QMenuBar * menuBar;
+    hrAdventureScreen *scene;
+    hrRender *render;
+
+    QMenuBar *menuBar;
     QAction *actHelpAbout;
     QAction *actFileExit;
     QAction *actHelpAboutQt;

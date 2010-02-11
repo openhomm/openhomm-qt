@@ -39,6 +39,10 @@ namespace coord
     {
         return QPoint(toCell(p.x()), toCell(p.y()));
     }
+    HR_INLINE QSize toCell(const QSize &s)
+    {
+        return QSize(toCell(s.width()), toCell(s.height()));
+    }
     HR_INLINE QRect toPix(const QRect &r)
     {
         return QRect(toPix(r.x()), toPix(r.y()), toPix(r.width()), toPix(r.height()));

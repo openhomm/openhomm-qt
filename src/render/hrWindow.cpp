@@ -16,19 +16,20 @@
 //
 #include "precompiled.hpp"
 #include "hrWindow.hpp"
-#include "hrScene.hpp"
-#include "hrGLWidget.hpp"
 #include "hrApplication.hpp"
 #include "version.hpp"
 #include "hrFullscreenWrapper.hpp"
 #include "hrH3MReader.hpp"
 #include "hrSettings.hpp"
+#include "hrAdventureScreen.hpp"
+#include "hrRender.hpp"
 
 /*!
   \class hrWindow
   \brief The hrWindow class
 */
-hrWindow::hrWindow(QMainWindow *parent): QMainWindow(parent), scene(NULL), w(NULL)
+hrWindow::hrWindow(QMainWindow *parent):
+        QMainWindow(parent), scene(NULL), render(NULL)
 {
     setWindowTitle("OpenHoMM, fullscreen - F11, menu - F12");
 
@@ -40,56 +41,45 @@ hrWindow::hrWindow(QMainWindow *parent): QMainWindow(parent), scene(NULL), w(NUL
     if ( gameX > 0 && gameY > 0 )
         move(gameX, gameY);
 
-    hrH3MReader reader;
+    scene = new hrAdventureScreen();
+    render = new hrRender(this, scene);
 
-    QString filename = hrApplication::getMapName();
-
-    bool isMapLoad = reader.load(filename);
-
-    int size = reader.getSize();
-    scene = new hrScene(size, size);
-
-    if (isMapLoad)
-    {
-        for (int i = 0; i < size * size; i++)
-        {
-            hrTile tile = reader.getTile(i);
-            scene->addTile(tile);
-        }
-
-        int cnt = reader.getObjectsCount();
-        for (int i = 0; i < cnt; i++)
-        {
-            hrSceneObject object = reader.getObject(i);
-            if (!object.isUnderground())
-                scene->addObject(object);
-        }
-        scene->sortObjects();
-    }
-
-    scene->setCursor("cradvntr.def");
-
-    w = new hrGLWidget(this, scene);
-    setCentralWidget(w);
+    setCentralWidget(render);
     resize(800,600);
 
     if ( hrSettings::get().isFullscreen() )
-        {
+    {
         QSize windowmode_resolution(800,600);
         hrFullscreenWrapper::enableFullscreen(windowmode_resolution);
         setWindowState(windowState() | Qt::WindowFullScreen );
         menuBar->hide();
-        }
+    }
     else if ( hrSettings::get().isShowmenu() )
         menuBar->show();
-
-    w->startAnimate(200);
 }
 
 hrWindow::~hrWindow()
 {
-    delete w;
+    delete render;
     delete scene;
+}
+
+void hrWindow::AvdventureScreen()
+{
+    hrH3MReader reader;
+
+    QString filename = hrApplication::getMapName();
+
+    bool isMapLoad;
+    if ( filename.isEmpty() )
+        isMapLoad = reader.load("Maps/Back For Revenge.h3m");
+    else
+        isMapLoad = reader.load(filename);
+
+    if (isMapLoad)
+    {
+        scene->loadMap(&reader);
+    }
 }
 
 void hrWindow::resizeEvent(QResizeEvent *event)

@@ -15,33 +15,64 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
 #pragma once
+#include "hrCoord.hpp"
+
+typedef int hrCacheKey;
 
 class hrGraphicsItem
 {
-private:
-    struct Block
-    {
-        QVector<QImage> frames;
-    };
-    QVector<Block> blocks;
-    int curFrame;
-    int curBlock;
-    bool isNextFrame;
-    QRect rect;
 public:
-    hrGraphicsItem();
+    hrGraphicsItem()
+        : key(-1)
+        , curFrame(0)
+        , countFrames(0)
+        , isHorizontal(false)
+        , isVertical(false)
+    { }
 
-    int getFramesCount() const;
-    void nextFrame();
-    const QImage& getNextFrame();
-    const QImage& getFrame(int frame) const;
-    const QImage& getFrame();
-    const QRect& getRect() const;
-    void modifyFrame(const QImage& im);
+    hrGraphicsItem(hrCacheKey key, int count, const QSize &size)
+        : key(key)
+        , curFrame(0)
+        , countFrames(count)
+        , isHorizontal(false)
+        , isVertical(false)
+    {
+        rect.setRect(0, 0, size.width(), size.height());
+    }
 
-    void addImage(const QImage &im);
+    bool operator < (const hrGraphicsItem& s) const
+    {
+        if (key < s.key)
+            return true;
+        return false;
+    }
 
-    void addBlock();
-    void setCurBlock(int i);
-    int getBlocksCount() const;
+    QSize getSize() const
+    {
+        return QSize(rect.width(), rect.height());
+    }
+    void setPoint(int x, int y)
+    {
+        rect.setRect(x, y, rect.width(), rect.height());
+    }
+    void setPoint(const QPoint& p)
+    {
+        rect.setRect(p.x(), p.y(), rect.width(), rect.height());
+    }
+    void setMirror(bool horizontal, bool vertical)
+    {
+        isHorizontal = horizontal;
+        isVertical = vertical;
+    }
+    void setCurFrame(int frame)
+    {
+        curFrame = frame;
+    }
+
+    hrCacheKey key;
+    int curFrame;
+    int countFrames;
+    bool isHorizontal;
+    bool isVertical;
+    QRect rect;
 };

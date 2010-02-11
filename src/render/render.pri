@@ -1,15 +1,17 @@
 INCLUDEPATH += $$PWD
 DEPENDPATH += $$PWD
-HEADERS += hrGLWidget.hpp \
-    hrScene.hpp \
+HEADERS += hrScene.hpp \
     hrWindow.hpp \
     hrGraphicsItem.hpp \
     hrCoord.hpp \
-    hrTileAtlas.hpp \
-    hrFullscreenWrapper.hpp
-SOURCES += hrGLWidget.cpp \
-    hrScene.cpp \
+    hrFullscreenWrapper.hpp \
+    hrRender.hpp \
+    hrAdventureScreen.hpp \
+    hrCache.hpp
+SOURCES += hrScene.cpp \
     hrWindow.cpp \
     hrGraphicsItem.cpp \
-    hrTileAtlas.cpp \
-    hrFullscreenWrapper.cpp
+    hrFullscreenWrapper.cpp \
+    hrRender.cpp \
+    hrAdventureScreen.cpp \
+    hrCache.cpp

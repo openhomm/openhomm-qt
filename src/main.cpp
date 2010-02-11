@@ -79,12 +79,13 @@ int main(int argc, char** argv)
 
     hrFilesystem fs;
 
-    fs.mount("Data/h3sprite.lod");
+    fs.mount("data/h3sprite.lod");
     fs.mount("data/h3bitmap.lod");
     fs.mount("data/heroes3.snd");
 
     hrWindow w;
     w.show();
+    w.AvdventureScreen();
 
     return app.exec();
 }
