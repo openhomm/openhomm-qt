@@ -15,6 +15,7 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
 #pragma once
+#include "precompiled.hpp"
 
 class hrSceneObject
 {
@@ -24,9 +25,10 @@ class hrSceneObject
     quint8 visitable[6];
     bool overlay;
     bool underground;
-public:
-    hrSceneObject() { name = "default.def"; }
 
+    int curFrame;
+    int countFrames;
+public:
     hrSceneObject(int id
                   , const QString &name
                   , quint8 *visit
@@ -34,6 +36,7 @@ public:
                   , bool underground
                   , const QPoint &bottomRight)
         : id(id), name(name), overlay(overlay), underground(underground)
+        , curFrame(0), countFrames(0)
     {
         memcpy(visitable, visit, 6);
         rect.setBottomRight(bottomRight);
@@ -83,12 +86,32 @@ public:
     {
         return rect;
     }
-    int x() const
+    void setSize(QSize size)
     {
-        return rect.x();
+        QPoint p = rect.bottomRight();
+        rect.setRect(p.x() - size.width() + 1
+                   , p.y() - size.height() + 1
+                   , size.width()
+                   , size.height()
+                   );
     }
-    int y() const
+    QSize getSize() const
     {
-        return rect.y();
+        return QSize(rect.width(), rect.height());
+    }
+    void setFrames(int count)
+    {
+        countFrames = count;
+
+        curFrame = qrand() % countFrames;
+    }
+    int getNextFrame()
+    {
+        curFrame < countFrames - 1 ? curFrame++ : curFrame = 0;
+        return curFrame;
+    }
+    int getCurFrame() const
+    {
+        return curFrame;
     }
 };

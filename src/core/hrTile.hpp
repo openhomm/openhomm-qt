@@ -51,7 +51,7 @@ public:
     }
     int getRiverId() const
     {
-        return riverId + 100;
+        return riverId;
     }
     bool hasRoad() const
     {
@@ -59,7 +59,7 @@ public:
     }
     int getRoadId() const
     {
-        return roadId + 200;
+        return roadId;
     }
     int getTerrainFrame() const
     {
@@ -97,4 +97,7 @@ public:
     {
         return mirror & roadHorizontal;
     }
+    QString getTerrainName() const;
+    QString getRiverName() const;
+    QString getRoadName() const;
 };

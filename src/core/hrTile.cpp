@@ -21,3 +21,89 @@
   \class hrTile
   \brief The hrTile class
 */
+QString hrTile::getTerrainName() const
+{
+    QString name;
+    switch (terrainId)
+    {
+        case 0:
+            name = "dirttl.def";
+            break;
+        case 1:
+            name = "sandtl.def";
+            break;
+        case 2:
+            name = "grastl.def";
+            break;
+        case 3:
+            name = "snowtl.def";
+            break;
+        case 4:
+            name = "swmptl.def";
+            break;
+        case 5:
+            name = "rougtl.def";
+            break;
+        case 6:
+            name = "subbtl.def";
+            break;
+        case 7:
+            name = "lavatl.def";
+            break;
+        case 8:
+            name = "watrtl.def";
+            break;
+        case 9:
+            name = "rocktl.def";
+            break;
+        default:
+            name = "default.def";
+            break;
+    }
+    return name;
+}
+
+QString hrTile::getRiverName() const
+{
+    QString name;
+    switch (riverId)
+    {
+        case 1:
+            name = "clrrvr.def";
+            break;
+        case 2:
+            name = "icyrvr.def";
+            break;
+        case 3:
+            name = "mudrvr.def";
+            break;
+        case 4:
+            name = "lavrvr.def";
+            break;
+        default:
+            name = "default.def";
+            break;
+    }
+    return name;
+}
+
+QString hrTile::getRoadName() const
+{
+    QString name;
+    switch (roadId)
+    {
+        case 1:
+            name = "dirtrd.def";
+            break;
+        case 2:
+            name = "gravrd.def";
+            break;
+        case 3:
+            name = "cobbrd.def";
+            break;
+        default:
+            name = "default.def";
+            break;
+    }
+    return name;
+}
