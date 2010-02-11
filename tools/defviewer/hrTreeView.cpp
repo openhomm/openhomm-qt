@@ -20,8 +20,14 @@
 void hrTreeView::keyPressEvent(QKeyEvent *event)
 {
     if (event->key() == Qt::Key_Down)
-        emit highlighted(indexBelow(currentIndex()));
+    {
+        QModelIndex index = indexBelow(currentIndex());
+        emit highlighted(index.isValid() ? index : currentIndex());
+    }
     else if (event->key() == Qt::Key_Up)
-        emit highlighted(indexAbove(currentIndex()));
+    {
+        QModelIndex index = indexAbove(currentIndex());
+        emit highlighted(index.isValid() ? index : currentIndex());
+    }
     QTreeView::keyPressEvent(event);
 }

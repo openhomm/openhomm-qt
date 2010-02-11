@@ -108,7 +108,10 @@ void MainWindow::LoadImage(QModelIndex index)
             scene.addPixmap(pix);
         }
         else
+        {
+            scene.clear();
             label.setText(s + ": fail read");
+        }
     }
 }
 
