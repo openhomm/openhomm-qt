@@ -1,5 +1,5 @@
 // openhomm - open source clone of Heroes of Might and Magic III
-// Copyright (C) 2009 openhomm developers team (see AUTHORS)
+// Copyright (C) 2009-2010 openhomm developers team (see AUTHORS)
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -14,6 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
+#include "precompiled.hpp"
 #pragma once
 #include "hrScene.hpp"
 #include "hrGraphicsItem.hpp"
@@ -83,10 +84,12 @@ public:
     void onMouseLeave();
     void setViewport(int width, int height);
 
+    void switchGround(bool isUnderground);
+
 private:
-    QVector<hrTile> tiles;
+    QVector<hrTile> tilesGround;
     QVector<hrTile> tilesUnderground;
-    QList<hrSceneObject> objects;
+    QList<hrSceneObject> objectsGround;
     QList<hrSceneObject> objectsUnderground;
 
     QMap<int, hrGraphicsItem> itemsTerrain;
@@ -107,10 +110,14 @@ private:
     int dx;
     int dy;
     bool isAnimate;
+    bool isUnderground;
     void clearMap();
     void setVisibleRect(QRect rect);
+
     const hrTile& getTile(const QPoint& point) const;
-    void drawRoad(const hrTile& tile, const QPoint& pos);
+    void loadTile(const hrTile &tile);
+
+    void drawRoad(const hrTile &tile, const QPoint &pos);
 
 private slots:
     void scroll();

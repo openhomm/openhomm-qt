@@ -19,7 +19,7 @@
 class hrSceneObject
 {
     int id;
-    QString name;
+    //QString name;
     QRect rect;
     quint8 visitable[6];
     bool overlay;
@@ -29,12 +29,12 @@ class hrSceneObject
     int countFrames;
 public:
     hrSceneObject(int id
-                  , const QString &name
+                  //, const QString &name
                   , quint8 *visit
                   , bool overlay
                   , bool underground
                   , const QPoint &bottomRight)
-        : id(id), name(name), overlay(overlay), underground(underground)
+        : id(id), overlay(overlay), underground(underground)
         , curFrame(0), countFrames(0)
     {
         memcpy(visitable, visit, 6);
@@ -72,10 +72,6 @@ public:
     int getId() const
     {
         return id;
-    }
-    const QString& getName() const
-    {
-        return name;
     }
     QPoint getPoint() const
     {

@@ -31,7 +31,7 @@
 hrWindow::hrWindow(QMainWindow *parent):
         QMainWindow(parent), scene(NULL), render(NULL)
 {
-    setWindowTitle("OpenHoMM, fullscreen - F11, menu - F12");
+    setWindowTitle("OpenHoMM, fullscreen - F11, menu - F12, U - underground");
 
     createMenu();
 
@@ -115,6 +115,12 @@ void hrWindow::keyPressEvent(QKeyEvent *event)
             menuBar->show();
         else
             menuBar->hide();
+    }
+    if (event->key() == Qt::Key_U)
+    {
+        static bool flag = false;
+        flag ? flag = false : flag = true;
+        scene->switchGround(flag);
     }
 }
 

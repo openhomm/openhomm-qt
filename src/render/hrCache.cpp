@@ -1,5 +1,5 @@
 // openhomm - open source clone of Heroes of Might and Magic III
-// Copyright (C) 2009 openhomm developers team (see AUTHORS)
+// Copyright (C) 2009-2010 openhomm developers team (see AUTHORS)
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -17,33 +17,33 @@
 #include "precompiled.hpp"
 #include "hrCache.hpp"
 
-const int HR_FILE_SIZE = 0;//200000;
+const int HR_FILE_SIZE = 50000;
 
 hrCache::hrCache() : inc(0), target(0)
 {
-    cache.setMaxCost(200);
+    cache.setMaxCost(300);
 
     QDir dir;
     dir.mkdir("cache/");
-    file.setFileName("cache/cache0");
-    file.open(QIODevice::ReadOnly | QIODevice::Append);
+    cacheFile.setFileName("cache/cache0");
+    cacheFile.open(QIODevice::ReadOnly | QIODevice::Truncate | QIODevice::Append);
 
-    QFile fileFat("cache/cache1");
+    /*QFile fileFat("cache/cache1");
     if (fileFat.open(QIODevice::ReadOnly))
     {
         QDataStream in(&fileFat);
         in >> fat;
-    }
+    }*/
 }
 
 hrCache::~hrCache()
 {
-    QFile fileFat("cache/cache1");
+    /*QFile fileFat("cache/cache1");
     if (fileFat.open(QIODevice::WriteOnly | QIODevice::Truncate))
     {
         QDataStream out(&fileFat);
         out << fat;
-    }
+    }*/
 }
 
 void hrCache::setTarget(GLuint textureTarget)
@@ -55,34 +55,17 @@ hrGraphicsItem hrCache::loadItem(const QString &name, bool notDeletable)
 {
     hrCacheKey key = inc++;
 
-    hrCacheItem *item = new hrCacheItem();
+    hrCacheItem *item;
     if (fat.contains(name))
     {
-        qint64 pos = fat[name];
-        offsets[key] = pos;
-
-        loadFromDiscPrepared(pos, item);
+        item = LoadPrepared(fat[name]);
     }
     else
     {
-        int size = loadFromDisc(name, item);
-
-        if (size > HR_FILE_SIZE)
-        {
-            if (!file.atEnd())
-            {
-                file.seek(file.size());
-            }
-            fat[name] = file.pos();
-            offsets[key] = file.pos();
-
-            saveToDisc(name);
-        }
-        else
-        {
-            files[key] = name;
-        }
+        item = LoadAndPrepare(name);
     }
+
+    files[key] = name;
 
     if (notDeletable)
     {
@@ -96,13 +79,13 @@ hrGraphicsItem hrCache::loadItem(const QString &name, bool notDeletable)
     return hrGraphicsItem(key, item->countFrames(), item->getSize());
 }
 
-int hrCache::loadFromDisc(QString name, hrCacheItem* item)
+
+hrCacheItem* hrCache::Load(const QString &name) const
 {
-    Q_ASSERT(item);
+    hrCacheItem *item = new hrCacheItem();
 
     QImageReader ir("vfs:/" + name);
     QImage im;
-    int bytes = 0;
     for (int i = 0; ir.jumpToImage(i); i++)
         if (ir.read(&im))
         {
@@ -112,40 +95,104 @@ int hrCache::loadFromDisc(QString name, hrCacheItem* item)
                                                     );
             GLuint tx = bindImage(conv.bits(), conv.width(), conv.height());
             item->addFrame(tx);
-            bytes += conv.byteCount();
         }
+    item->setSize(im.size());
 
     if (ir.error())
     {
         qFatal("hrCache: %s", qPrintable(ir.errorString() + name));
     }
-    item->setSize(im.size());
-    return bytes;
+
+    return item;
 }
 
-void hrCache::loadFromDiscPrepared(qint64 pos, hrCacheItem *item)
+hrCacheItem* hrCache::LoadAndPrepare(const QString &name)
 {
-    Q_ASSERT(item);
+    hrCacheItem *item = new hrCacheItem();
 
-    file.seek(pos);
-    QDataStream in(&file);
+    QFile file("vfs:/" + name);
+    file.open(QIODevice::ReadOnly);
+
+    bool isHeaderWrite = true;
+    bool isFileLarge = false;
+    if (file.size() > HR_FILE_SIZE)
+    {
+        isFileLarge = true;
+
+        if (!cacheFile.atEnd())
+        {
+            cacheFile.seek(cacheFile.size());
+        }
+        fat[name] = cacheFile.pos();
+    }
+    QDataStream out(&cacheFile);
+
+    QImageReader ir(&file);
+    QImage im;
+    for (int i = 0; ir.jumpToImage(i); i++)
+    {
+        if (ir.read(&im))
+        {
+            QImage conv = QGLWidget::convertToGLFormat(target == GL_TEXTURE_2D
+                                                    ? ImageToPOT(im)
+                                                    : im
+                                                    );
+            GLuint tx = bindImage(conv.bits(), conv.width(), conv.height());
+            item->addFrame(tx);
+            
+            if (isFileLarge)
+            {
+                if (isHeaderWrite)
+                {
+                    out << im.size();
+                    out << ir.imageCount();
+                    isHeaderWrite = false;
+                }
+
+                out << QByteArray::fromRawData((char*)conv.bits(), conv.byteCount());
+            }
+        }
+    }
+    item->setSize(im.size());
+
+    if (ir.error())
+    {
+        qFatal("hrCache: %s", qPrintable(ir.errorString() + name));
+    }
+    if (cacheFile.error())
+    {
+        qFatal("hrCache: %s", qPrintable(cacheFile.errorString()));
+    }
+    
+    return item;
+}
+
+hrCacheItem* hrCache::LoadPrepared(qint64 pos)
+{
+    hrCacheItem *item = new hrCacheItem();
+
+    cacheFile.seek(pos);
+
+    QDataStream in(&cacheFile);
+
     QSize size;
     in >> size;
     item->setSize(size);
-    QVector<QByteArray> images;
-    in >> images;
-    for (int i = 0; i < images.size(); i++)
+    int count;
+    in >> count;
+    QByteArray image;
+    for (int i = 0; i < count; i++)
     {
-        GLuint tx = bindImage(images.at(i).data()
-                              , size.width()
-                              , size.height()
-                              );
+        in >> image;
+        GLuint tx = bindImage(image.data(), size.width(), size.height());
         item->addFrame(tx);
     }
-    if (file.error())
+
+    if (cacheFile.error())
     {
-        qFatal("hrCache: %s", qPrintable(file.errorString()));
+        qFatal("hrCache: %s", qPrintable(cacheFile.errorString()));
     }
+    return item;
 }
 
 GLuint hrCache::getTexture(const hrGraphicsItem &item)
@@ -159,28 +206,29 @@ GLuint hrCache::getTexture(const hrGraphicsItem &item)
     {
         cacheItem = cache[item.key];
     }
-    else if (offsets.contains(item.key))
-    {
-        cacheItem = new hrCacheItem();
-        loadFromDiscPrepared(offsets[item.key], cacheItem);
-        cache.insert(item.key, cacheItem);
-    }
     else if (files.contains(item.key))
     {
-        cacheItem = new hrCacheItem();
-        loadFromDisc(files[item.key], cacheItem);
+        const QString &name = files[item.key];
+        if (fat.contains(name))
+        {
+            cacheItem = LoadPrepared(fat[name]);
+        }
+        else
+        {
+            cacheItem = Load(name);
+        }
         cache.insert(item.key, cacheItem);
     }
     else
     {
        qFatal("hrCache: key not found");
     }
-    
+
     GLuint tx = cacheItem->getFrame(item.curFrame);
     return tx;
 }
 
-GLuint hrCache::bindImage(const GLvoid* image, int width, int height)
+GLuint hrCache::bindImage(const GLvoid* image, int width, int height) const
 {
     Q_ASSERT(target);
     GLuint format = GL_RGBA;
@@ -213,40 +261,6 @@ GLuint hrCache::bindImage(const GLvoid* image, int width, int height)
         qFatal("Out of texture memory");
 
     return tx;
-}
-
-void hrCache::saveToDisc(QString name)
-{
-    QImageReader ir("vfs:/" + name);
-    QVector<QByteArray> images;
-    QImage im;
-    for (int i = 0; ir.jumpToImage(i); i++)
-    {
-        if (ir.read(&im))
-        {
-            QImage conv = QGLWidget::convertToGLFormat(target == GL_TEXTURE_2D
-                                                       ? ImageToPOT(im)
-                                                       : im
-                                                       );
-            QByteArray bytes((char*)conv.bits(), conv.byteCount());
-            images.append(bytes);
-        }
-    }
-    if (ir.error())
-    {
-        qFatal("hrCache: %s", qPrintable(ir.errorString() + name));
-    }
-
-    QSize size = im.size();
-
-    QDataStream out(&file);
-    out << size;
-    out << images;
-
-    if (file.error())
-    {
-        qFatal("hrCache: %s", qPrintable(file.errorString()));
-    }
 }
 
 QImage hrCache::ImageToPOT(const QImage &im) const

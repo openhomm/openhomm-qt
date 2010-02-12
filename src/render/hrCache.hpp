@@ -1,5 +1,5 @@
 // openhomm - open source clone of Heroes of Might and Magic III
-// Copyright (C) 2009 openhomm developers team (see AUTHORS)
+// Copyright (C) 2009-2010 openhomm developers team (see AUTHORS)
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -96,22 +96,19 @@ private:
     int inc;
     GLuint target;
 
-    QFile file;
+    hrCacheItem* Load(const QString &name) const;
+    hrCacheItem* LoadPrepared(qint64 pos);
+    hrCacheItem* LoadAndPrepare(const QString &name);
 
-    int loadFromDisc(QString name, hrCacheItem*);
-    void loadFromDiscPrepared(qint64 pos, hrCacheItem* item);
-
-    void saveToDisc(QString name);
-
-    GLuint bindImage(const GLvoid* image, int width, int height);
+    GLuint bindImage(const GLvoid* image, int width, int height) const;
 
     QCache<hrCacheKey, hrCacheItem> cache;
     QMap<hrCacheKey, hrCacheItem*> map;
 
     QMap<hrCacheKey, QString> files;
-    QMap<hrCacheKey, qint64> offsets;
 
-    QMap<QString, qint64> fat;
+    QFile cacheFile;
+    QHash<QString, qint64> fat;
 
     QImage ImageToPOT(const QImage &im) const;
 };

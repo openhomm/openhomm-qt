@@ -1,5 +1,5 @@
 // openhomm - open source clone of Heroes of Might and Magic III
-// Copyright (C) 2009 openhomm developers team (see AUTHORS)
+// Copyright (C) 2009-2010 openhomm developers team (see AUTHORS)
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -17,7 +17,10 @@
 #include "precompiled.hpp"
 #include "hrAdventureScreen.hpp"
 
-hrAdventureScreen::hrAdventureScreen() : dx(0), dy(0), isAnimate(false)
+hrAdventureScreen::hrAdventureScreen()
+    : dx(0), dy(0)
+    , isAnimate(false)
+    , isUnderground(false)
 {
     connect(&scrollTimer, SIGNAL(timeout()), this, SLOT(scroll()));
     connect(&animateTimer, SIGNAL(timeout()), this, SLOT(animate()));
@@ -51,6 +54,9 @@ void hrAdventureScreen::setVisibleRect(QRect rect)
 void hrAdventureScreen::collect()
 {
     clearItems();
+
+    const QVector<hrTile> &tiles = isUnderground ? tilesUnderground : tilesGround;
+    QList<hrSceneObject> &objects = isUnderground ? objectsUnderground : objectsGround;
 
     if (tiles.isEmpty())
         return;
@@ -133,43 +139,40 @@ void hrAdventureScreen::loadMap(hrH3MReader *reader)
     for (int i = 0; i < size.width() * size.height(); i++)
     {
         hrTile tile = reader->getTile(i);
-        tiles.append(tile);
-        if (!itemsTerrain.contains(tile.terrainId))
+        tilesGround.append(tile);
+        loadTile(tile);
+        if (reader->hasUndergrund())
         {
-            itemsTerrain[tile.terrainId] = cache.loadItem(tile.getTerrainName(), true);
-        }
-        if (tile.hasRiver() && !itemsRiver.contains(tile.riverId))
-        {
-            itemsRiver[tile.riverId] = cache.loadItem(tile.getRiverName(), true);
-        }
-        if (tile.hasRoad() && !itemsRoad.contains(tile.roadId))
-        {
-            itemsRoad[tile.roadId] = cache.loadItem(tile.getRoadName(), true);
+            tile = reader->getTile(i, true);
+            tilesUnderground.append(tile);
+            loadTile(tile);
         }
     }
     for (int i = 0; i < reader->getObjectsCount(); i++)
     {
         hrSceneObject object = reader->getObject(i);
 
-        if (!object.isUnderground())
+        hrGraphicsItem item;
+        if (!itemsObject.contains(object.getId()))
         {
-            hrGraphicsItem item;
-            if (!itemsObject.contains(object.getId()))
-            {
-                item = cache.loadItem(object.getName());
-                itemsObject[object.getId()] = item;
-            }
-            else
-            {
-                item = itemsObject[object.getId()];
-            }
-            object.setFrames(item.countFrames);
-            object.setSize(coord::toCell(item.getSize()));
-
-            objects.append(object);
+            QString name = reader->getObjectName(object.getId());
+            item = cache.loadItem(name);
+            itemsObject[object.getId()] = item;
         }
+        else
+        {
+            item = itemsObject[object.getId()];
+        }
+        object.setFrames(item.countFrames);
+        object.setSize(coord::toCell(item.getSize()));
+
+        if (!object.isUnderground())
+            objectsGround.append(object);
+        else
+            objectsUnderground.append(object);
     }
-    qSort(objects);
+    qSort(objectsGround);
+    qSort(objectsUnderground);
 
     loadCursor("cradvntr.def");
     setCursor(CURSOR_POINTER);
@@ -177,17 +180,42 @@ void hrAdventureScreen::loadMap(hrH3MReader *reader)
     animateTimer.start(200);
 }
 
+void hrAdventureScreen::loadTile(const hrTile &tile)
+{
+    hrCache& cache = hrCache::Get();
+    if (!itemsTerrain.contains(tile.terrainId))
+    {
+        itemsTerrain[tile.terrainId] = cache.loadItem(tile.getTerrainName(), true);
+    }
+    if (tile.hasRiver() && !itemsRiver.contains(tile.riverId))
+    {
+        itemsRiver[tile.riverId] = cache.loadItem(tile.getRiverName(), true);
+    }
+    if (tile.hasRoad() && !itemsRoad.contains(tile.roadId))
+    {
+        itemsRoad[tile.roadId] = cache.loadItem(tile.getRoadName(), true);
+    }
+}
+
+void hrAdventureScreen::switchGround(bool isUnderground)
+{
+    this->isUnderground = isUnderground;
+    emit sceneChanged();
+}
+
 void hrAdventureScreen::clearMap()
 {
-    tiles.clear();
+    tilesGround.clear();
     tilesUnderground.clear();
-    objects.clear();
+    objectsGround.clear();
     objectsUnderground.clear();
 }
 
 const hrTile& hrAdventureScreen::getTile(const QPoint &p) const
 {
     Q_ASSERT(size.contains(p));
+
+    const QVector<hrTile> &tiles = isUnderground ? tilesUnderground : tilesGround;
 
     return tiles.at(p.y() * size.width() + p.x());
 }

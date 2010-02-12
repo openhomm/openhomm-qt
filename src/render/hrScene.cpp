@@ -62,5 +62,5 @@ const QCursor& hrScene::getCursor(int type) const
 {
     if (type >= 0 && type < cursor.size())
         return cursor.at(type);
-    return QCursor();
+    return QCursor(Qt::ArrowCursor);
 }

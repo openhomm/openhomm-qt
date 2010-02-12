@@ -340,11 +340,18 @@ bool hrH3MReader::load(const QString &name)
 
 hrTile hrH3MReader::getTile(quint32 index, bool isUnderground)
 {
-    Q_ASSERT( index >= 0 && index <= basic.size * basic.size);
-    if ( isUnderground )
+    Q_ASSERT(index >= 0 && index <= basic.size * basic.size);
+    if (isUnderground && basic.under == 1)
       return underground[index];
 
     return ground[index];
+}
+
+bool hrH3MReader::hasUndergrund() const
+{
+    if (basic.under == 1)
+        return true;
+    return false;
 }
 
 int hrH3MReader::getSize() const
@@ -359,15 +366,20 @@ int hrH3MReader::getObjectsCount() const
 
 hrSceneObject hrH3MReader::getObject(quint32 index) const
 {
-    Q_ASSERT( index >= 0 && index <= objectOptions);
+    Q_ASSERT(index >= 0 && index < objectOptions);
     return hrSceneObject(obj[index].objectID
-                         , objects[obj[index].objectID].filename
                          , objects[obj[index].objectID].actions
                          , objects[obj[index].objectID].isOverlay
                          , obj[index].coord[2] == 0 ? false : true
                          , QPoint(obj[index].coord[0], obj[index].coord[1])
                          );
 }
+const QString& hrH3MReader::getObjectName(quint32 id) const
+{
+    Q_ASSERT(id >= 0 && id < objectQuantity);
+    return objects[id].filename;
+}
+
 QT_BEGIN_NAMESPACE
 QDataStream &operator<<(QDataStream &out, const BasicParametres_t &)
 {
