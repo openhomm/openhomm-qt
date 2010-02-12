@@ -148,8 +148,12 @@ hrCacheItem* hrCache::LoadAndPrepare(const QString &name)
                     out << ir.imageCount();
                     isHeaderWrite = false;
                 }
-
+#if QT_VERSION >= 0x040600
+#warning df
                 out << QByteArray::fromRawData((char*)conv.bits(), conv.byteCount());
+#else
+                out << QByteArray::fromRawData((char*)conv.bits(), conv.numBytes());
+#endif
             }
         }
     }
