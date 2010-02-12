@@ -148,8 +148,9 @@ hrCacheItem* hrCache::LoadAndPrepare(const QString &name)
                     out << ir.imageCount();
                     isHeaderWrite = false;
                 }
+
+// For compatible with Qt 4.5. Qt 4.5 must be built with qt3support option.
 #if QT_VERSION >= 0x040600
-#warning df
                 out << QByteArray::fromRawData((char*)conv.bits(), conv.byteCount());
 #else
                 out << QByteArray::fromRawData((char*)conv.bits(), conv.numBytes());
