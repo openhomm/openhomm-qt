@@ -14,7 +14,6 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
-#include "precompiled.hpp"
 #pragma once
 #include "hrScene.hpp"
 #include "hrGraphicsItem.hpp"
@@ -111,6 +110,7 @@ private:
     int dy;
     bool isAnimate;
     bool isUnderground;
+    bool hasUnderground;
     void clearMap();
     void setVisibleRect(QRect rect);
 

@@ -347,7 +347,7 @@ hrTile hrH3MReader::getTile(quint32 index, bool isUnderground)
     return ground[index];
 }
 
-bool hrH3MReader::hasUndergrund() const
+bool hrH3MReader::hasUnderground() const
 {
     if (basic.under == 1)
         return true;

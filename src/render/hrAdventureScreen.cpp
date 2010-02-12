@@ -21,6 +21,7 @@ hrAdventureScreen::hrAdventureScreen()
     : dx(0), dy(0)
     , isAnimate(false)
     , isUnderground(false)
+    , hasUnderground(false)
 {
     connect(&scrollTimer, SIGNAL(timeout()), this, SLOT(scroll()));
     connect(&animateTimer, SIGNAL(timeout()), this, SLOT(animate()));
@@ -136,12 +137,13 @@ void hrAdventureScreen::loadMap(hrH3MReader *reader)
     size.setSize(QSize(reader->getSize(), reader->getSize()));
 
     hrCache& cache = hrCache::Get();
+    hasUnderground = reader->hasUnderground();
     for (int i = 0; i < size.width() * size.height(); i++)
     {
         hrTile tile = reader->getTile(i);
         tilesGround.append(tile);
         loadTile(tile);
-        if (reader->hasUndergrund())
+        if (hasUnderground)
         {
             tile = reader->getTile(i, true);
             tilesUnderground.append(tile);
@@ -199,8 +201,11 @@ void hrAdventureScreen::loadTile(const hrTile &tile)
 
 void hrAdventureScreen::switchGround(bool isUnderground)
 {
-    this->isUnderground = isUnderground;
-    emit sceneChanged();
+    if (hasUnderground)
+    {
+        this->isUnderground = isUnderground;
+        emit sceneChanged();
+    }
 }
 
 void hrAdventureScreen::clearMap()

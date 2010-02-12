@@ -58,9 +58,9 @@ void hrScene::loadCursor(const QString &name)
     }
 }
 
-const QCursor& hrScene::getCursor(int type) const
+QCursor hrScene::getCursor(int type) const
 {
-    if (type >= 0 && type < cursor.size())
+    if (!cursor.isEmpty() && type >= 0 && type < cursor.size())
         return cursor.at(type);
     return QCursor(Qt::ArrowCursor);
 }

@@ -333,7 +333,7 @@ public:
     bool load(const QString &name);
     hrTile getTile(quint32 index, bool isUnderground = false);
 
-    bool hasUndergrund() const;
+    bool hasUnderground() const;
     int getSize() const;
     int getObjectsCount() const;
     hrSceneObject getObject(quint32 index) const;

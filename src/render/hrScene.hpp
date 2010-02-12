@@ -30,7 +30,7 @@ public:
     void sortItems();
 
     void loadCursor(const QString &name);
-    const QCursor& getCursor(int type) const;
+    QCursor getCursor(int type) const;
 
     virtual void setViewport(int width, int height) = 0;
     virtual void collect() = 0;

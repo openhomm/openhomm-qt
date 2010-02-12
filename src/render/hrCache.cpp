@@ -197,7 +197,7 @@ hrCacheItem* hrCache::LoadPrepared(qint64 pos)
 
 GLuint hrCache::getTexture(const hrGraphicsItem &item)
 {
-    hrCacheItem *cacheItem;
+    hrCacheItem *cacheItem = NULL;
     if (map.contains(item.key))
     {
         cacheItem = map[item.key];
