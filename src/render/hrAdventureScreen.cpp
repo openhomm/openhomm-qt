@@ -136,8 +136,10 @@ void hrAdventureScreen::loadMap(hrH3MReader *reader)
     clearMap();
     size.setSize(QSize(reader->getSize(), reader->getSize()));
 
-    hrCache& cache = hrCache::Get();
     hasUnderground = reader->hasUnderground();
+
+    hrCache& cache = hrCache::Get();
+
     for (int i = 0; i < size.width() * size.height(); i++)
     {
         hrTile tile = reader->getTile(i);

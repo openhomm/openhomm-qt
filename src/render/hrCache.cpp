@@ -16,17 +16,18 @@
 //
 #include "precompiled.hpp"
 #include "hrCache.hpp"
+#include "hrSettings.hpp"
 
-const int HR_FILE_SIZE = 50000;
+const int HR_FILE_SIZE = 2000;
 
 hrCache::hrCache() : inc(0), target(0)
 {
-    cache.setMaxCost(300);
+    cache.setMaxCost(200);
 
     QDir dir;
     dir.mkdir("cache/");
     cacheFile.setFileName("cache/cache0");
-    cacheFile.open(QIODevice::ReadOnly | QIODevice::Truncate | QIODevice::Append);
+    cacheFile.open(QIODevice::ReadOnly | QIODevice::Append);
 
     /*QFile fileFat("cache/cache1");
     if (fileFat.open(QIODevice::ReadOnly))
@@ -38,6 +39,7 @@ hrCache::hrCache() : inc(0), target(0)
 
 hrCache::~hrCache()
 {
+    cacheFile.remove();
     /*QFile fileFat("cache/cache1");
     if (fileFat.open(QIODevice::WriteOnly | QIODevice::Truncate))
     {

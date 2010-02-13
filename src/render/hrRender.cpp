@@ -139,7 +139,12 @@ void hrRender::drawSprite(GLuint tx, QRect r, bool horizontal, bool vertical)
         qSwap(y1, y2);
     }
 
-    glBindTexture(target, tx);
+    static GLuint oldTx = 0;
+    if (oldTx != tx)
+    {
+        oldTx = tx;
+        glBindTexture(target, tx);
+    }
 
     glEnable(target);
     GLint v[] = {  r.x()             , r.y()

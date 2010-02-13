@@ -35,7 +35,7 @@ void hrScene::clearItems()
 
 void hrScene::sortItems()
 {
-    //qSort(items);
+    qSort(items);
 }
 
 QListIterator<hrGraphicsItem> hrScene::getItems()
