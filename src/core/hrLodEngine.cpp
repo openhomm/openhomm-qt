@@ -210,7 +210,7 @@ bool hrLodEngine::fillInternalCache(const QString &filename)
             LodEntry entry;
             lf->file->read((char *)&entry, sizeof(entry));
             lf->fat.insert(QString(entry.name).toLower(), entry);
-            hrFilesystem::fillGeneralCache(QString(entry.name).toLower(), filename);
+            hrFilesystem::fillGeneralCache(QString(entry.name), filename);
         }
         _cache.insert(filename, lf);
         return true;

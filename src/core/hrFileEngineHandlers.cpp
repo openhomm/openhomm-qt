@@ -36,7 +36,7 @@ QAbstractFileEngine* hrVfsEngineHandler::create(const QString &fileName) const
 
         file.remove(0,5); // remove 'vfs:/' at the begining
 
-        archive = hrFilesystem::findInCache(file.toLower());
+        archive = hrFilesystem::findInCache(file);
 
         if ( !archive.isNull() )
         {
@@ -44,7 +44,14 @@ QAbstractFileEngine* hrVfsEngineHandler::create(const QString &fileName) const
                 return new hrLodEngine(QString("lod:/") + archive + "/" + file);
             else if ( archive.indexOf(".snd") != -1 )
                 return new hrSndEngine(QString("snd:/") + archive + "/" + file);
-        }
+            else
+            {
+                QFileInfo info(archive);
+                if ( info.isDir() )
+                    return new QFSFileEngine(archive + '/' + file);
+            }
+        } else
+            qCritical("Can't find `%s` in internal cache", qPrintable(file));
     }
     return NULL;
 }

@@ -174,7 +174,7 @@ bool hrSndEngine::fillInternalCache(const QString &filename)
                 }
 
                 sf->fat.insert(QString(entry.name).toLower(), entry);
-                hrFilesystem::fillGeneralCache(QString(entry.name).toLower(), filename);
+                hrFilesystem::fillGeneralCache(QString(entry.name), filename);
             }
         }
         _cache.insert(filename, sf);

@@ -79,9 +79,7 @@ int main(int argc, char** argv)
 
     hrFilesystem fs;
 
-    fs.mount("data/h3sprite.lod");
-    fs.mount("data/h3bitmap.lod");
-    fs.mount("data/heroes3.snd");
+    fs.mount(QStringList() << "data/h3sprite.lod" << "data/h3bitmap.lod" << "data/heroes3.snd" );
 
     hrWindow w;
     w.show();

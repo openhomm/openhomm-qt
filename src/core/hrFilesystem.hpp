@@ -23,6 +23,8 @@ class hrFilesystem
 {
 public:
     bool mount(const QString &path);
+    void mount(const QStringList &path_list);
+
     bool umount(const QString &path);
 
     static void fillGeneralCache(const QString& filename, const QString &archive);
@@ -32,5 +34,9 @@ public:
     static QString extractFilenameFromPath(const QString& path, const char* ext);
     static QString extractArchnameFromPath(const QString& path, const char* ext);
 private:
+    bool mountDir(const QString &path);
+    void walkDirectory(const QString &path, QStringList &fileList);
+    QString adjustCaseInPath(const QString &path, const QDir &baseDir);
+
     static fileSystemCache _cache;
 };

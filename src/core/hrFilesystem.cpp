@@ -22,47 +22,113 @@
 
 fileSystemCache hrFilesystem::_cache;
 
-const char * MOUNT_SUCCESSFULLY = "Successfully mounted: %s";
-const char * MOUNT_FAILED       = "Failed to mount: %s";
+const char * MOUNT_SUCCESSFULLY = "\tSuccessfully mounted!";
+const char * MOUNT_FAILED       = "\tFailed to mount!";
 
-bool hrFilesystem::mount(const QString &path)
+/**
+*  Find a case-correct path.
+ *  @param path a case-insensitive path
+ *  @param baseDir a existing base directory. Certainly does not require case correction.
+ *  @return Right path or null string on error.
+ */
+QString hrFilesystem::adjustCaseInPath(const QString &path, const QDir &baseDir)
 {
     QStringList pathElements = path.split('/');
+    QDir current = baseDir;
 
-    QDir current(hrSettings::get().gameDir());
-
-    QString normalPath = hrSettings::get().gameDir() + '/' ;
-
-    for ( int j = 0; j < pathElements.size(); j++ )
+    for ( int j = 0; j < pathElements.size()-1; j++ )
     {
-        QStringList el = current.entryList(QStringList() << pathElements[j], QDir::Dirs | QDir::Files );
-        if ( el.size() != 0 )
+        QString next = pathElements[j];
+
+        if (!current.exists(next))
         {
-            normalPath += el[0] + '/';
-            if ( current.exists(el[0]) )
-                current.cd(el[0]);
+            QStringList candidates = current.entryList(QStringList() << next, QDir::Dirs | QDir::Readable ); // flag QDir::CaseSensitive does not set by default and this is that we need
+
+            if (candidates.size() == 0)
+            {
+                qCritical("Directory `%s` not found in directory `%s`", qPrintable(next), qPrintable(current.path()));
+                return QString();
+            }
+
+            if (candidates.size() != 1)
+                qWarning("Ambiguous element `%s` in directory `%s`, selecting `%s`", qPrintable(next), qPrintable(current.path()), qPrintable(candidates.first()));
+
+            next = candidates.first();
+        }
+
+        if (!current.cd(next))
+        {
+            qCritical("Cannot enter directory `%s` in directory `%s`", qPrintable(next), qPrintable(current.path()));
+            return QString();
         }
     }
 
-    normalPath.remove(normalPath.length() -1, 1); // remove last slash
+    QString last = pathElements.last();
+
+    if (!current.exists(last))
+    {
+        QStringList candidates = current.entryList(QStringList() << last, QDir::Dirs | QDir::Files | QDir::Readable ); // flag QDir::CaseSensitive does not set by default and this is that we need
+
+        if (candidates.size() == 0)
+        {
+            qCritical("File or directory `%s` not found in directory `%s`", qPrintable(last), qPrintable(current.path()));
+            return QString();
+        }
+
+        if (candidates.size() != 1)
+            qWarning("Ambiguous element `%s` in directory `%s`, selecting `%s`", qPrintable(last), qPrintable(current.path()), qPrintable(candidates.first()));
+
+        last = candidates.first();
+    }
+    return current.filePath(last);
+}
+
+bool hrFilesystem::mount(const QString &path)
+{
+    QDir gameRoot = hrSettings::get().gameDir();
+
+    Q_ASSERT(gameRoot.exists());
+
+    QString normalPath = adjustCaseInPath(path,gameRoot);
+
+    if (normalPath.isNull() || !QFile::exists(normalPath))
+        return false;
+
     qDebug("Trying to mount: %s", qPrintable(normalPath));
 
-    if ( normalPath.indexOf(".lod", 0, Qt::CaseInsensitive) != -1 )
+    if ( normalPath.endsWith(".lod", Qt::CaseInsensitive) )
     {
         if ( hrLodEngine::fillInternalCache(normalPath) )
-            qDebug(MOUNT_SUCCESSFULLY, qPrintable(normalPath));
+            qDebug(MOUNT_SUCCESSFULLY);
         else
-            qCritical(MOUNT_FAILED, qPrintable(normalPath));
+            qCritical(MOUNT_FAILED);
     }
-    else if ( normalPath.indexOf(".snd", 0, Qt::CaseInsensitive) != -1 )
+    else if ( normalPath.endsWith(".snd", Qt::CaseInsensitive) )
     {
         if ( hrSndEngine::fillInternalCache(normalPath) )
-            qDebug(MOUNT_SUCCESSFULLY, qPrintable(normalPath));
+            qDebug(MOUNT_SUCCESSFULLY);
         else
-            qCritical(MOUNT_FAILED, qPrintable(normalPath));
+            qCritical(MOUNT_FAILED);
+    }
+    else
+    {
+        if ( !mountDir(normalPath))
+            qCritical("\tUnsupported archive type");
+        else
+            qDebug(MOUNT_SUCCESSFULLY);
     }
 
     return true;
+
+}
+/*!
+  \overload
+*/
+
+void hrFilesystem::mount(const QStringList &path_list)
+{
+    for ( int i = 0; i < path_list.size(); i++)
+        mount(path_list[i]);
 }
 
 /*!
@@ -71,12 +137,57 @@ bool hrFilesystem::mount(const QString &path)
 bool hrFilesystem::umount(const QString &path)
 {
     Q_UNUSED(path);
-    return true;
+    return false;
 }
 
 void hrFilesystem::fillGeneralCache(const QString &filename, const QString &archive)
 {
     _cache.insert(filename, archive);
+}
+
+void hrFilesystem::walkDirectory(const QString &path, QStringList &fileList)
+{
+    QFileInfo info(path);
+
+    if ( info.isDir() )
+    {
+        QDir mounted(path);
+        QFileInfoList entries = mounted.entryInfoList();
+
+        for ( int i = 0; i < entries.size(); i++)
+        {
+            if ( entries[i].fileName() == "." || entries[i].fileName() == "..")
+                continue;
+
+            if ( entries[i].isDir() )
+            {
+                walkDirectory(entries[i].absoluteFilePath(), fileList);
+                continue;
+            }
+
+            fileList.append(entries[i].absoluteFilePath());
+        }
+    }
+}
+
+bool hrFilesystem::mountDir(const QString &path)
+{
+    QFileInfo info(path);
+
+    if ( info.isDir() )
+    {
+        QStringList fileList;
+        walkDirectory(path, fileList);
+
+        for ( int i = 0; i < fileList.size(); i++)
+        {
+            fileList[i].remove(path);
+            fileList[i].remove(0, 1); // remove first '/'
+            hrFilesystem::fillGeneralCache(fileList[i], path);
+        }
+    }
+
+    return info.isDir();
 }
 
 /*!
@@ -91,7 +202,15 @@ QString hrFilesystem::findInCache(const QString &filename)
         return _cache[filename];
     }
 
-    qWarning() << "Not found " << filename << __FILE__ << __LINE__;
+    QList<QString> keys = _cache.keys();
+    QStringList keys_string(keys);
+    QStringList results;
+
+    results = keys_string.filter(filename,  Qt::CaseInsensitive);
+
+    if ( results.size() > 0 )
+        return _cache[results[0]];
+
     return QString();
 }
 
