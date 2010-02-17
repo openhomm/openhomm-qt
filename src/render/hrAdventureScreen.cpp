@@ -292,10 +292,9 @@ void hrAdventureScreen::setCursor(AdvCursorType_e cursorType)
     }
 }
 
-void hrAdventureScreen::onMouseEvent(QMouseEvent *event)
+void hrAdventureScreen::onMouseEvent(const QPointF &pos)
 {
-    //qWarning("on mouse event");
-    QPoint pos = event->pos();
+    //QPoint pos = event->pos();
     const int border = 50;
     bool startScrollTimer = true;
 

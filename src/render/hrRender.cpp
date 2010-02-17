@@ -18,7 +18,6 @@
 #include "hrGL.hpp"
 #include "hrRender.hpp"
 
-
 hrRender::hrRender(QWidget *parent, hrScene *s)
     : QGLWidget(parent), target(0), zoom(1.0)
 {
@@ -175,7 +174,10 @@ void hrRender::drawSprite(GLuint tx, QRect r, bool horizontal, bool vertical)
 
 void hrRender::mouseMoveEvent(QMouseEvent *event)
 {
-    scene->onMouseEvent(event);
+    QPointF pos = event->posF();
+    pos.setX(pos.x() / zoom);
+    pos.setY(pos.y() / zoom);
+    scene->onMouseEvent(pos);
 }
 
 void hrRender::leaveEvent(QEvent *event)

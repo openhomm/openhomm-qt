@@ -79,7 +79,7 @@ public:
     ~hrAdventureScreen();
     void loadMap(hrH3MReader *reader);
     void collect();
-    void onMouseEvent(QMouseEvent *event);
+    void onMouseEvent(const QPointF &pos);
     void onMouseLeave();
     void setViewport(int width, int height);
 

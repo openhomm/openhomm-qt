@@ -84,7 +84,6 @@ int main(int argc, char** argv)
     hrWindow w;
     w.show();
     w.MenuScreen();
-    w.repaint();
     w.AvdventureScreen();
 
     return app.exec();

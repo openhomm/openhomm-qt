@@ -34,7 +34,7 @@ public:
 
     virtual void setViewport(int width, int height) = 0;
     virtual void collect() = 0;
-    virtual void onMouseEvent(QMouseEvent *event) = 0;
+    virtual void onMouseEvent(const QPointF &pos) = 0;
     virtual void onMouseLeave() = 0;
 
 signals:

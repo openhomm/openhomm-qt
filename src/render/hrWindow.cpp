@@ -73,6 +73,7 @@ hrWindow::~hrWindow()
 
 void hrWindow::MenuScreen()
 {
+    repaint();
     menuscr->showLoadScreen();
 }
 
