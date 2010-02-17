@@ -18,6 +18,7 @@
 
 class hrRender;
 class hrAdventureScreen;
+class hrMenuScreen;
 
 class hrWindow : public QMainWindow
 {
@@ -27,10 +28,12 @@ public:
     hrWindow(QMainWindow *parent = 0);
     ~hrWindow();
 
+    void MenuScreen();
     void AvdventureScreen();
 
 private:
-    hrAdventureScreen *scene;
+    hrMenuScreen *menuscr;
+    hrAdventureScreen *advscr;
     hrRender *render;
 
     QMenuBar *menuBar;

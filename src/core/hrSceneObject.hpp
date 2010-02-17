@@ -19,7 +19,6 @@
 class hrSceneObject
 {
     int id;
-    //QString name;
     QRect rect;
     quint8 visitable[6];
     bool overlay;
@@ -29,7 +28,6 @@ class hrSceneObject
     int countFrames;
 public:
     hrSceneObject(int id
-                  //, const QString &name
                   , quint8 *visit
                   , bool overlay
                   , bool underground

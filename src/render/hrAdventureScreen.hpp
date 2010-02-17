@@ -98,6 +98,7 @@ private:
 
     QRect viewport;
     QRect size;
+    QRect window;
 
     QTimer scrollTimer;
     QTimer animateTimer;

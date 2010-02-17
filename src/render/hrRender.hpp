@@ -19,18 +19,6 @@
 #include "hrScene.hpp"
 #include "hrCache.hpp"
 
-#ifndef GL_TEXTURE_RECTANGLE_ARB
-#define GL_TEXTURE_RECTANGLE_ARB 0x84F5
-#endif
-
-#ifndef GL_TEXTURE_RECTANGLE_EXT
-#define GL_TEXTURE_RECTANGLE_EXT 0x84F5
-#endif
-
-#ifndef GL_TEXTURE_RECTANGLE_NV
-#define GL_TEXTURE_RECTANGLE_NV 0x84F5
-#endif
-
 class hrRender : public QGLWidget
 {
     Q_OBJECT
@@ -45,10 +33,12 @@ public:
     ~hrRender();
 
     void setScene(hrScene* scene);
+    void setZoom(float zoom);
 
 private:
     hrScene* scene;
     GLuint target;
+    float zoom;
 
     void drawSprite(GLuint tx, QRect r, bool horizontal = false, bool vertical = false);
     void checkExtensions();

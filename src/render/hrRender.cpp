@@ -15,11 +15,12 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
 #include "precompiled.hpp"
+#include "hrGL.hpp"
 #include "hrRender.hpp"
 
 
 hrRender::hrRender(QWidget *parent, hrScene *s)
-    : QGLWidget(parent), target(0)
+    : QGLWidget(parent), target(0), zoom(1.0)
 {
     setMouseTracking(true);
 
@@ -37,6 +38,8 @@ void hrRender::setScene(hrScene *s)
     scene = s;
     connect(scene, SIGNAL(sceneChanged()), this, SLOT(onSceneChanged()));
     connect(scene, SIGNAL(cursorChaged(int)), this, SLOT(onCursorChanged(int)));
+
+    scene->setViewport(width(), height());
 }
 
 void hrRender::onSceneChanged()
@@ -53,7 +56,7 @@ void hrRender::initializeGL()
 {
     checkExtensions();
     hrCache& cache = hrCache::Get();
-    cache.setTarget(target);
+    cache.setContext(context());
 
     glViewport(0, 0, width(), height());
     glMatrixMode(GL_PROJECTION);
@@ -79,7 +82,16 @@ void hrRender::resizeGL(int w, int h)
     glLoadIdentity();
     gluOrtho2D(0, w, h, 0);
 
-    scene->setViewport(w, h);
+    glScalef(1.0 * zoom, 1.0 * zoom, 1);
+
+    scene->setViewport(w / zoom, h / zoom);
+}
+
+void hrRender::setZoom(float zoom)
+{
+    this->zoom = zoom;
+    resizeGL(width(), height());
+    updateGL();
 }
 
 void hrRender::paintGL()
@@ -108,7 +120,7 @@ void hrRender::drawSprite(GLuint tx, QRect r, bool horizontal, bool vertical)
 
     if (target == GL_TEXTURE_2D)
     {
-        int s = hrCache::NearestGLTextureSize(qMax(r.width(), r.height()));
+        int s = hrgl::NearestGLTextureSize(qMax(r.width(), r.height()));
         r.setWidth(s);
         r.setHeight(s);
 
@@ -176,7 +188,7 @@ void hrRender::checkExtensions()
 {
     QString extensions(reinterpret_cast<const char *>(glGetString(GL_EXTENSIONS)));
 
-    if (extensions.contains("GL_ARB_texture_rectangle"))
+    /*if (extensions.contains("GL_ARB_texture_rectangle"))
     {
         qWarning("GL_ARB_texture_rectangle");
         target = GL_TEXTURE_RECTANGLE_ARB;
@@ -191,7 +203,7 @@ void hrRender::checkExtensions()
         qWarning("GL_EXT_texture_rectangle");
         target = GL_TEXTURE_RECTANGLE_EXT;
     }
-    else
+    else*/
     {
         qWarning("GL_TEXTURE_2D");
         target = GL_TEXTURE_2D;

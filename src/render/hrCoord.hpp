@@ -19,6 +19,7 @@
 
 class QPoint;
 class QRect;
+class QSize;
 
 namespace coord
 {

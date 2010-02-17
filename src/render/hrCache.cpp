@@ -15,59 +15,66 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
 #include "precompiled.hpp"
+#include "hrGL.hpp"
 #include "hrCache.hpp"
-#include "hrSettings.hpp"
 
-const int HR_FILE_SIZE = 2000;
+typedef void (APIENTRY *pfn_glCompressedTexImage2DARB) (GLenum, GLint, GLenum, GLsizei,
+                                                        GLsizei, GLint, GLsizei, const GLvoid *);
+static pfn_glCompressedTexImage2DARB hr_glCompressedTexImage2DARB = 0;
 
-hrCache::hrCache() : inc(0), target(0)
+//typedef void (APIENTRY *pfn_glGetCompressedTexImageARB) (GLenum, GLint, void *);
+//static pfn_glGetCompressedTexImageARB  hr_glGetCompressedTexImageARB = 0;
+
+
+
+static const int HR_FILE_SIZE = 0;
+
+hrCache::hrCache() : target(GL_TEXTURE_2D), format(GL_RGBA)
 {
-    cache.setMaxCost(200);
+    cache.setMaxCost(1000);
 
-    QDir dir;
+    /*QDir dir;
     dir.mkdir("cache/");
     cacheFile.setFileName("cache/cache0");
-    cacheFile.open(QIODevice::ReadOnly | QIODevice::Append);
-
-    /*QFile fileFat("cache/cache1");
-    if (fileFat.open(QIODevice::ReadOnly))
-    {
-        QDataStream in(&fileFat);
-        in >> fat;
-    }*/
+    cacheFile.open(QIODevice::Append);*/
 }
 
 hrCache::~hrCache()
 {
-    cacheFile.remove();
-    /*QFile fileFat("cache/cache1");
-    if (fileFat.open(QIODevice::WriteOnly | QIODevice::Truncate))
-    {
-        QDataStream out(&fileFat);
-        out << fat;
-    }*/
 }
 
-void hrCache::setTarget(GLuint textureTarget)
+void hrCache::setContext(const QGLContext *context)
 {
-    target = textureTarget;
+    if (context->isValid())
+    {
+        hr_glCompressedTexImage2DARB = (pfn_glCompressedTexImage2DARB)context->getProcAddress(QLatin1String("glCompressedTexImage2DARB"));
+        if (!hr_glCompressedTexImage2DARB)
+        {
+            qWarning("hrCache: glCompressed* functions not found");
+        }
+        checkExtensions();
+    }
+    else
+    {
+        qFatal("hrCache: invalid context");
+    }
 }
 
 hrGraphicsItem hrCache::loadItem(const QString &name, bool notDeletable)
 {
+    static int inc = 0;
     hrCacheKey key = inc++;
 
     hrCacheItem *item;
-    if (fat.contains(name))
+    //if (fat.contains(name))
     {
-        item = LoadPrepared(fat[name]);
+        //item = LoadPrepared(fat[name]);
     }
-    else
+    //else
     {
-        item = LoadAndPrepare(name);
+        //item = LoadAndPrepare(name);
+        item = Load(name);
     }
-
-    files[key] = name;
 
     if (notDeletable)
     {
@@ -76,6 +83,7 @@ hrGraphicsItem hrCache::loadItem(const QString &name, bool notDeletable)
     else
     {
         cache.insert(key, item);
+        files[key] = name;
     }
 
     return hrGraphicsItem(key, item->countFrames(), item->getSize());
@@ -88,16 +96,16 @@ hrCacheItem* hrCache::Load(const QString &name) const
 
     QImageReader ir("vfs:/" + name);
     QImage im;
-    for (int i = 0; ir.jumpToImage(i); i++)
+    if (ir.read(&im))
+    {
+        item->addFrame(Load(im));
+    }
+    for (int i = 1; ir.jumpToImage(i); i++)
         if (ir.read(&im))
         {
-            QImage conv = QGLWidget::convertToGLFormat(target == GL_TEXTURE_2D
-                                                    ? ImageToPOT(im)
-                                                    : im
-                                                    );
-            GLuint tx = bindImage(conv.bits(), conv.width(), conv.height());
-            item->addFrame(tx);
+            item->addFrame(Load(im));
         }
+
     item->setSize(im.size());
 
     if (ir.error())
@@ -108,7 +116,22 @@ hrCacheItem* hrCache::Load(const QString &name) const
     return item;
 }
 
-hrCacheItem* hrCache::LoadAndPrepare(const QString &name)
+GLuint hrCache::Load(const QImage &im) const
+{
+    QImage conv = QGLWidget::convertToGLFormat(target == GL_TEXTURE_2D
+                                            ? ImageToPOT(im)
+                                            : im
+                                            );
+    GLuint tx = bindImage(conv.bits()
+                          , conv.width()
+                          , conv.height()
+                          , false
+                          , 0
+                          );
+    return tx;
+}
+
+/*hrCacheItem* hrCache::LoadAndPrepare(const QString &name)
 {
     hrCacheItem *item = new hrCacheItem();
 
@@ -139,7 +162,12 @@ hrCacheItem* hrCache::LoadAndPrepare(const QString &name)
                                                     ? ImageToPOT(im)
                                                     : im
                                                     );
-            GLuint tx = bindImage(conv.bits(), conv.width(), conv.height());
+            GLuint tx = bindImage(conv.bits()
+                                  , conv.width()
+                                  , conv.height()
+                                  , false
+                                  , 0
+                                  );
             item->addFrame(tx);
             
             if (isFileLarge)
@@ -172,9 +200,9 @@ hrCacheItem* hrCache::LoadAndPrepare(const QString &name)
     }
     
     return item;
-}
+}*/
 
-hrCacheItem* hrCache::LoadPrepared(qint64 pos)
+/*hrCacheItem* hrCache::LoadPrepared(qint64 pos)
 {
     hrCacheItem *item = new hrCacheItem();
 
@@ -191,7 +219,12 @@ hrCacheItem* hrCache::LoadPrepared(qint64 pos)
     for (int i = 0; i < count; i++)
     {
         in >> image;
-        GLuint tx = bindImage(image.data(), size.width(), size.height());
+        GLuint tx = bindImage(image.data()
+                              , size.width()
+                              , size.height()
+                              , true
+                              , image.size()
+                              );
         item->addFrame(tx);
     }
 
@@ -200,7 +233,7 @@ hrCacheItem* hrCache::LoadPrepared(qint64 pos)
         qFatal("hrCache: %s", qPrintable(cacheFile.errorString()));
     }
     return item;
-}
+}*/
 
 GLuint hrCache::getTexture(const hrGraphicsItem &item)
 {
@@ -216,11 +249,11 @@ GLuint hrCache::getTexture(const hrGraphicsItem &item)
     else if (files.contains(item.key))
     {
         const QString &name = files[item.key];
-        if (fat.contains(name))
+        //if (fat.contains(name))
         {
-            cacheItem = LoadPrepared(fat[name]);
+            //cacheItem = LoadPrepared(fat[name]);
         }
-        else
+        //else
         {
             cacheItem = Load(name);
         }
@@ -235,60 +268,78 @@ GLuint hrCache::getTexture(const hrGraphicsItem &item)
     return tx;
 }
 
-GLuint hrCache::bindImage(const GLvoid* image, int width, int height) const
+GLuint hrCache::bindImage(const GLvoid *image
+                          , int width
+                          , int height
+                          , bool compressed
+                          , int size) const
 {
-    Q_ASSERT(target);
-    GLuint format = GL_RGBA;
     GLuint tx;
     glGenTextures(1, &tx);
     glBindTexture(target, tx);
 
-
     if (target == GL_TEXTURE_2D)
     {
-        int s = NearestGLTextureSize(qMax(width, height));
+        int s = hrgl::NearestGLTextureSize(qMax(width, height));
         width = s;
         height = s;
 
         glTexParameteri(target, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
         glTexParameteri(target, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
     }
-    glTexParameteri(target, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-    glTexParameteri(target, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexParameteri(target, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameteri(target, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 
-    glTexImage2D(target, 0, format, width, height, 0
-                 , GL_RGBA
-                 , GL_UNSIGNED_BYTE
-                 , image
-                 );
+    if (compressed && hr_glCompressedTexImage2DARB)
+    {
+        hr_glCompressedTexImage2DARB(target, 0, format, width, height, 0
+                                     , size
+                                     , image
+                                     );
+    }
+    else
+    {
+        glTexImage2D(target, 0, format, width, height, 0
+                     , GL_RGBA
+                     , GL_UNSIGNED_BYTE
+                     , image
+                     );
+    }
 
     GLenum error = glGetError();
 
     if (error == GL_OUT_OF_MEMORY)
+    {
         qFatal("Out of texture memory");
-
+    }
     return tx;
+}
+
+int hrCache::getCompressedImageSize() const
+{
+    GLint param = 0;
+    glGetTexLevelParameteriv(target, 0, GL_TEXTURE_COMPRESSED_IMAGE_SIZE, &param);
+    return param;
 }
 
 QImage hrCache::ImageToPOT(const QImage &im) const
 {
-    int s = NearestGLTextureSize(qMax(im.width(), im.height()));
+    int s = hrgl::NearestGLTextureSize(qMax(im.width(), im.height()));
     return im.copy(0, 0, s, s);
 }
 
-/*!
-  returns the highest number closest to v, which is a power of 2
-
-  \sa http://graphics.stanford.edu/~seander/bithacks.html#RoundUpPowerOf2
-*/
-qint32 hrCache::NearestGLTextureSize(qint32 v)
+void hrCache::checkExtensions()
 {
-    v--;
-    v |= v >> 1;
-    v |= v >> 2;
-    v |= v >> 4;
-    v |= v >> 8;
-    v |= v >> 16;
-    v++;
-    return v;
+    QString extensions(reinterpret_cast<const char *>(glGetString(GL_EXTENSIONS)));
+
+    if (extensions.contains("GL_ARB_texture_compression"))
+    {
+        qWarning("GL_ARB_texture_compression");
+        format = GL_COMPRESSED_RGBA_ARB;
+    }
+    if (extensions.contains("GL_EXT_texture_compression_s3tc"))
+    {
+        qWarning("GL_EXT_texture_compression_s3tc");
+        format = GL_COMPRESSED_RGBA_S3TC_DXT5_EXT;
+    }
 }

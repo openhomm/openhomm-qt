@@ -34,6 +34,7 @@ hrAdventureScreen::~hrAdventureScreen()
 void hrAdventureScreen::setViewport(int width, int height)
 {
     setVisibleRect(QRect(0, 0, width, height));
+    window.setRect(0, 0, width, height);
 }
 
 void hrAdventureScreen::setVisibleRect(QRect rect)
@@ -65,8 +66,10 @@ void hrAdventureScreen::collect()
     for (int i = viewport.width() - 1; i >= 0; i--)
         for (int j = viewport.height() - 1; j >= 0; j--)
         {
-            QPoint pos = coord::toPix(QPoint(i,j));
-            const hrTile &tile = getTile(viewport.topLeft() + QPoint(i, j));
+            QPoint pos = coord::toPix(QPoint(i, j));
+            QPoint index = viewport.topLeft() + QPoint(i, j);
+
+            const hrTile &tile = tiles.at(index.y() * size.width() + index.x());
 
             hrGraphicsItem item = itemsTerrain[tile.terrainId];
             item.setCurFrame(tile.terrainFrame);
@@ -93,7 +96,9 @@ void hrAdventureScreen::collect()
         for (int i = 0; i < viewport.width(); i++)
         {
             QPoint pos = coord::toPix(QPoint(i, -1));
-            const hrTile &tile = getTile(viewport.topLeft() + QPoint(i, -1));
+            QPoint index = viewport.topLeft() + QPoint(i, -1);
+
+            const hrTile &tile = tiles.at(index.y() * size.width() + index.x());
 
             if (tile.hasRoad())
             {
@@ -229,12 +234,12 @@ const hrTile& hrAdventureScreen::getTile(const QPoint &p) const
 
 int hrAdventureScreen::width() const
 {
-    return coord::toPix(viewport.width());
+    return window.width();
 }
 
 int hrAdventureScreen::height() const
 {
-    return coord::toPix(viewport.height());
+    return window.height();
 }
 
 void hrAdventureScreen::scroll()

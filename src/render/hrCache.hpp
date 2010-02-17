@@ -17,15 +17,6 @@
 #pragma once
 #include "hrGraphicsItem.hpp"
 
-#ifndef GL_SGIS_generate_mipmap
-#define GL_GENERATE_MIPMAP_SGIS           0x8191
-#define GL_GENERATE_MIPMAP_HINT_SGIS      0x8192
-#endif
-
-#ifndef GL_CLAMP_TO_EDGE
-#define GL_CLAMP_TO_EDGE 0x812F
-#endif
-
 class hrCacheItem
 {
 public:
@@ -88,27 +79,34 @@ public:
 
     GLuint getTexture(const hrGraphicsItem& item);
     hrGraphicsItem loadItem(const QString& name, bool notDeletable = false);
-    void setTarget(GLuint textureTarget);
+    void setContext(const QGLContext *context);
 
-    static qint32 NearestGLTextureSize(qint32 v);
 private:
     hrCache();
-    int inc;
     GLuint target;
+    GLuint format;
 
     hrCacheItem* Load(const QString &name) const;
-    hrCacheItem* LoadPrepared(qint64 pos);
-    hrCacheItem* LoadAndPrepare(const QString &name);
+    GLuint Load(const QImage &im) const;
+    //hrCacheItem* LoadPrepared(qint64 pos);
+    //hrCacheItem* LoadAndPrepare(const QString &name);
 
-    GLuint bindImage(const GLvoid* image, int width, int height) const;
+    GLuint bindImage(const GLvoid* image
+                     , int width
+                     , int height
+                     , bool compressed
+                     , int size) const;
+
+    int getCompressedImageSize() const;
 
     QCache<hrCacheKey, hrCacheItem> cache;
     QMap<hrCacheKey, hrCacheItem*> map;
 
     QMap<hrCacheKey, QString> files;
 
-    QFile cacheFile;
-    QHash<QString, qint64> fat;
+    //QFile cacheFile;
+    //QHash<QString, qint64> fat;
 
     QImage ImageToPOT(const QImage &im) const;
+    void checkExtensions();
 };

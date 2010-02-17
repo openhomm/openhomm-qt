@@ -22,6 +22,7 @@
 #include "hrH3MReader.hpp"
 #include "hrSettings.hpp"
 #include "hrAdventureScreen.hpp"
+#include "hrMenuScreen.hpp"
 #include "hrRender.hpp"
 
 /*!
@@ -29,9 +30,12 @@
   \brief The hrWindow class
 */
 hrWindow::hrWindow(QMainWindow *parent):
-        QMainWindow(parent), scene(NULL), render(NULL)
+        QMainWindow(parent)
+        , menuscr(NULL)
+        , advscr(NULL)
+        , render(NULL)
 {
-    setWindowTitle("OpenHoMM, fullscreen - F11, menu - F12, U - underground");
+    setWindowTitle("OpenHoMM, fullscreen - F11, menu - F12, U - underground, +/- zoom");
 
     createMenu();
 
@@ -41,8 +45,10 @@ hrWindow::hrWindow(QMainWindow *parent):
     if ( gameX > 0 && gameY > 0 )
         move(gameX, gameY);
 
-    scene = new hrAdventureScreen();
-    render = new hrRender(this, scene);
+    menuscr = new hrMenuScreen();
+    advscr = new hrAdventureScreen();
+
+    render = new hrRender(this, menuscr);
 
     setCentralWidget(render);
     resize(800,600);
@@ -61,7 +67,13 @@ hrWindow::hrWindow(QMainWindow *parent):
 hrWindow::~hrWindow()
 {
     delete render;
-    delete scene;
+    delete menuscr;
+    delete advscr;
+}
+
+void hrWindow::MenuScreen()
+{
+    menuscr->showLoadScreen();
 }
 
 void hrWindow::AvdventureScreen()
@@ -78,7 +90,8 @@ void hrWindow::AvdventureScreen()
 
     if (isMapLoad)
     {
-        scene->loadMap(&reader);
+        render->setScene(advscr);
+        advscr->loadMap(&reader);
     }
 }
 
@@ -120,7 +133,24 @@ void hrWindow::keyPressEvent(QKeyEvent *event)
     {
         static bool flag = false;
         flag ? flag = false : flag = true;
-        scene->switchGround(flag);
+        advscr->switchGround(flag);
+    }
+    static float zoom = 1.0;
+    if (event->key() == Qt::Key_Equal)
+    {
+        if (zoom < 2.0)
+        {
+            zoom += 0.1;
+            render->setZoom(zoom);
+        }
+    }
+    if (event->key() == Qt::Key_Minus)
+    {
+        if (zoom > 1.0)
+        {
+            zoom -= 0.1;
+            render->setZoom(zoom);
+        }
     }
 }
 
