@@ -18,10 +18,6 @@
 
 #include "hrPlatform.hpp"
 
-#ifdef COMPILER_MINGW
-# include "GL/glext.h"
-#endif
-
 #ifndef GL_TEXTURE_RECTANGLE_ARB
 #define GL_TEXTURE_RECTANGLE_ARB 0x84F5
 #endif
@@ -32,6 +28,25 @@
 
 #ifndef GL_TEXTURE_RECTANGLE_NV
 #define GL_TEXTURE_RECTANGLE_NV 0x84F5
+#endif
+
+#ifndef GL_CLAMP_TO_EDGE
+#define GL_CLAMP_TO_EDGE                  0x812F
+#endif
+
+#ifndef GL_TEXTURE_COMPRESSED_IMAGE_SIZE
+#define GL_TEXTURE_COMPRESSED_IMAGE_SIZE  0x86A0
+#endif
+
+#ifndef GL_COMPRESSED_RGBA_ARB
+#define GL_COMPRESSED_RGBA_ARB            0x84EE
+#endif
+
+#ifndef GL_EXT_texture_compression_s3tc
+#define GL_COMPRESSED_RGB_S3TC_DXT1_EXT   0x83F0
+#define GL_COMPRESSED_RGBA_S3TC_DXT1_EXT  0x83F1
+#define GL_COMPRESSED_RGBA_S3TC_DXT3_EXT  0x83F2
+#define GL_COMPRESSED_RGBA_S3TC_DXT5_EXT  0x83F3
 #endif
 
 #ifndef APIENTRY
