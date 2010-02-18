@@ -17,6 +17,7 @@
 #include "precompiled.hpp"
 #include "hrGL.hpp"
 #include "hrCache.hpp"
+#include "hrSettings.hpp"
 
 typedef void (APIENTRY *pfn_glCompressedTexImage2DARB) (GLenum, GLint, GLenum, GLsizei,
                                                         GLsizei, GLint, GLsizei, const GLvoid *);
@@ -332,14 +333,17 @@ void hrCache::checkExtensions()
 {
     QString extensions(reinterpret_cast<const char *>(glGetString(GL_EXTENSIONS)));
 
-    if (extensions.contains("GL_ARB_texture_compression"))
+    if (hrSettings::get().isCompression())
     {
-        qWarning("GL_ARB_texture_compression");
-        format = GL_COMPRESSED_RGBA_ARB;
-    }
-    if (extensions.contains("GL_EXT_texture_compression_s3tc"))
-    {
-        qWarning("GL_EXT_texture_compression_s3tc");
-        format = GL_COMPRESSED_RGBA_S3TC_DXT5_EXT;
+        if (extensions.contains("GL_ARB_texture_compression"))
+        {
+            //qWarning("GL_ARB_texture_compression");
+            format = GL_COMPRESSED_RGBA_ARB;
+        }
+        if (extensions.contains("GL_EXT_texture_compression_s3tc"))
+        {
+            //qWarning("GL_EXT_texture_compression_s3tc");
+            format = GL_COMPRESSED_RGBA_S3TC_DXT5_EXT;
+        }
     }
 }

@@ -97,11 +97,6 @@ class hrSettings : public QObject
     Q_PROPERTY(qint32 y READ y WRITE setY)
     
     /*!
-      If no render has been set, the render is \b sdl.
-    */
-    Q_PROPERTY(QString render READ render WRITE setRender)
-    
-    /*!
       By default, this property is 2
     */
     Q_PROPERTY(quint8 windowScrollSpeed READ windowScrollSpeed WRITE setWindowScrollSpeed)
@@ -116,6 +111,11 @@ class hrSettings : public QObject
       Possible values: null - don't log, console - log to console, console2 - colored log to console
     */
     Q_PROPERTY(QString logType READ logType WRITE setLogType);
+
+    /*!
+      By default, this property is false
+    */
+    Q_PROPERTY(bool compression READ isCompression WRITE setCompression)
 public:
     hrSettings(QObject *parent = 0);
     ~hrSettings();
@@ -152,6 +152,10 @@ public:
 
     QString logType() const { return _logType; }
     void setLogType(const QString &type );
+
+    bool isCompression() const { return _compression; }
+    void setCompression(bool compression = false);
+
 private:
     bool _isAnimateSpellBook;    // not used yet
     bool _isAutosave;            // not used yet
@@ -175,6 +179,7 @@ private:
     quint8 _windowScrollSpeed;
 
     QString _logType;
+    bool _compression;
 
     QSettings * _settings;
 };

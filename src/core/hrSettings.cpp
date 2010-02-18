@@ -39,6 +39,7 @@ hrSettings::hrSettings(QObject *parent) : QObject(parent)
     _y              = _settings->value("y", 0).toInt();
     _windowScrollSpeed = _settings->value("windowScrollSpeed", 2).toUInt();
     _logType        = _settings->value("log", "console").toString();
+    _compression    = _settings->value("compression", false).toBool();
 
     if ( qgetenv("OPENHOMM_ORIGGAMEDIR").isEmpty() )
         _gameDir = _settings->value("gamedir", ".").toString();
@@ -107,5 +108,12 @@ void hrSettings::setLogType(const QString &type)
 {
     _logType = type;
     _settings->setValue("log", type);
+    _settings->sync();
+}
+
+void hrSettings::setCompression(bool compression)
+{
+    _compression = compression;
+    _settings->setValue("compression", compression);
     _settings->sync();
 }

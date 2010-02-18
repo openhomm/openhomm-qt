@@ -207,7 +207,7 @@ void hrRender::checkExtensions()
     }
     else*/
     {
-        qWarning("GL_TEXTURE_2D");
+        //qWarning("GL_TEXTURE_2D");
         target = GL_TEXTURE_2D;
     }
 }
