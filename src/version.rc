@@ -16,7 +16,7 @@ BEGIN
             VALUE "FileDescription", "OpenHoMM Engine"
             VALUE "FileVersion", VERSION_RELEASE_STR
             VALUE "InternalName", "openhomm"
-            VALUE "LegalCopyright", "Copyright (C) 2009 OpenHoMM Developer Team"
+            VALUE "LegalCopyright", "Copyright (C) 2009-2010 OpenHoMM Developer Team"
             VALUE "OriginalFilename", "OpenHoMM3.exe"
             VALUE "ProductName", "OpenHoMM Engine"
             VALUE "ProductVersion", VERSION_RELEASE_STR

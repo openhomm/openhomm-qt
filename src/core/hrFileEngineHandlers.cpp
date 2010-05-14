@@ -25,6 +25,7 @@ QAbstractFileEngine* hrLodEngineHandler::create(const QString &filename) const
     {
         return new hrLodEngine(filename);
     }
+
     return NULL;
 }
 
