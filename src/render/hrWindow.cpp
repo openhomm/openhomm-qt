@@ -71,12 +71,6 @@ hrWindow::~hrWindow()
     delete advscr;
 }
 
-void hrWindow::MenuScreen()
-{
-    repaint();
-    menuscr->showLoadScreen();
-}
-
 void hrWindow::AvdventureScreen()
 {
     hrH3MReader reader;
@@ -137,7 +131,7 @@ void hrWindow::keyPressEvent(QKeyEvent *event)
         advscr->switchGround(flag);
     }
     static float zoom = 1.0;
-    if (event->key() == Qt::Key_Equal)
+    if (event->key() == Qt::Key_Equal || event->key() == Qt::Key_Plus)
     {
         if (zoom < 2.0)
         {
