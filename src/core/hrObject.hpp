@@ -26,7 +26,7 @@ QDataStream &operator>>(QDataStream &, SecondarySkill_t &);
 QT_END_NAMESPACE
 
 struct hrObject {
-    hrString filename;
+    HString filename;
     quint8 passability[6];
     quint8 actions[6];
     quint16 landscape;
@@ -57,7 +57,7 @@ struct ObjectArtefact {
     quint8 isText;
 
 //if ( isText == 1 ) {
-    hrString text;
+    HString text;
 //
 //
     quint8 isGuards;
@@ -155,7 +155,7 @@ struct ObjectMonster {
     quint8 isTreasureOrText;
 
 //  if ( isTreasureOrText == 1 ) {
-        hrString text;
+        HString text;
 
         Resources_t res;
         quint16 artefactID;
@@ -246,8 +246,8 @@ QDataStream &operator>>(QDataStream &, ObjectSpell &s);
 QT_END_NAMESPACE
 
 struct TownEvent_t {
-    hrString event_name;
-    hrString event_text;
+    HString event_name;
+    HString event_text;
 
     Resources_t res;
 
@@ -274,7 +274,7 @@ struct ObjectTown {
     quint8 isName;
 
 //    if ( isName == 1 )
-        hrString name;
+        HString name;
 
     quint8 isGuard;
 
@@ -328,7 +328,7 @@ QDataStream &operator>>(QDataStream &, ObjectEvent &s);
 QT_END_NAMESPACE
 
 struct ObjectSign {
-    hrString text;
+    HString text;
     quint32 junk;
 };
 QT_BEGIN_NAMESPACE
@@ -366,9 +366,9 @@ struct ObjectProphet {
     Resources_t res; // quest 7
 
     quint32 time_limit; // 0xFFFFFFFF - no limit
-    hrString quest_begin;
-    hrString quest_inprocess;
-    hrString quest_end;
+    HString quest_begin;
+    HString quest_inprocess;
+    HString quest_end;
 
     quint8 reward;
 
@@ -414,7 +414,7 @@ struct ObjectHero {
     quint8 isName;
 
 //    if ( isName == 1 )
-        hrString name;
+        HString name;
 
     quint8 isExp;
 
@@ -474,7 +474,7 @@ struct ObjectHero {
     quint8 isBiography;
 
 //    if ( isBiography == 1 )
-        hrString biography;
+        HString biography;
 
     quint8 gender;
 
@@ -523,8 +523,8 @@ QDataStream &operator>>(QDataStream &, ObjectWitchHut &s);
 QT_END_NAMESPACE
 
 struct globalEvent {
-    hrString name;
-    hrString text;
+    HString name;
+    HString text;
 
     Resources_t res;
 
@@ -567,9 +567,9 @@ struct ObjectQuestionGuard {
     Resources_t res; // quest 7
 
     quint32 time_limit; // FF FF FF FF - no limit
-    hrString quest_begin;
-    hrString quest_inprocess;
-    hrString quest_end;
+    HString quest_begin;
+    HString quest_inprocess;
+    HString quest_end;
 };
 QT_BEGIN_NAMESPACE
 //QDataStream &operator<<(QDataStream &, const ObjectQuestionGuard &);

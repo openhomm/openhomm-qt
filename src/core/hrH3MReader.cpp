@@ -84,10 +84,11 @@ bool hrH3MReader::load(const QString &name)
     QDataStream m(&map);
     m.setByteOrder(QDataStream::LittleEndian);
 
-    m >> basic;
+    m >> _version;
 
-    if (basic.version != 0x0000001C)
-       return false;
+    qWarning("Map version is %d", _version);
+
+    _header.load(m.device(), _version);
 
     for ( int i = 0; i < 8; i++ )
     {
@@ -107,13 +108,14 @@ bool hrH3MReader::load(const QString &name)
         }
     }
 
-    ground = new hrTile[basic.size*basic.size];
-    m.readRawData( (char *) ground, sizeof(hrTile)*basic.size*basic.size );
+    quint32 sqMapSize = _header.mapSize()*_header.mapSize();
+    ground = new hrTile[sqMapSize];
+    m.readRawData( (char *) ground, sizeof(hrTile)* sqMapSize);
 
-    if ( basic.under == 1 )
+    if ( _header.isUnderground() )
     {
-        underground = new hrTile[basic.size * basic.size];
-        m.readRawData( (char *) underground, sizeof(hrTile)*basic.size*basic.size );
+        underground = new hrTile[sqMapSize];
+        m.readRawData( (char *) underground, sizeof(hrTile)*sqMapSize );
     }
 
     m >> objectQuantity;
@@ -340,8 +342,8 @@ bool hrH3MReader::load(const QString &name)
 
 hrTile hrH3MReader::getTile(quint32 index, bool isUnderground)
 {
-    Q_ASSERT(index >= 0 && index <= basic.size * basic.size);
-    if (isUnderground && basic.under == 1)
+    Q_ASSERT(index >= 0 && index <= _header.mapSize() * _header.mapSize());
+    if ( isUnderground && _header.isUnderground() )
       return underground[index];
 
     return ground[index];
@@ -349,14 +351,12 @@ hrTile hrH3MReader::getTile(quint32 index, bool isUnderground)
 
 bool hrH3MReader::hasUnderground() const
 {
-    if (basic.under == 1)
-        return true;
-    return false;
+    return _header.isUnderground();
 }
 
 int hrH3MReader::getSize() const
 {
-    return basic.size;
+    return _header.mapSize();
 }
 
 int hrH3MReader::getObjectsCount() const
@@ -391,12 +391,37 @@ QDataStream &operator>>(QDataStream &in, BasicParametres_t &b)
     in >> b.version;
 
     if ( b.version == 0x0000001C )
-        in >> b.junk >> b.size >> b.under >> b.name >> b.description >> b.difficult >> b.levelLimit;
+    {
+        in >> b.junk >> b.size >> b.under;
+        loadHString(in.device(), b.name);
+        loadHString(in.device(), b.description);
+        in >> b.difficult >> b.levelLimit;
+    }
     else
         qWarning("File is not a HoMM III : SoD Map.");
 
     return in;
 }
+#define READ_HELPER(device, var) device->read((char*)&var, sizeof(var))
+
+bool hrMapHeader::load(QIODevice *device, quint32 mapVersion)
+{
+    if ( mapVersion != MAP_HOMM3_AB && mapVersion != MAP_HOMM3_ROE && mapVersion != MAP_HOMM3_SOD )
+        return false;
+
+    READ_HELPER(device, _unknown);
+    READ_HELPER(device, _mapSize);
+    READ_HELPER(device, _underground);
+    loadHString(device, _name);
+    loadHString(device, _description);
+    READ_HELPER(device, _difficult);
+
+    if ( mapVersion == MAP_HOMM3_SOD )
+        READ_HELPER(device, _levelLimit);
+
+    return true;
+}
+
 QDataStream &operator<<(QDataStream &out, const Hero_t &)
 {
     qWarning("%s is not yet implemented", Q_FUNC_INFO);
@@ -404,7 +429,8 @@ QDataStream &operator<<(QDataStream &out, const Hero_t &)
 }
 QDataStream &operator>>(QDataStream &in, Hero_t &h)
 {
-    in >> h.portret >> h.name;
+    in >> h.portret;
+    loadHString(in.device(), h.name);
     return in;
 }
 QDataStream &operator<<(QDataStream &out, const PlayerAttributes_t &)
@@ -422,7 +448,10 @@ QDataStream &operator>>(QDataStream &in, PlayerAttributes_t &p)
 
     in >> p.randomHero >> p.heroType;
 
-    in >> p.heroPortret >> p.heroName;
+    in >> p.heroPortret;
+
+    loadHString(in.device(), p.heroName);
+
     if ( p.heroType != 0xFF )
     {
         in >> p.junk >> p.heroesCount;
@@ -541,7 +570,9 @@ QDataStream &operator<<(QDataStream &out, const TunedHero_t &)
 }
 QDataStream &operator>>(QDataStream &in, TunedHero_t &t)
 {
-    in >> t.id >> t.portrait >> t.name >> t.players;
+    in >> t.id >> t.portrait;
+    loadHString(in.device(),t.name);
+    in >> t.players;
     return in;
 }
 
@@ -612,7 +643,9 @@ QDataStream &operator<<(QDataStream &out, const Rumor_t &)
 }
 QDataStream &operator>>(QDataStream &in, Rumor_t &r)
 {
-    in >> r.rumor_name >> r.rumor_text;
+    loadHString(in.device(), r.rumor_name);
+    loadHString(in.device(),r.rumor_text);
+
     return in;
 }
 
@@ -691,7 +724,7 @@ QDataStream &operator>>(QDataStream &in, HeroOptions_enabled &h)
     in >> h.isBiography;
 
     if ( h.isBiography == 1 )
-        in >> h.biography;
+        loadHString(in.device(), h.biography);
 
     in >> h.gender >> h.isSpells;
 

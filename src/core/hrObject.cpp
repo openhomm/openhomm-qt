@@ -25,7 +25,7 @@ QT_BEGIN_NAMESPACE
 //}
 QDataStream &operator>>(QDataStream &in, hrObject &s)
 {
-    in >> s.filename;
+    loadHString(in.device(), s.filename);
     in.readRawData( (char *) s.passability, sizeof(s.passability) );
     in.readRawData( (char *) s.actions, sizeof(s.actions) );
 
@@ -66,7 +66,8 @@ QDataStream &operator>>(QDataStream &in, SecondarySkill_t &s)
 //QDataStream &operator<<(QDataStream &, const ObjectSign &);
 QDataStream &operator>>(QDataStream &in, ObjectSign &s)
 {
-    in >> s.text >> s.junk;
+    loadHString(in.device(), s.text);
+    in >> s.junk;
     return in;
 }
 
@@ -90,7 +91,7 @@ QDataStream &operator>>(QDataStream &in, ObjectTown &s)
     in >> s.junk >> s.owner >> s.isName;
 
     if ( s.isName == 1 )
-        in >> s.name;
+        loadHString(in.device(), s.name);
 
     in >> s.isGuard;
 
@@ -133,7 +134,10 @@ QDataStream &operator>>(QDataStream &in, ObjectTown &s)
 //QDataStream &operator<<(QDataStream &, const TownEvent_t &);
 QDataStream &operator>>(QDataStream &in, TownEvent_t &s)
 {
-    in >> s.event_name >> s.event_text >> s.res >> s.players_affected >> s.human_affected >> s.ai_affected;
+    loadHString(in.device(), s.event_name);
+    loadHString(in.device(), s.event_text);
+
+    in >> s.res >> s.players_affected >> s.human_affected >> s.ai_affected;
 
     in >> s.day_of_first_event >> s.event_iteration;
     in.readRawData( (char *) s.junk, sizeof(s.junk) );
@@ -231,7 +235,8 @@ QDataStream &operator>>(QDataStream &in, ObjectMonster &s)
 
     if ( s.isTreasureOrText == 1 )
     {
-        in >> s.text >> s.res >> s.artefactID;
+        loadHString(in.device(), s.text);
+        in >> s.res >> s.artefactID;
     }
     in >> s.monsterNeverRunAway >> s.monsterDontGrowUp;
     in.readRawData( (char * ) s.junk2, sizeof(s.junk2) );
@@ -299,7 +304,8 @@ QDataStream &operator>>(QDataStream &in, ObjectArtefact &s)
 
     if ( s.isText == 1 )
     {
-        in >> s.text >> s.isGuards;
+        loadHString(in.device(), s.text);
+        in >> s.isGuards;
 
         if ( s.isGuards == 1)
         {
@@ -350,7 +356,10 @@ QDataStream &operator>>(QDataStream &in, ObjectAbandonedMine &s)
 //QDataStream &operator<<(QDataStream &, const globalEvent &);
 QDataStream &operator>>(QDataStream &in, globalEvent &s)
 {
-    in >> s.name >> s.text >> s.res >> s.players_affected >> s.human_affected >> s.ai_affected;
+    loadHString(in.device(), s.name);
+    loadHString(in.device(), s.text);
+
+    in >> s.res >> s.players_affected >> s.human_affected >> s.ai_affected;
     in >> s.day_of_first_event;
     in >> s.event_iteration;
     in.readRawData( (char *) s.junk, sizeof(s.junk) );
@@ -446,7 +455,7 @@ QDataStream &operator>>(QDataStream &in, ObjectHero &s)
     in >> s.heroID >> s.color >> s.hero >> s.isName;
 
     if ( s.isName == 1 )
-        in >> s.name;
+        loadHString(in.device(), s.name);
 
     in >> s.isExp;
 
@@ -508,7 +517,7 @@ QDataStream &operator>>(QDataStream &in, ObjectHero &s)
     in >> s.zoneRadius >> s.isBiography;
 
     if ( s.isBiography == 1 )
-        in >> s.biography;
+        loadHString(in.device(), s.biography);
 
     in >> s.gender >> s.isSpells;
 
@@ -585,7 +594,9 @@ QDataStream &operator>>(QDataStream &in, ObjectProphet &s)
 
     in >> s.time_limit;
 
-    in >> s.quest_begin >> s.quest_inprocess >> s.quest_end;
+    loadHString(in.device(), s.quest_begin);
+    loadHString(in.device(), s.quest_inprocess);
+    loadHString(in.device(), s.quest_end);
 
     in >> s.reward;
 

@@ -16,7 +16,6 @@
 //
 #pragma once
 
-typedef QString hrString;
+typedef QString HString;
 
-QDataStream &operator<<(QDataStream &, const hrString &);
-QDataStream &operator>>(QDataStream &, hrString &);
+bool loadHString(QIODevice *, HString &);

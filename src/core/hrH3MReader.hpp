@@ -20,18 +20,48 @@
 #include "hrObject.hpp"
 #include "hrSceneObject.hpp"
 
+const quint32 MAP_HOMM3_ROE = 0x0000000E;
+const quint32 MAP_HOMM3_AB = 0x00000015;
+const quint32 MAP_HOMM3_SOD = 0x0000001C;
+
 struct BasicParametres_t {
     quint32 version;
     quint8  junk;
     quint32 size;
     quint8  under;
 
-    QString name;
-    QString description;
+    HString name;
+    HString description;
 
     quint8  difficult;
     quint8  levelLimit;
 };
+
+class hrMapHeader
+{
+public:
+    hrMapHeader() : _mapSize(0), _underground(0),_difficult(0), _levelLimit(0)
+    {
+    }
+
+    quint32 mapSize()const { return _mapSize; }
+    bool isUnderground() const { return (_underground == 1) ? true : false; }
+    HString name() const { return _name; }
+    HString description() const { return _description; }
+    quint8 difficult()const { return _difficult; }
+    quint8 levelLimit() const { return _levelLimit; }
+
+    bool load(QIODevice *device, quint32 mapVersion);
+private:
+    quint8  _unknown;
+    quint32 _mapSize;
+    quint8  _underground;
+    HString _name;
+    HString _description;
+    quint8  _difficult;
+    quint8  _levelLimit;
+};
+
 QT_BEGIN_NAMESPACE
 QDataStream &operator<<(QDataStream &, const BasicParametres_t &);
 QDataStream &operator>>(QDataStream &, BasicParametres_t &);
@@ -39,7 +69,7 @@ QT_END_NAMESPACE
 
 struct Hero_t {
     quint8 portret;
-    hrString name;
+    HString name;
 };
 QT_BEGIN_NAMESPACE
 QDataStream &operator<<(QDataStream &, const Hero_t &);
@@ -81,7 +111,7 @@ struct PlayerAttributes_t {
 
 //  if ( heroType != 0xFF ) {
     quint8 heroPortret;
-    hrString heroName;
+    HString heroName;
 //  }
 
     quint8 junk; // ??? get more info
@@ -174,7 +204,7 @@ struct TunedHero_t
 {
     quint8 id;
     quint8 portrait;
-    hrString name;
+    HString name;
     quint8 players;
 };
 QT_BEGIN_NAMESPACE
@@ -226,8 +256,8 @@ QT_END_NAMESPACE
 
 struct Rumor_t
 {
-    hrString rumor_name;
-    hrString rumor_text;
+    HString rumor_name;
+    HString rumor_text;
 };
 QT_BEGIN_NAMESPACE
 QDataStream &operator<<(QDataStream &, const Rumor_t &);
@@ -288,7 +318,7 @@ struct HeroOptions_enabled {
     quint8 isBiography;
 
 //if (isBiography == 1)
-    hrString biography;
+    HString biography;
 
     quint8 gender;
 
@@ -342,7 +372,8 @@ public:
 protected:
 
 // data
-    BasicParametres_t basic;
+    quint32 _version;
+    hrMapHeader _header;
     PlayerAttributes_t players[8];
     SpecialVictoryCondition_t svc;
     SpecialLossCondition_t slc;
