@@ -380,28 +380,7 @@ const QString& hrH3MReader::getObjectName(quint32 id) const
     return objects[id].filename;
 }
 
-QT_BEGIN_NAMESPACE
-QDataStream &operator<<(QDataStream &out, const BasicParametres_t &)
-{
-    qWarning("%s is not yet implemented", Q_FUNC_INFO);
-    return out;
-}
-QDataStream &operator>>(QDataStream &in, BasicParametres_t &b)
-{
-    in >> b.version;
 
-    if ( b.version == 0x0000001C )
-    {
-        in >> b.junk >> b.size >> b.under;
-        loadHString(in.device(), b.name);
-        loadHString(in.device(), b.description);
-        in >> b.difficult >> b.levelLimit;
-    }
-    else
-        qWarning("File is not a HoMM III : SoD Map.");
-
-    return in;
-}
 #define READ_HELPER(device, var) device->read((char*)&var, sizeof(var))
 
 bool hrMapHeader::load(QIODevice *device, quint32 mapVersion)
@@ -422,6 +401,7 @@ bool hrMapHeader::load(QIODevice *device, quint32 mapVersion)
     return true;
 }
 
+QT_BEGIN_NAMESPACE
 QDataStream &operator<<(QDataStream &out, const Hero_t &)
 {
     qWarning("%s is not yet implemented", Q_FUNC_INFO);

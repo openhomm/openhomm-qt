@@ -24,19 +24,6 @@ const quint32 MAP_HOMM3_ROE = 0x0000000E;
 const quint32 MAP_HOMM3_AB = 0x00000015;
 const quint32 MAP_HOMM3_SOD = 0x0000001C;
 
-struct BasicParametres_t {
-    quint32 version;
-    quint8  junk;
-    quint32 size;
-    quint8  under;
-
-    HString name;
-    HString description;
-
-    quint8  difficult;
-    quint8  levelLimit;
-};
-
 class hrMapHeader
 {
 public:
@@ -61,11 +48,6 @@ private:
     quint8  _difficult;
     quint8  _levelLimit;
 };
-
-QT_BEGIN_NAMESPACE
-QDataStream &operator<<(QDataStream &, const BasicParametres_t &);
-QDataStream &operator>>(QDataStream &, BasicParametres_t &);
-QT_END_NAMESPACE
 
 struct Hero_t {
     quint8 portret;
