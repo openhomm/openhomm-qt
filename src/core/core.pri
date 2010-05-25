@@ -9,10 +9,6 @@ HEADERS += hrString.hpp \
     hrLodEngineIterator.hpp \
     hrSndEngineIterator.hpp \
     hrSndEngine.hpp \
-    hrH3MReader.hpp \
-    hrTile.hpp \
-    hrObject.hpp \
-    hrSceneObject.hpp \
     hrPlatform.hpp \
     hrSettings.hpp \
     hrFilesystem.hpp \
@@ -23,10 +19,6 @@ SOURCES += hrString.cpp \
     hrLodEngineIterator.cpp \
     hrSndEngineIterator.cpp \
     hrSndEngine.cpp \
-    hrH3MReader.cpp \
-    hrTile.cpp \
-    hrObject.cpp \
-    hrSceneObject.cpp \
     hrSettings.cpp \
     hrFilesystem.cpp \
     hrFileEngineHandlers.cpp \

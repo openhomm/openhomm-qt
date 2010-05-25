@@ -11,9 +11,11 @@ INCLUDEPATH += . \
     render \
     core
 
+include(core/core.pri)
+include(game/game.pri)
 include(gui/gui.pri)
 include(render/render.pri)
-include(core/core.pri)
+
 
 PRECOMPILED_HEADER = precompiled.hpp
 
