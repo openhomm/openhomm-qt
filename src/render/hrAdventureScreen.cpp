@@ -180,8 +180,8 @@ void hrAdventureScreen::loadMap(hrH3MReader *reader)
         else
             objectsUnderground.append(object);
     }
-    qSort(objectsGround);
-    qSort(objectsUnderground);
+    std::sort(objectsGround.begin(), objectsGround.end());
+    std::sort(objectsUnderground.begin(), objectsUnderground.end());
 
     loadCursor("cradvntr.def");
     setCursor(CURSOR_POINTER);
