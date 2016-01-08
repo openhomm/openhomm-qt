@@ -16,6 +16,8 @@ INCLUDEPATH += . \
     render \
     core
 
+DEFINES += QT_DEPRECATED_WARNINGS
+
 PRECOMPILED_HEADER = precompiled.hpp
 
 SOURCES += main.cpp \
