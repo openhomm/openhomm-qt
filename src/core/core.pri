@@ -1,9 +1,12 @@
 INCLUDEPATH += $$PWD
-DEPENDPATH += $$PWD
-contains(QT_CONFIG, zlib) { 
-    INCLUDEPATH += $$(QTDIR)/src/3rdparty/zlib
-    DEPENDPATH += $$(QTDIR)/src/3rdparty/zlib
-}
+VPATH += $$PWD
+
+#contains(QT_CONFIG, zlib) {
+#    INCLUDEPATH += $$(QTDIR)/src/3rdparty/zlib
+#    VPATH += $$(QTDIR)/src/3rdparty/zlib
+#}
+LIBS += -lz
+
 HEADERS += hrString.hpp \
     hrLodEngine.hpp \
     hrLodEngineIterator.hpp \
@@ -23,3 +26,4 @@ SOURCES += hrString.cpp \
     hrFilesystem.cpp \
     hrFileEngineHandlers.cpp \
     hrMessageOutput.cpp
+

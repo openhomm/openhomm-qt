@@ -18,9 +18,10 @@
 
 #include <QtGui/qimageiohandler.h>
 #include <QtCore/QSize>
+#include <QtCore/QVector>
 #include <QtGlobal>
 #include <QColor>
-
+#include <QRgb>
 class hrPcxHandler : public QImageIOHandler
 {
 public:

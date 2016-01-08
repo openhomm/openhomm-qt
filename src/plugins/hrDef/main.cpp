@@ -14,17 +14,8 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
-#include <qimageiohandler.h>
-#include <qdebug.h>
+#include "main.hpp"
 #include "hrDefHandler.hpp"
-
-class hrDefPlugin : public QImageIOPlugin
-{
-public:
-    Capabilities capabilities(QIODevice * device, const QByteArray & format) const;
-    QImageIOHandler * create(QIODevice * device, const QByteArray & format = QByteArray()) const;
-    QStringList keys() const;
-};
 
 QImageIOPlugin::Capabilities hrDefPlugin::capabilities(QIODevice *device, const QByteArray &format) const
 {
@@ -58,5 +49,3 @@ QStringList hrDefPlugin::keys() const
     return QStringList() << QLatin1String("def");
 }
 
-Q_EXPORT_STATIC_PLUGIN(hrDefPlugin)
-Q_EXPORT_PLUGIN2(hrDef, hrDefPlugin)

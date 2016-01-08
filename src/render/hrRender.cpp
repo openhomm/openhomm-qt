@@ -60,7 +60,7 @@ void hrRender::initializeGL()
     glViewport(0, 0, width(), height());
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
-    gluOrtho2D(0, width(), height(), 0);
+    glOrtho(0, width(), height(), 0, -1.0, 1.0);
 
     // Make sure depth testing and lighting are disabled for 2D rendering
     glDisable(GL_DEPTH_TEST);
@@ -79,7 +79,7 @@ void hrRender::resizeGL(int w, int h)
     glViewport(0, 0, w, h);
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
-    gluOrtho2D(0, w, h, 0);
+    glOrtho(0, w, h, 0, -1.0, 1.0);
 
     glScalef(1.0 * zoom, 1.0 * zoom, 1);
 
@@ -174,7 +174,7 @@ void hrRender::drawSprite(GLuint tx, QRect r, bool horizontal, bool vertical)
 
 void hrRender::mouseMoveEvent(QMouseEvent *event)
 {
-    QPointF pos = event->posF();
+    QPointF pos = QPointF(event->pos());
     pos.setX(pos.x() / zoom);
     pos.setY(pos.y() / zoom);
     scene->onMouseEvent(pos);

@@ -1,1 +1,1 @@
-include(google-breakpad/google-breakpad.pri)
+#include(google-breakpad/google-breakpad.pri)

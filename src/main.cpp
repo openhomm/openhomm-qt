@@ -61,7 +61,7 @@ bool callback(
 
 int main(int argc, char** argv)
 {
-    QT_REQUIRE_VERSION(argc, argv, "4.5.0");
+    QT_REQUIRE_VERSION(argc, argv, "5.4.0");
 
 #if defined(Q_WS_WIN32) && defined(_MSC_VER)
     google_breakpad::ExceptionHandler eh(L".", NULL, callback, NULL,

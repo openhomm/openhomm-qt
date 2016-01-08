@@ -16,7 +16,10 @@
 //
 #include <QtCore>
 #include <QtGui>
+#include <QtWidgets>
 #include <QtOpenGL>
+#include <QtCore/private/qabstractfileengine_p.h>
+#include <QtCore/private/qfsfileengine_p.h>
 
 #ifdef Q_WS_WIN
 #   define WIN32_LEAN_AND_MEAN

@@ -16,6 +16,6 @@
 //
 #pragma once
 
-void logConsole (QtMsgType type, const char *msg);
-void logNull (QtMsgType type, const char* msg);
-void logColoredConsole (QtMsgType type, const char* msg);
+void logConsole (QtMsgType type, const QMessageLogContext &context, const QString &msg);
+void logNull (QtMsgType type, const QMessageLogContext &context, const QString &msg);
+void logColoredConsole (QtMsgType type, const QMessageLogContext &context, const QString &msg);

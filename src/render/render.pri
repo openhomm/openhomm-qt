@@ -1,5 +1,5 @@
 INCLUDEPATH += $$PWD
-DEPENDPATH += $$PWD
+VPATH += $$PWD
 HEADERS += hrScene.hpp \
     hrWindow.hpp \
     hrGraphicsItem.hpp \

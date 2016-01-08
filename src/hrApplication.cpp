@@ -43,11 +43,11 @@ hrApplication::hrApplication(int &argc, char **argv):
     QString logType = hrSettings::get().logType();
 
     if ( logType == QLatin1String("console") )
-        qInstallMsgHandler(logConsole);
+        qInstallMessageHandler(logConsole);
     else if ( logType == QLatin1String("null") )
-        qInstallMsgHandler(logNull);
+        qInstallMessageHandler(logNull);
     else if ( logType == QLatin1String("console2") )
-        qInstallMsgHandler(logColoredConsole);
+        qInstallMessageHandler(logColoredConsole);
 
     this->createFileEngineHandlers();
 

@@ -1,5 +1,5 @@
 INCLUDEPATH += $$PWD
-DEPENDPATH += $$PWD
+VPATH += $$PWD
 
 include (map/map.pri)
 HEADERS += hrH3MReader.hpp \

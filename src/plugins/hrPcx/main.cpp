@@ -14,18 +14,8 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
-#include <qimageiohandler.h>
-#include <qdebug.h>
-
+#include "main.hpp"
 #include "hrPcxHandler.hpp"
-
-class hrPcxPlugin : public QImageIOPlugin
-{
-public:
-    Capabilities capabilities(QIODevice * device, const QByteArray & format) const;
-    QImageIOHandler * create(QIODevice * device, const QByteArray & format = QByteArray()) const;
-    QStringList keys() const;
-};
 
 QImageIOPlugin::Capabilities hrPcxPlugin::capabilities(QIODevice *device, const QByteArray &format) const
 {
@@ -57,5 +47,3 @@ QStringList hrPcxPlugin::keys() const
     return QStringList() << QLatin1String("pcx");
 }
 
-Q_EXPORT_STATIC_PLUGIN(hrPcxPlugin)
-Q_EXPORT_PLUGIN2(hrPcx, hrPcxPlugin)

@@ -88,52 +88,55 @@ static void COLOR_reset()
 #endif
 }
 
-void logColoredConsole (QtMsgType type, const char* msg)
+void logColoredConsole (QtMsgType type, const QMessageLogContext &context, const QString &msg)
 {
+    QByteArray localMsg = msg.toLocal8Bit();
     switch (type) {
     case QtDebugMsg:
         COLOR_set(C_FRONTCYAN);
-        fprintf(stdout, "(II): %s\n", msg);
+        fprintf(stdout, "(II): %s\n", localMsg.constData());
         COLOR_reset();
         break;
     case QtWarningMsg:
         COLOR_set(C_FRONTGREEN);
-        fprintf(stdout, "(WW): %s\n", msg);
+        fprintf(stdout, "(WW): %s\n", localMsg.constData());
         COLOR_reset();
         break;
     case QtCriticalMsg:
         COLOR_set(C_FRONTRED);
-        fprintf(stdout, "(EE): %s\n", msg);
+        fprintf(stdout, "(EE): %s\n", localMsg.constData());
         COLOR_reset();
         break;
     case QtFatalMsg:
         COLOR_set(C_BACKRED);
-        fprintf(stdout, "(FATAL): %s\n", msg);
+        fprintf(stdout, "(FATAL): %s\n", localMsg.constData());
         COLOR_reset();
         abort();
     }
 }
 
-void logConsole(QtMsgType type, const char *msg)
+void logConsole(QtMsgType type, const QMessageLogContext &context, const QString &msg)
 {
+    QByteArray localMsg = msg.toLocal8Bit();
     switch (type) {
     case QtDebugMsg:
-        fprintf(stdout, "(II): %s\n", msg);
+        fprintf(stdout, "(II): %s\n", localMsg.constData());
         break;
     case QtWarningMsg:
-        fprintf(stdout, "(WW): %s\n", msg);
+        fprintf(stdout, "(WW): %s\n", localMsg.constData());
         break;
     case QtCriticalMsg:
-        fprintf(stdout, "(EE): %s\n", msg);
+        fprintf(stdout, "(EE): %s\n", localMsg.constData());
         break;
     case QtFatalMsg:
-        fprintf(stdout, "(FATAL): %s\n", msg);
+        fprintf(stdout, "(FATAL): %s\n", localMsg.constData());
         abort();
     }
 }
 
-void logNull(QtMsgType type, const char* msg)
+void logNull(QtMsgType type, const QMessageLogContext &context, const QString &msg)
 {
+    Q_UNUSED(context);
     Q_UNUSED(type);
     Q_UNUSED(msg);
 }

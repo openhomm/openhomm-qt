@@ -4,10 +4,14 @@ CONFIG(debug, debug|release) {
 else {
     TARGET = hrPcx
 }
+PLUGIN_TYPE = imageformats
+PLUGIN_CLASS_NAME = hrDefPlugin
 
 include(../base_plugins.pri)
 
 SOURCES =   main.cpp \
             hrPcxHandler.cpp
 
-HEADERS = hrPcxHandler.hpp
+HEADERS = hrPcxHandler.hpp \
+    main.hpp
+OTHER_FILES = hrpcx.json
