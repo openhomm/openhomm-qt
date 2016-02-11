@@ -20,12 +20,6 @@
 #include "hrFilesystem.hpp"
 #include "hrWindow.hpp"
 
-#if defined(Q_WS_WIN32) && defined(_MSC_VER)
-#   include "client/windows/handler/exception_handler.h"
-#elif Q_WS_LINUX && !defined(__x86_64__)
-#   include "client/linux/handler/exception_handler.h"
-#endif
-
 void checkPlugins()
 {
     QList<QByteArray> formats = QImageReader::supportedImageFormats();
@@ -36,42 +30,9 @@ void checkPlugins()
     }
 }
 
-#ifndef __x86_64__
-bool callback(
-#if defined Q_WS_WIN32
-        const wchar_t *dump_path, const wchar_t *id,
-#else
-        const char *dump_path, const char *id,
-#endif
-                     void *context,
-#if defined(Q_WS_WIN32) && defined(_MSC_VER)
-                     EXCEPTION_POINTERS *exinfo,
-                     MDRawAssertionInfo *assertion,
-#endif
-                     bool succeeded) {
-
-  if (succeeded) {
-    qWarning("Dump is successfull");
-  } else {
-    qWarning("Dump failed");
-  }
-  return succeeded;
-}
-#endif
-
 int main(int argc, char** argv)
 {
     QT_REQUIRE_VERSION(argc, argv, "5.4.0");
-
-#if defined(Q_WS_WIN32) && defined(_MSC_VER)
-    google_breakpad::ExceptionHandler eh(L".", NULL, callback, NULL,
-        google_breakpad::ExceptionHandler::HANDLER_ALL );
-
-#endif
-
-#if defined(Q_WS_LINUX) && !defined(__x86_64__)
-    google_breakpad::ExceptionHandler eh(".", NULL, callback, NULL, true);
-#endif
 
     hrApplication app(argc, argv);
 
