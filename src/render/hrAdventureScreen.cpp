@@ -215,6 +215,22 @@ void hrAdventureScreen::switchGround(bool isUnderground)
     }
 }
 
+void hrAdventureScreen::scroll(int dx, int dy)
+{
+    const int xMax=size.width();
+    const int yMax=size.height();
+    int lx=viewport.left()+dx;
+    int rx=viewport.right()+dx;
+    int ty=viewport.top()+dy;
+    int by=viewport.bottom()+dy;
+    dx = (lx>=0 && rx<xMax) ? dx : 0;
+    dy = (ty>=0 && by<yMax) ? dy : 0;
+    if (dx || dy) {
+        viewport.translate(dx, dy);
+        emit sceneChanged();
+    }
+}
+
 void hrAdventureScreen::clearMap()
 {
     tilesGround.clear();
@@ -244,36 +260,7 @@ int hrAdventureScreen::height() const
 
 void hrAdventureScreen::scroll()
 {
-    bool isScroll = false;
-    if (size.contains(viewport.translated(dx, dy)))
-    {
-        isScroll = true;
-    }
-    else
-    {
-        if (dx)
-        {
-            if (size.contains(viewport.translated(dx, 0)))
-            {
-                dy = 0;
-                isScroll = true;
-            }
-        }
-        if (dy)
-        {
-            if (size.contains(viewport.translated(0, dy)))
-            {
-                dx = 0;
-                isScroll = true;
-            }
-        }
-    }
-
-    if (isScroll)
-    {
-        viewport.translate(dx, dy);
-        emit sceneChanged();
-    }
+    scroll(this->dx,this->dy);
 }
 
 void hrAdventureScreen::animate()
