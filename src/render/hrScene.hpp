@@ -24,10 +24,7 @@ private:
     QList<hrGraphicsItem> items;
     QVector<QCursor> cursor;
 protected:
-    double devicePixelRatio() const
-    {
-        return qGuiApp->devicePixelRatio();
-    }
+    double devicePixelRatio() const;
 public:
     void addItem(const hrGraphicsItem& item);
     QListIterator<hrGraphicsItem> getItems();
