@@ -217,12 +217,12 @@ void hrAdventureScreen::switchGround(bool isUnderground)
 
 void hrAdventureScreen::scroll(int dx, int dy)
 {
-    const int xMax=size.width();
-    const int yMax=size.height();
-    int lx=viewport.left()+dx;
-    int rx=viewport.right()+dx;
-    int ty=viewport.top()+dy;
-    int by=viewport.bottom()+dy;
+    const int xMax = size.width();
+    const int yMax = size.height();
+    int lx = viewport.left() + dx;
+    int rx = viewport.right() + dx;
+    int ty = viewport.top() + dy;
+    int by = viewport.bottom() + dy;
     dx = (lx>=0 && rx<xMax) ? dx : 0;
     dy = (ty>=0 && by<yMax) ? dy : 0;
     if (dx || dy) {
@@ -285,53 +285,52 @@ void hrAdventureScreen::onMouseEvent(const QPointF &pos)
     const int border = 50;
     bool startScrollTimer = true;
 
-    double pixelRatio=static_cast<QGuiApplication*>(QGuiApplication::instance())-> devicePixelRatio();
-    int posx=pos.x()*pixelRatio;
-    int posy=pos.y()*pixelRatio;
+    int posX = pos.x() * devicePixelRatio();
+    int posY = pos.y() * devicePixelRatio();
 
-    if (posx < border && posy < border)
+    if (posX < border && posY < border)
     {
         // top left
         dx = -1; dy = -1;
         setCursor(CURSOR_SCROLL_TOPLEFT);
     }
-    else if (posx > width() - border && posy < border)
+    else if (posX > width() - border && posY < border)
     {
         // top right
         dx = 1; dy = -1;
         setCursor(CURSOR_SCROLL_TOPRIGHT);
     }
-    else if (posx > width() - border && posy > height() - border)
+    else if (posX > width() - border && posY > height() - border)
     {
         // bottom right
         dx = 1; dy = 1;
         setCursor(CURSOR_SCROLL_DOWNRIGHT);
     }
-    else if (posx < border && posy > height() - border)
+    else if (posX < border && posY > height() - border)
     {
         // bottom left
         dx = -1; dy = 1;
         setCursor(CURSOR_SCROLL_DOWNLEFT);
     }
-    else if (posx < border)
+    else if (posX < border)
     {
         // left
         dx = -1; dy = 0;
         setCursor(CURSOR_SCROLL_LEFT);
     }
-    else if (posx > width() - border)
+    else if (posX > width() - border)
     {
         // right
         dx = 1; dy = 0;
         setCursor(CURSOR_SCROLL_RIGHT);
     }
-    else if (posy < border)
+    else if (posY < border)
     {
         // up
         dx = 0; dy = -1;
         setCursor(CURSOR_SCROLL_TOP);
     }
-    else if (posy > height() - border)
+    else if (posY > height() - border)
     {
         // down
         dx = 0; dy = 1;

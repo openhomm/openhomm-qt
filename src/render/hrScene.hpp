@@ -23,6 +23,11 @@ class hrScene : public QObject
 private:
     QList<hrGraphicsItem> items;
     QVector<QCursor> cursor;
+protected:
+    double devicePixelRatio() const
+    {
+        return qGuiApp->devicePixelRatio();
+    }
 public:
     void addItem(const hrGraphicsItem& item);
     QListIterator<hrGraphicsItem> getItems();
