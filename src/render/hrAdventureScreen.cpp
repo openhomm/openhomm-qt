@@ -285,49 +285,53 @@ void hrAdventureScreen::onMouseEvent(const QPointF &pos)
     const int border = 50;
     bool startScrollTimer = true;
 
-    if (pos.x() < border && pos.y() < border)
+    double pixelRatio=static_cast<QGuiApplication*>(QGuiApplication::instance())-> devicePixelRatio();
+    int posx=pos.x()*pixelRatio;
+    int posy=pos.y()*pixelRatio;
+
+    if (posx < border && posy < border)
     {
         // top left
         dx = -1; dy = -1;
         setCursor(CURSOR_SCROLL_TOPLEFT);
     }
-    else if (pos.x() > width() - border && pos.y() < border)
+    else if (posx > width() - border && posy < border)
     {
         // top right
         dx = 1; dy = -1;
         setCursor(CURSOR_SCROLL_TOPRIGHT);
     }
-    else if (pos.x() > width() - border && pos.y() > height() - border)
+    else if (posx > width() - border && posy > height() - border)
     {
         // bottom right
         dx = 1; dy = 1;
         setCursor(CURSOR_SCROLL_DOWNRIGHT);
     }
-    else if (pos.x() < border && pos.y() > height() - border)
+    else if (posx < border && posy > height() - border)
     {
         // bottom left
         dx = -1; dy = 1;
         setCursor(CURSOR_SCROLL_DOWNLEFT);
     }
-    else if (pos.x() < border)
+    else if (posx < border)
     {
         // left
         dx = -1; dy = 0;
         setCursor(CURSOR_SCROLL_LEFT);
     }
-    else if (pos.x() > width() - border)
+    else if (posx > width() - border)
     {
         // right
         dx = 1; dy = 0;
         setCursor(CURSOR_SCROLL_RIGHT);
     }
-    else if (pos.y() < border)
+    else if (posy < border)
     {
         // up
         dx = 0; dy = -1;
         setCursor(CURSOR_SCROLL_TOP);
     }
-    else if (pos.y() > height() - border)
+    else if (posy > height() - border)
     {
         // down
         dx = 0; dy = 1;
