@@ -38,7 +38,7 @@ void hrRender::setScene(hrScene *s)
     connect(scene, SIGNAL(sceneChanged()), this, SLOT(onSceneChanged()));
     connect(scene, SIGNAL(cursorChaged(int)), this, SLOT(onCursorChanged(int)));
 
-    scene->setViewport(width(), height());
+    scene->setViewport(width()*devicePixelRatio(), height()*devicePixelRatio());
 }
 
 void hrRender::onSceneChanged()
@@ -57,10 +57,10 @@ void hrRender::initializeGL()
     hrCache& cache = hrCache::Get();
     cache.setContext(context());
 
-    glViewport(0, 0, width(), height());
+    glViewport(0, 0, width()*devicePixelRatio(), height()*devicePixelRatio());
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
-    glOrtho(0, width(), height(), 0, -1.0, 1.0);
+    glOrtho(0, width()*devicePixelRatio(), height()*devicePixelRatio(), 0, -1.0, 1.0);
 
     // Make sure depth testing and lighting are disabled for 2D rendering
     glDisable(GL_DEPTH_TEST);
@@ -89,7 +89,7 @@ void hrRender::resizeGL(int w, int h)
 void hrRender::setZoom(float zoom)
 {
     this->zoom = zoom;
-    resizeGL(width(), height());
+    resizeGL(width()*devicePixelRatio(), height()*devicePixelRatio());
     updateGL();
 }
 
