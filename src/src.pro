@@ -8,6 +8,7 @@ CONFIG(debug, debug|release):TARGET = openhomm3d
 else:TARGET = openhomm3
 CONFIG += warn_on
 QT += opengl core-private widgets
+LIBS += -lopengl32 -lglu32
 TEMPLATE = app
 VPATH += .
 INCLUDEPATH += . \
