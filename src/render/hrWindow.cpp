@@ -147,6 +147,18 @@ void hrWindow::keyPressEvent(QKeyEvent *event)
             render->setZoom(zoom);
         }
     }
+    if (event->key()== Qt::Key_Down) {
+        advscr->scroll(0,1);
+    }
+    if (event->key()== Qt::Key_Up) {
+        advscr->scroll(0,-1);
+    }
+    if (event->key()== Qt::Key_Left) {
+        advscr->scroll(-1,0);
+    }
+    if (event->key()== Qt::Key_Right) {
+        advscr->scroll(1,0);
+    }
 }
 
 void hrWindow::moveEvent(QMoveEvent *event)

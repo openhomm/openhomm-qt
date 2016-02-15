@@ -23,6 +23,11 @@
 */
 
 
+double hrScene::devicePixelRatio() const
+{
+    return qGuiApp->devicePixelRatio();
+}
+
 void hrScene::addItem(const hrGraphicsItem& item)
 {
     items.append(item);
@@ -49,12 +54,12 @@ void hrScene::loadCursor(const QString &name)
     QImage im;
     for (int i = 0; ir.jumpToImage(i); i++)
     {
-        if (ir.read(&im))
-            cursor.append(QCursor(QPixmap::fromImage(im.copy(0, 0, 32, 32))
-                                  , 0
-                                  , 0
-                                  )
-                          );
+        const double pixelRatio=devicePixelRatio();
+        if (ir.read(&im)) {
+            QPixmap pixmap=QPixmap::fromImage(im.copy(0, 0, 32, 32));
+            pixmap=pixmap.scaled(32*pixelRatio,32*pixelRatio,Qt::KeepAspectRatio);
+            cursor.append(QCursor(pixmap, 0, 0));
+        }
     }
 }
 

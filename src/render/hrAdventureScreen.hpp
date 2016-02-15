@@ -84,6 +84,7 @@ public:
     void setViewport(int width, int height);
 
     void switchGround(bool isUnderground);
+    void scroll(int dx, int dy);
 
 private:
     QVector<hrTile> tilesGround;
