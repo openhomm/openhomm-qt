@@ -17,6 +17,14 @@
 #include "precompiled.hpp"
 #include "hrH3MReader.hpp"
 #include <zlib.h>
+template<typename T> void hrMapHeader::loadVar(QIODevice* dev, T& var)
+{
+    dev->read((char*)&var, sizeof(var));
+}
+template<> void hrMapHeader::loadVar(QIODevice* dev, HString& var)
+{
+    loadHString(dev,var);
+}
 
 QByteArray unpack(const QString &filename)
 {
@@ -306,23 +314,20 @@ const QString& hrH3MReader::getObjectName(quint32 id) const
     return objects[id].filename;
 }
 
-
-#define READ_HELPER(device, var) device->read((char*)&var, sizeof(var))
-
 bool hrMapHeader::load(QIODevice *device, quint32 mapVersion)
 {
     if ( mapVersion != MAP_HOMM3_AB && mapVersion != MAP_HOMM3_ROE && mapVersion != MAP_HOMM3_SOD )
         return false;
 
-    READ_HELPER(device, _unknown);
-    READ_HELPER(device, _mapSize);
-    READ_HELPER(device, _underground);
-    loadHString(device, _name);
-    loadHString(device, _description);
-    READ_HELPER(device, _difficult);
+    loadVar(device, _unknown);
+    loadVar(device, _mapSize);
+    loadVar(device, _underground);
+    loadVar(device, _name);
+    loadVar(device, _description);
+    loadVar(device, _difficult);
 
     if ( mapVersion == MAP_HOMM3_SOD )
-        READ_HELPER(device, _levelLimit);
+        loadVar(device, _levelLimit);
 
     return true;
 }
