@@ -43,7 +43,7 @@ protected:
     template <typename T>
     void loadVar(QIODevice* dev, T& var);
 private:
-    quint8  _unknown;
+    quint8  _areAnyPlayers;
     quint32 _mapSize;
     quint8  _underground;
     HString _name;
@@ -86,8 +86,9 @@ struct PlayerAttributes_t {
     quint8 mainCity;
 
 //  if mainCity == 1 {
-    quint8 generateHero;
-    quint8 city[4]; // 0 - city type, 0xFF - random city
+    quint8 generateHeroAtMainTown;
+    quint8 generateHero;// city type, 0xFF - random city
+    quint8 city[3];
                     // 1-3 coords (x,y,z)
 // }
 
@@ -379,7 +380,7 @@ protected:
     quint32 objectQuantity;
     quint32 objectOptions;
     //<objectID,...>
-    QMap<quint32,ObjectArtefact> artefactObjs;
+    QMap<quint32,ObjectMessageGuards> artefactObjs;
     QMap<quint32,ObjectPandora> pandoras;
     QMap<quint32,ObjectDwelling> dwellings;
     QMap<quint32,ObjectEvent> localevents;

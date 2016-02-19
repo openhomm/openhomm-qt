@@ -48,3 +48,17 @@ int main(int argc, char** argv)
 
     return app.exec();
 }
+
+//TODO: implement rmg temlate:
+/*
+ * Json={Map}
+ * Map={Zone[], Connection[]}
+ * Zone={label(str), fenced(bool=false), Zone[], Object[], Connection[]}
+ * Connection={reference1, reference2, distance_min, distance_max, strictness_min, strictness_max}
+ * Object={label(str), allowed_types(str[]), value(int=type_default), count(int=1)}
+ */
+//TODO: implement map generation:
+/*
+ * 1) Build the bottom zones
+ *    1.1) iterate through
+ */

@@ -53,14 +53,14 @@ QT_BEGIN_NAMESPACE
 QDataStream &operator>>(QDataStream &, Guard_t &s);
 QT_END_NAMESPACE
 
-struct ObjectArtefact {
-    quint8 isText;
+struct ObjectMessageGuards {
+    quint8 hasText;
 
 //if ( isText == 1 ) {
     HString text;
 //
 //
-    quint8 isGuards;
+    quint8 hasGuards;
 //
 //  if ( isGuards == 1 ) {
         Guard_t guards[7];
@@ -70,7 +70,7 @@ struct ObjectArtefact {
 };
 QT_BEGIN_NAMESPACE
 //QDataStream &operator<<(QDataStream &, const ObjectArtefact &);
-QDataStream &operator>>(QDataStream &, ObjectArtefact &s);
+QDataStream &operator>>(QDataStream &, ObjectMessageGuards &s);
 QT_END_NAMESPACE
 
 struct ObjectDwelling {
@@ -91,8 +91,8 @@ QT_END_NAMESPACE
 
 struct ObjectGeneralRandomDwelling {
     quint32 owner;
-    quint32 junk;
-//  if (junk == 0 )
+    quint32 castleScpecID;
+//  if (castleScpecID == 0 )
     quint16 towns;
 
     quint8 minlevel;
@@ -105,8 +105,8 @@ QT_END_NAMESPACE
 
 struct ObjectLevelRandomDwelling {
     quint32 owner;
-    quint32 junk;
-//  if ( junk == 0 )
+    quint32 castleScpecID;
+//  if ( castleScpecID == 0 )
     quint16 towns;
 };
 QT_BEGIN_NAMESPACE
@@ -125,8 +125,7 @@ QDataStream &operator>>(QDataStream &, ObjectTownRandomDwelling &s);
 QT_END_NAMESPACE
 
 struct ObjectGrail {
-    qint8 radius;
-    qint8 junk2[3];
+    qint32 radius;
 };
 QT_BEGIN_NAMESPACE
 //QDataStream &operator<<(QDataStream &, const ObjectGrail &);
@@ -150,8 +149,8 @@ QT_END_NAMESPACE
 
 struct ObjectMonster {
     quint32 monsterID;
-    quint16 monsters_count; // if 0, then random
-    quint8 mood;
+    quint16 monstersCount; // if 0, then random
+    quint8 mood;//character
     quint8 isTreasureOrText;
 
 //  if ( isTreasureOrText == 1 ) {
@@ -172,7 +171,7 @@ QDataStream &operator>>(QDataStream &, ObjectMonster &s);
 QT_END_NAMESPACE
 
 struct ObjectPandora {
-    ObjectArtefact art;
+    ObjectMessageGuards messageGuards;
     quint32 exp;
     qint32 spell_points;
     qint8 morals;
@@ -185,22 +184,22 @@ struct ObjectPandora {
     quint8 power;
     quint8 knowledge;
 
-    quint8 isSecSkills;
+    quint8 secSkillsCount;
 
 //    if ( isSecSkills > 0 ) {
         QVector<SecondarySkill_t> sec_skills;
 
-    quint8 isArtefacts;
+    quint8 artefactCount;
 
 //    if ( artefacts > 0 ) {
         QVector<quint16> artefacts;
 
-    quint8 isSpells;
+    quint8 spellsCount;
 
 //    if ( isSpells > 0 ) {
         QVector<quint8> spells;
 
-    quint8 monstres_count;
+    quint8 monstreCount;
 
 //    if ( monstres_count > 0 ) {
         QVector<Guard_t> monstres;
@@ -213,7 +212,7 @@ QDataStream &operator>>(QDataStream &, ObjectPandora &s);
 QT_END_NAMESPACE
 
 struct ObjectResource {
-    ObjectArtefact res;
+    ObjectMessageGuards res;
     quint32 quantity;
     quint32 junk;
 };
@@ -224,12 +223,12 @@ QT_END_NAMESPACE
 
 struct ObjectScientist {
     quint8 bonus_type; // FF - Random
-    union {
+    union {//quint8?
         quint32 primaryID;
         quint32 secondaryID;
         quint32 spellID;
     };
-    quint8 junk2[3];
+    quint8 junk2[3];//6 byte?
 };
 QT_BEGIN_NAMESPACE
 //QDataStream &operator<<(QDataStream &, const ObjectScientist &);
@@ -237,7 +236,7 @@ QDataStream &operator>>(QDataStream &, ObjectScientist &s);
 QT_END_NAMESPACE
 
 struct ObjectSpell {
-    ObjectArtefact spell;
+    ObjectMessageGuards spell;
     quint32 spellID;
 };
 QT_BEGIN_NAMESPACE
@@ -268,39 +267,40 @@ QDataStream &operator>>(QDataStream &, TownEvent_t &s);
 QT_END_NAMESPACE
 
 struct ObjectTown {
-    quint32 junk;
+    quint32 identifier;
     quint8 owner;
 
-    quint8 isName;
+    quint8 hasName;
 
 //    if ( isName == 1 )
         HString name;
 
-    quint8 isGuard;
+    quint8 hasGuard;
 
 //    if (isGuard == 1 )
          Guard_t guards[7];
 
     quint8 formation; // 00 - standalone, 01 - group
 
-    quint8 isBuildings;
+    quint8 hasBuildings;
 
 //    if ( isBuildings == 1 ) {
         quint8 built[6];
         quint8 active[6];
 //    } else {
-        quint8 isFort;
+        quint8 hasFort;
 //    }
 
     quint8 mustSpells[9];
     quint8 canSpells[9];
 
-    quint32 event_quantity;
+    quint32 eventCount;
 
 //    if ( event_quantity > 0 ) {
         QVector<TownEvent_t> events;
 //    }
-    quint32 junk3;
+    quint8 alignment;
+    quint8 junk3[3];
 };
 QT_BEGIN_NAMESPACE
 //QDataStream &operator<<(QDataStream &, const ObjectTown &);
@@ -341,7 +341,7 @@ QDataStream &operator>>(QDataStream &, hrObject &s);
 QDataStream &operator>>(QDataStream &, hrObjectOptions &s);
 QT_END_NAMESPACE
 
-struct ObjectProphet {
+struct ObjectProphet {//seer hut
     quint8 quest;
 
     union

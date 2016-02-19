@@ -88,45 +88,42 @@ QDataStream &operator>>(QDataStream &in, ObjectShrine &s)
 //QDataStream &operator<<(QDataStream &, const ObjectTown &);
 QDataStream &operator>>(QDataStream &in, ObjectTown &s)
 {
-    in >> s.junk >> s.owner >> s.isName;
+    in >> s.identifier >> s.owner >> s.hasName;
 
-    if ( s.isName == 1 )
+    if ( s.hasName == 1 )
         loadHString(in.device(), s.name);
 
-    in >> s.isGuard;
+    in >> s.hasGuard;
 
-    if ( s.isGuard == 1 )
+    if ( s.hasGuard == 1 )
     {
         for ( quint8 i = 0; i < 7; i++ )
             in >> s.guards[i];
     }
 
-    in >> s.formation >> s.isBuildings;
+    in >> s.formation >> s.hasBuildings;
 
-    if ( s.isBuildings == 1 )
+    if ( s.hasBuildings == 1 )
     {
         in.readRawData( (char *) s.built, sizeof(s.built) );
         in.readRawData( (char *) s.active, sizeof(s.active) );
     }
     else
-        in >> s.isFort;
+        in >> s.hasFort;
 
     in.readRawData( (char *) s.mustSpells, sizeof(s.mustSpells) );
     in.readRawData( (char *) s.canSpells, sizeof(s.canSpells) );
 
-    in >> s.event_quantity;
-
-    if ( s.event_quantity > 0 )
+    in >> s.eventCount;
+    for (quint32 i = 0; i < s.eventCount; i++ )
     {
-        for (quint32 i = 0; i < s.event_quantity; i++ )
-        {
-            TownEvent_t event;
-            in >> event;
-            s.events.push_back(event);
-        }
+        TownEvent_t event;
+        in >> event;
+        s.events.push_back(event);
     }
 
-    in >> s.junk3;
+    in >> s.alignment;
+    in.readRawData( (char *) s.junk3, sizeof(s.junk3) );
 
     return in;
 }
@@ -174,14 +171,14 @@ QDataStream &operator>>(QDataStream &in, ObjectResource &s)
 //QDataStream &operator<<(QDataStream &, const ObjectPandora &);
 QDataStream &operator>>(QDataStream &in, ObjectPandora &s)
 {
-    in >> s.art;
+    in >> s.messageGuards;
     in >> s.exp >> s.spell_points >> s.morals >> s.luck >> s.res;
     in >> s.offence >> s.defence >> s.power >> s.knowledge;
-    in >> s.isSecSkills;
+    in >> s.secSkillsCount;
 
-    if ( s.isSecSkills > 0 )
+    if ( s.secSkillsCount > 0 )
     {
-        for ( quint8 i = 0; i < s.isSecSkills; i++)
+        for ( quint8 i = 0; i < s.secSkillsCount; i++)
         {
             SecondarySkill_t skill;
             in >> skill;
@@ -189,11 +186,11 @@ QDataStream &operator>>(QDataStream &in, ObjectPandora &s)
         }
     }
 
-    in >> s.isArtefacts;
+    in >> s.artefactCount;
 
-    if ( s.isArtefacts > 0 )
+    if ( s.artefactCount > 0 )
     {
-        for ( quint8 i = 0; i < s.isArtefacts; i++)
+        for ( quint8 i = 0; i < s.artefactCount; i++)
         {
             quint16 art;
             in >> art;
@@ -201,11 +198,11 @@ QDataStream &operator>>(QDataStream &in, ObjectPandora &s)
         }
     }
 
-    in >> s.isSpells;
+    in >> s.spellsCount;
 
-    if ( s.isSpells > 0 )
+    if ( s.spellsCount > 0 )
     {
-        for ( quint8 i = 0; i < s.isSpells; i++)
+        for ( quint8 i = 0; i < s.spellsCount; i++)
         {
             quint8 sp;
             in >> sp;
@@ -213,11 +210,11 @@ QDataStream &operator>>(QDataStream &in, ObjectPandora &s)
         }
     }
 
-    in >> s.monstres_count;
+    in >> s.monstreCount;
 
-    if ( s.monstres_count > 0 )
+    if ( s.monstreCount > 0 )
     {
-        for ( quint8 i = 0; i < s.monstres_count; i++)
+        for ( quint8 i = 0; i < s.monstreCount; i++)
         {
             Guard_t g;
             in >> g;
@@ -231,7 +228,7 @@ QDataStream &operator>>(QDataStream &in, ObjectPandora &s)
 //QDataStream &operator<<(QDataStream &, const ObjectMonster &);
 QDataStream &operator>>(QDataStream &in, ObjectMonster &s)
 {
-    in >> s.monsterID >> s.monsters_count >> s.mood >> s.isTreasureOrText;
+    in >> s.monsterID >> s.monstersCount >> s.mood >> s.isTreasureOrText;
 
     if ( s.isTreasureOrText == 1 )
     {
@@ -248,7 +245,6 @@ QDataStream &operator>>(QDataStream &in, ObjectMonster &s)
 QDataStream &operator>>(QDataStream &in, ObjectGrail &s)
 {
     in >> s.radius;
-    in.readRawData( (char *) s.junk2, sizeof(s.junk2) );
     return in;
 }
 
@@ -262,9 +258,9 @@ QDataStream &operator>>(QDataStream &in, ObjectTownRandomDwelling &s)
 //QDataStream &operator<<(QDataStream &, const ObjectLevelRandomDwelling &);
 QDataStream &operator>>(QDataStream &in, ObjectLevelRandomDwelling &s)
 {
-    in >> s.owner >> s.junk;
+    in >> s.owner >> s.castleScpecID;
 
-    if ( s.junk == 0 )
+    if ( s.castleScpecID == 0 )
         in >> s.towns;
 
     return in;
@@ -273,9 +269,9 @@ QDataStream &operator>>(QDataStream &in, ObjectLevelRandomDwelling &s)
 //QDataStream &operator<<(QDataStream &, const ObjectGeneralRandomDwelling &);
 QDataStream &operator>>(QDataStream &in, ObjectGeneralRandomDwelling &s)
 {
-    in >> s.owner >> s.junk;
+    in >> s.owner >> s.castleScpecID;
 
-    if ( s.junk == 0 )
+    if ( s.castleScpecID == 0 )
         in >> s.towns;
 
     in >> s.minlevel >> s.maxlevel;
@@ -298,16 +294,16 @@ QDataStream &operator>>(QDataStream &in, ObjectDwelling &s)
 }
 
 //QDataStream &operator<<(QDataStream &, const ObjectArtefact &);
-QDataStream &operator>>(QDataStream &in, ObjectArtefact &s)
+QDataStream &operator>>(QDataStream &in, ObjectMessageGuards &s)
 {
-    in >> s.isText;
+    in >> s.hasText;
 
-    if ( s.isText == 1 )
+    if ( s.hasText == 1 )
     {
         loadHString(in.device(), s.text);
-        in >> s.isGuards;
+        in >> s.hasGuards;
 
-        if ( s.isGuards == 1)
+        if ( s.hasGuards == 1)
         {
             for (quint8 i = 0; i < 7; i++)
                 in >> s.guards[i];

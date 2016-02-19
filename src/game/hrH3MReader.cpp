@@ -319,7 +319,7 @@ bool hrMapHeader::load(QIODevice *device, quint32 mapVersion)
     if ( mapVersion != MAP_HOMM3_AB && mapVersion != MAP_HOMM3_ROE && mapVersion != MAP_HOMM3_SOD )
         return false;
 
-    loadVar(device, _unknown);
+    loadVar(device, _areAnyPlayers);
     loadVar(device, _mapSize);
     loadVar(device, _underground);
     loadVar(device, _name);
@@ -355,28 +355,25 @@ QDataStream &operator>>(QDataStream &in, PlayerAttributes_t &p)
     in >> p.cityTypes >> p.randomCity >> p.mainCity;
 
     if ( p.mainCity == 1 )
-        in >> p.generateHero >> p.city[0] >> p.city[1] >> p.city[2] >> p.city[3];
+        in >> p.generateHeroAtMainTown >> p.generateHero
+                >> p.city[0] >> p.city[1] >> p.city[2] ;
 
     in >> p.randomHero >> p.heroType;
 
-    in >> p.heroPortret;
-
-    loadHString(in.device(), p.heroName);
-
-    if ( p.heroType != 0xFF )
+    if(p.heroType != 0xFF)
     {
-        in >> p.junk >> p.heroesCount;
-
-        if ( p.heroesCount > 0 )
-        {
-            for ( quint32 i = 0; i < p.heroesCount; i++ )
-            {
-                Hero_t hero;
-                in >> hero;
-                p.heroes.push_back(hero);
-            }
-        }
+        in >> p.heroPortret;
+        loadHString(in.device(), p.heroName);
     }
+
+    in >> p.junk >> p.heroesCount;
+    for ( quint32 i = 0; i < p.heroesCount; i++ )
+    {
+        Hero_t hero;
+        in >> hero;
+        p.heroes.push_back(hero);
+    }
+
     return in;
 }
 QT_END_NAMESPACE
