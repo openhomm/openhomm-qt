@@ -136,6 +136,7 @@ bool hrH3MReader::load(const QString &name)
     {
         m >> obj[i];
 
+        quint32 objID=obj[i].objectID;
         switch(objects[obj[i].objectID].object_class)
         {
         case 5:
@@ -144,80 +145,50 @@ bool hrH3MReader::load(const QString &name)
         case 67:
         case 68:
         case 69:
-            {
-                ObjectArtefact artefact;
-                m >> artefact;
-            }
+             m >> artefactObjs[objID];
              break;
 
         case 6:
-            {
-                ObjectPandora pandora;
-                m >> pandora;
-            }
+             m >> pandoras[objID];
             break;
 
         case 17:
         case 20:
         case 42: //lighthouse
-            {
-                ObjectDwelling dwelling;
-                m >> dwelling;
-            }
+            m >> dwellings[objID];
             break;
 
         case 26:
-            {
-                ObjectEvent localevent;
-                m >> localevent;
-            }
+            m >> localevents[objID];
             break;
 
         case 33:
         case 219:
-            {
-                ObjectGarrison garrison;
-                m >> garrison;
-            }
+            m >> garrisons[objID];
             break;
 
         case 34:
         case 70:
-            {
-                ObjectHero hero;
-                m >> hero;
-            }
+            m >> heroes[objID];
             break;
         case 62:
-            {
-                ObjectHero hero;
-                m >> hero;
-            }
+            m >> heroes[objID];
             break;
 
         case 36:
-            {
-                ObjectGrail grail;
-                m >> grail;
-            };
+            m >> grails[objID];
             break;
 
         case 53:
-            {
-                switch(objects[obj[i].objectID].object_number) {
-                case 7:
-                    {
-                        ObjectAbandonedMine abandoned;  // bit0 - mercury, 1 - ore, 2 - sulfur,
-                        m >> abandoned;                 // bit3 - crystal, 4 - gem, 5 - gold
-                    }
-                    break;
-                default:
-                    {
-                        ObjectMine mine;
-                        m >> mine;
-                    }
-                    break;
-                }
+            switch(objects[objID].object_number) {
+            case 7:
+                // bit0 - mercury, 1 - ore, 2 - sulfur,
+                // bit3 - crystal, 4 - gem, 5 - gold
+                m >> aMines[objID];
+                break;
+            default:
+                m >> mines[objID];
+                break;
             }
             break;
 
@@ -230,110 +201,65 @@ bool hrH3MReader::load(const QString &name)
         case 162:
         case 163:
         case 164:
-            {
-                ObjectMonster monster;
-                m >> monster;
-            }
+            m >> monsters[objID];
             break;
 
         case 76:
         case 79:
-            {
-                ObjectResource res;
-                m >> res;
-            }
+            m >> resources[objID];
             break;
 
         case 81:
-            {
-                ObjectScientist scientist;
-                m >> scientist;
-            }
+            m >> scientists[objID];
             break;
 
          case 83:
-            {
-                ObjectProphet prophet;
-                m >> prophet;
-            }
+            m >> prophets[objID];
             break;
 
          case 87:
-            {
-                ObjectShipyard shipyard;
-                m >> shipyard;
-            }
+            m >> shipyards[objID];
             break;
 
          case 88:
          case 89:
          case 90:
-            {
-                ObjectShrine shrine;
-                m >> shrine;
-            }
+            m >> shrines[objID];
             break;
 
          case 91:
          case 59:
-            {
-                ObjectSign sign;
-                m >> sign;
-            }
+            m >> signs[objID];
             break;
 
          case 93:
-            {
-                ObjectSpell spell;
-                m >> spell;
-            }
+            m >> spellObjs[objID];
             break;
 
          case 98:
          case 77:
-            {
-                ObjectTown town;
-                m >> town;
-            }
+            m >> towns[objID];
             break;
 
          case 113:
-            {
-                ObjectWitchHut whut;
-                m >> whut;
-            }
+            m >> whuts[objID];
             break;
 
          case 215:
-            {
-                ObjectQuestionGuard qguard;
-                m >> qguard;
-            }
+            m >> qguards[objID];
             break;
 
          case 216:
-            {
-                ObjectGeneralRandomDwelling dwelling;
-                m >> dwelling;
-            }
+            m >> grDwellings[objID];
             break;
          case 217:
-            {
-                ObjectLevelRandomDwelling dwelling;
-                m >> dwelling;
-            }
+            m >> lrDwellings[objID];
             break;
          case 218:
-             {
-                 ObjectTownRandomDwelling dwelling;
-                 m >> dwelling;
-             }
-             break;
+            m >> trDwellings[objID];
+            break;
          case 220:
-            {
-                 ObjectAbandonedMine abandoned;
-                 m >> abandoned;
-            }
+            m >> aMines[objID];
             break;
         };
     }

@@ -374,4 +374,28 @@ protected:
     hrObjectOptions * obj;
     quint32 objectQuantity;
     quint32 objectOptions;
+    //<objectID,...>
+    QMap<quint32,ObjectArtefact> artefactObjs;
+    QMap<quint32,ObjectPandora> pandoras;
+    QMap<quint32,ObjectDwelling> dwellings;
+    QMap<quint32,ObjectEvent> localevents;
+    QMap<quint32,ObjectGarrison> garrisons;
+    QMap<quint32,ObjectHero> heroes;
+    QMap<quint32,ObjectGrail> grails;
+    QMap<quint32,ObjectAbandonedMine> aMines;
+    QMap<quint32,ObjectMine> mines;
+    QMap<quint32,ObjectMonster> monsters;
+    QMap<quint32,ObjectResource> resources;
+    QMap<quint32,ObjectScientist> scientists;
+    QMap<quint32,ObjectProphet> prophets;
+    QMap<quint32,ObjectShipyard> shipyards;
+    QMap<quint32,ObjectShrine> shrines;
+    QMap<quint32,ObjectSign> signs;
+    QMap<quint32,ObjectSpell> spellObjs;
+    QMap<quint32,ObjectTown> towns;
+    QMap<quint32,ObjectWitchHut> whuts;
+    QMap<quint32,ObjectQuestionGuard> qguards;
+    QMap<quint32,ObjectGeneralRandomDwelling> grDwellings;
+    QMap<quint32,ObjectLevelRandomDwelling> lrDwellings;
+    QMap<quint32,ObjectTownRandomDwelling> trDwellings;
 };
