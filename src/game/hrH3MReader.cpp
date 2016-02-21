@@ -17,14 +17,6 @@
 #include "precompiled.hpp"
 #include "hrH3MReader.hpp"
 #include <zlib.h>
-template<typename T> void hrMapHeader::loadVar(QIODevice* dev, T& var)
-{
-    dev->read((char*)&var, sizeof(var));
-}
-template<> void hrMapHeader::loadVar(QIODevice* dev, HString& var)
-{
-    loadHString(dev,var);
-}
 
 QByteArray unpack(const QString &filename)
 {
@@ -96,7 +88,7 @@ bool hrH3MReader::load(const QString &name)
 
     qWarning("Map version is %d", _version);
 
-    _header.load(m.device(), _version);
+    _header.load(m,_version);
 
     for ( int i = 0; i < 8; i++ )
     {
@@ -314,20 +306,20 @@ const QString& hrH3MReader::getObjectName(quint32 id) const
     return objects[id].filename;
 }
 
-bool hrMapHeader::load(QIODevice *device, quint32 mapVersion)
+bool hrMapHeader::load(QDataStream &in, quint32 mapVersion)
 {
     if ( mapVersion != MAP_HOMM3_AB && mapVersion != MAP_HOMM3_ROE && mapVersion != MAP_HOMM3_SOD )
         return false;
 
-    loadVar(device, _areAnyPlayers);//True if there are any playable players on the map.
-    loadVar(device, _mapSize);
-    loadVar(device, _underground);
-    loadVar(device, _name);
-    loadVar(device, _description);
-    loadVar(device, _difficult);
+    in >> _areAnyPlayers;//True if there are any playable players on the map.
+    in >> _mapSize;
+    in >> _underground;
+    loadHString(in,_name);
+    loadHString(in, _description);
+    in >> _difficult;
 
     if ( mapVersion == MAP_HOMM3_SOD )
-        loadVar(device, _levelLimit);
+        in >> _levelLimit;
 
     return true;
 }
@@ -341,7 +333,7 @@ QDataStream &operator<<(QDataStream &out, const Hero_t &)
 QDataStream &operator>>(QDataStream &in, Hero_t &h)
 {
     in >> h.portret;
-    loadHString(in.device(), h.name);
+    loadHString(in, h.name);
     return in;
 }
 QDataStream &operator<<(QDataStream &out, const PlayerAttributes_t &)
@@ -363,7 +355,7 @@ QDataStream &operator>>(QDataStream &in, PlayerAttributes_t &p)
     if(p.heroType != 0xFF)
     {
         in >> p.heroPortret;
-        loadHString(in.device(), p.heroName);
+        loadHString(in, p.heroName);
     }
 
     in >> p.junk >> p.heroesCount;
@@ -479,7 +471,7 @@ QDataStream &operator<<(QDataStream &out, const TunedHero_t &)
 QDataStream &operator>>(QDataStream &in, TunedHero_t &t)
 {
     in >> t.id >> t.portrait;
-    loadHString(in.device(),t.name);
+    loadHString(in,t.name);
     in >> t.players;
     return in;
 }
@@ -551,8 +543,8 @@ QDataStream &operator<<(QDataStream &out, const Rumor_t &)
 }
 QDataStream &operator>>(QDataStream &in, Rumor_t &r)
 {
-    loadHString(in.device(), r.rumor_name);
-    loadHString(in.device(),r.rumor_text);
+    loadHString(in, r.rumor_name);
+    loadHString(in,r.rumor_text);
 
     return in;
 }
@@ -632,7 +624,7 @@ QDataStream &operator>>(QDataStream &in, HeroOptions_enabled &h)
     in >> h.isBiography;
 
     if ( h.isBiography == 1 )
-        loadHString(in.device(), h.biography);
+        loadHString(in, h.biography);
 
     in >> h.gender >> h.isSpells;
 

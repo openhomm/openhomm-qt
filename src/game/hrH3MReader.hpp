@@ -38,7 +38,7 @@ public:
     quint8 difficult()const { return _difficult; }
     quint8 levelLimit() const { return _levelLimit; }
 
-    bool load(QIODevice *device, quint32 mapVersion);
+    bool load(QDataStream &in, quint32 mapVersion);
 protected:
     template <typename T>
     void loadVar(QIODevice* dev, T& var);
@@ -51,7 +51,6 @@ private:
     quint8  _difficult;
     quint8  _levelLimit;
 };
-
 
 struct Hero_t {
     quint8 portret;
