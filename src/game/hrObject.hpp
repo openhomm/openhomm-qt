@@ -91,7 +91,7 @@ QT_END_NAMESPACE
 
 struct ObjectGeneralRandomDwelling {
     quint32 owner;
-    quint32 castleScpecID;
+    quint32 castleSpecID;
 //  if (castleScpecID == 0 )
     quint16 towns;
 
@@ -105,7 +105,7 @@ QT_END_NAMESPACE
 
 struct ObjectLevelRandomDwelling {
     quint32 owner;
-    quint32 castleScpecID;
+    quint32 castleSpecID;
 //  if ( castleScpecID == 0 )
     quint16 towns;
 };

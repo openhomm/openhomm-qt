@@ -319,7 +319,7 @@ bool hrMapHeader::load(QIODevice *device, quint32 mapVersion)
     if ( mapVersion != MAP_HOMM3_AB && mapVersion != MAP_HOMM3_ROE && mapVersion != MAP_HOMM3_SOD )
         return false;
 
-    loadVar(device, _areAnyPlayers);
+    loadVar(device, _areAnyPlayers);//True if there are any playable players on the map.
     loadVar(device, _mapSize);
     loadVar(device, _underground);
     loadVar(device, _name);

@@ -258,9 +258,9 @@ QDataStream &operator>>(QDataStream &in, ObjectTownRandomDwelling &s)
 //QDataStream &operator<<(QDataStream &, const ObjectLevelRandomDwelling &);
 QDataStream &operator>>(QDataStream &in, ObjectLevelRandomDwelling &s)
 {
-    in >> s.owner >> s.castleScpecID;
+    in >> s.owner >> s.castleSpecID;
 
-    if ( s.castleScpecID == 0 )
+    if ( s.castleSpecID == 0 )
         in >> s.towns;
 
     return in;
@@ -269,9 +269,9 @@ QDataStream &operator>>(QDataStream &in, ObjectLevelRandomDwelling &s)
 //QDataStream &operator<<(QDataStream &, const ObjectGeneralRandomDwelling &);
 QDataStream &operator>>(QDataStream &in, ObjectGeneralRandomDwelling &s)
 {
-    in >> s.owner >> s.castleScpecID;
+    in >> s.owner >> s.castleSpecID;
 
-    if ( s.castleScpecID == 0 )
+    if ( s.castleSpecID == 0 )
         in >> s.towns;
 
     in >> s.minlevel >> s.maxlevel;
