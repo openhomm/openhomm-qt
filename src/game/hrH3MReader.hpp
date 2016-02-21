@@ -39,6 +39,7 @@ public:
     quint8 levelLimit() const { return _levelLimit; }
 
     bool load(QDataStream &in, quint32 mapVersion);
+    bool save(QDataStream &in, quint32 mapVersion);
 protected:
     template <typename T>
     void loadVar(QIODevice* dev, T& var);
@@ -347,6 +348,7 @@ public:
     ~hrH3MReader();
 
     bool load(const QString &name);
+    bool save(const QString &name);
     hrTile getTile(quint32 index, bool isUnderground = false);
 
     bool hasUnderground() const;
@@ -378,7 +380,7 @@ protected:
     hrObjectOptions * obj;
     quint32 objectQuantity;
     quint32 objectOptions;
-    //<objectID,...>
+    //<objectIndex,...>
     QMap<quint32,ObjectMessageGuards> artefactObjs;
     QMap<quint32,ObjectPandora> pandoras;
     QMap<quint32,ObjectDwelling> dwellings;

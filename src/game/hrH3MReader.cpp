@@ -44,6 +44,19 @@ QByteArray unpack(const QString &filename)
 
     return array;
 }
+bool pack(const QByteArray& array, const QString &filename)
+{
+    QFile map(filename);
+    if ( !map.open(QIODevice::WriteOnly) ) {
+        return false;
+    }
+
+    gzFile file = gzopen(filename.toLocal8Bit().data(), "wb");
+    gzwrite(file,array.data(),array.length());
+    gzclose(file);
+
+    return true;
+}
 /*!
   \class hrH3MReader
   \brief The hrH3MReader class
@@ -137,6 +150,7 @@ bool hrH3MReader::load(const QString &name)
         m >> obj[i];
 
         quint32 objID=obj[i].objectID;
+
         switch(objects[obj[i].objectID].object_class)
         {
         case 5:
@@ -145,49 +159,49 @@ bool hrH3MReader::load(const QString &name)
         case 67:
         case 68:
         case 69:
-             m >> artefactObjs[objID];
+             m >> artefactObjs[i];
              break;
 
         case 6:
-             m >> pandoras[objID];
+             m >> pandoras[i];
             break;
 
         case 17:
         case 20:
         case 42: //lighthouse
-            m >> dwellings[objID];
+            m >> dwellings[i];
             break;
 
         case 26:
-            m >> localevents[objID];
+            m >> localevents[i];
             break;
 
         case 33:
         case 219:
-            m >> garrisons[objID];
+            m >> garrisons[i];
             break;
 
         case 34:
         case 70:
-            m >> heroes[objID];
+            m >> heroes[i];
             break;
         case 62:
-            m >> heroes[objID];
+            m >> heroes[i];
             break;
 
         case 36:
-            m >> grails[objID];
+            m >> grails[i];
             break;
 
         case 53:
-            switch(objects[objID].object_number) {
+            switch(objects[obj[i].objectID].object_number) {
             case 7:
                 // bit0 - mercury, 1 - ore, 2 - sulfur,
                 // bit3 - crystal, 4 - gem, 5 - gold
-                m >> aMines[objID];
+                m >> aMines[i];
                 break;
             default:
-                m >> mines[objID];
+                m >> mines[i];
                 break;
             }
             break;
@@ -201,69 +215,251 @@ bool hrH3MReader::load(const QString &name)
         case 162:
         case 163:
         case 164:
-            m >> monsters[objID];
+            m >> monsters[i];
             break;
 
         case 76:
         case 79:
-            m >> resources[objID];
+            m >> resources[i];
             break;
 
         case 81:
-            m >> scientists[objID];
+            m >> scientists[i];
             break;
 
          case 83:
-            m >> prophets[objID];
+            m >> prophets[i];
             break;
 
          case 87:
-            m >> shipyards[objID];
+            m >> shipyards[i];
             break;
 
          case 88:
          case 89:
          case 90:
-            m >> shrines[objID];
+            m >> shrines[i];
             break;
 
          case 91:
          case 59:
-            m >> signs[objID];
+            m >> signs[i];
             break;
 
          case 93:
-            m >> spellObjs[objID];
+            m >> spellObjs[i];
             break;
 
          case 98:
          case 77:
-            m >> towns[objID];
+            m >> towns[i];
             break;
 
          case 113:
-            m >> whuts[objID];
+            m >> whuts[i];
             break;
 
          case 215:
-            m >> qguards[objID];
+            m >> qguards[i];
             break;
 
          case 216:
-            m >> grDwellings[objID];
+            m >> grDwellings[i];
             break;
          case 217:
-            m >> lrDwellings[objID];
+            m >> lrDwellings[i];
             break;
          case 218:
-            m >> trDwellings[objID];
+            m >> trDwellings[i];
             break;
          case 220:
-            m >> aMines[objID];
+            m >> aMines[i];
             break;
         };
     }
     return true;
+}
+
+bool hrH3MReader::save(const QString &name)
+{
+    QByteArray data;
+
+    QBuffer map(&data);
+    if ( !map.open(QIODevice::WriteOnly) ) {
+        qWarning() << map.errorString();
+        return false;
+    }
+
+    QDataStream m(&map);
+    m.setByteOrder(QDataStream::LittleEndian);
+
+    m << _version;
+
+    _header.save(m,_version);
+
+    for ( int i = 0; i < 8; i++ ) {
+        m << players[i];
+    }
+
+    m << svc << slc << teams;
+    m << fh;
+    m << artefacts << spells << secSkills << rumors;
+
+    for ( int i = 0; i < 156; i++ ) {
+        m << enable[i];
+        if ( enable[i] == 1 ) {
+            m << heroOptions[i];
+        }
+    }
+
+    quint32 sqMapSize = _header.mapSize()*_header.mapSize();
+    m.writeRawData( (char *) ground, sizeof(hrTile)* sqMapSize);
+
+    if ( _header.isUnderground() ) {
+        m.writeRawData( (char *) underground, sizeof(hrTile)*sqMapSize );
+    }
+
+    m << objectQuantity;
+
+    for ( quint32 i = 0; i < objectQuantity; i++ ) {
+        m << objects[i];
+    }
+
+    m << objectOptions;
+
+    for ( quint32 i = 0; i < objectOptions; i++ )
+    {
+        m << obj[i];
+
+        quint32 objID=obj[i].objectID;
+        switch(objects[obj[i].objectID].object_class)
+        {
+        case 5:
+        case 65:
+        case 66:
+        case 67:
+        case 68:
+        case 69:
+             m << artefactObjs[i];
+             break;
+
+        case 6:
+             m << pandoras[i];
+            break;
+
+        case 17:
+        case 20:
+        case 42: //lighthouse
+            m << dwellings[i];
+            break;
+
+        case 26:
+            m << localevents[i];
+            break;
+
+        case 33:
+        case 219:
+            m << garrisons[i];
+            break;
+
+        case 34:
+        case 70:
+            m << heroes[i];
+            break;
+        case 62:
+            m << heroes[i];
+            break;
+
+        case 36:
+            m << grails[i];
+            break;
+
+        case 53:
+            switch(objects[obj[i].objectID].object_number) {
+            case 7:
+                // bit0 - mercury, 1 - ore, 2 - sulfur,
+                // bit3 - crystal, 4 - gem, 5 - gold
+                m << aMines[i];
+                break;
+            default:
+                m << mines[i];
+                break;
+            }
+            break;
+
+        case 54:
+        case 71:
+        case 72:
+        case 73:
+        case 74:
+        case 75:
+        case 162:
+        case 163:
+        case 164:
+            m << monsters[i];
+            break;
+
+        case 76:
+        case 79:
+            m << resources[i];
+            break;
+
+        case 81:
+            m << scientists[i];
+            break;
+
+         case 83:
+            m << prophets[i];
+            break;
+
+         case 87:
+            m << shipyards[i];
+            break;
+
+         case 88:
+         case 89:
+         case 90:
+            m << shrines[i];
+            break;
+
+         case 91:
+         case 59:
+            m << signs[i];
+            break;
+
+         case 93:
+            m << spellObjs[i];
+            break;
+
+         case 98:
+         case 77:
+            m << towns[i];
+            break;
+
+         case 113:
+            m << whuts[i];
+            break;
+
+         case 215:
+            m << qguards[i];
+            break;
+
+         case 216:
+            m << grDwellings[i];
+            break;
+         case 217:
+            m << lrDwellings[i];
+            break;
+         case 218:
+            m << trDwellings[i];
+            break;
+         case 220:
+            m << aMines[i];
+            break;
+        };
+    }
+
+    return pack(data,name);
 }
 
 hrTile hrH3MReader::getTile(quint32 index, bool isUnderground)
@@ -324,10 +520,29 @@ bool hrMapHeader::load(QDataStream &in, quint32 mapVersion)
     return true;
 }
 
-QT_BEGIN_NAMESPACE
-QDataStream &operator<<(QDataStream &out, const Hero_t &)
+bool hrMapHeader::save(QDataStream &in, quint32 mapVersion)
 {
-    qWarning("%s is not yet implemented", Q_FUNC_INFO);
+    if ( mapVersion != MAP_HOMM3_SOD )
+        return false;
+
+    in << _areAnyPlayers;//True if there are any playable players on the map.
+    in << _mapSize;
+    in << _underground;
+    saveHString(in,_name);
+    saveHString(in, _description);
+    in << _difficult;
+
+    if ( mapVersion == MAP_HOMM3_SOD )
+        in << _levelLimit;
+
+    return true;
+}
+
+QT_BEGIN_NAMESPACE
+QDataStream &operator<<(QDataStream &out, const Hero_t &h)
+{
+    out << h.portret;
+    saveHString(out, h.name);
     return out;
 }
 QDataStream &operator>>(QDataStream &in, Hero_t &h)
@@ -336,9 +551,29 @@ QDataStream &operator>>(QDataStream &in, Hero_t &h)
     loadHString(in, h.name);
     return in;
 }
-QDataStream &operator<<(QDataStream &out, const PlayerAttributes_t &)
+QDataStream &operator<<(QDataStream &out, const PlayerAttributes_t &p)
 {
-    qWarning("%s is not yet implemented", Q_FUNC_INFO);
+    out << p.isHuman << p.isComputer << p.behavior << p.isCityTypesOpt;
+    out << p.cityTypes << p.randomCity << p.mainCity;
+
+    if ( p.mainCity == 1 )
+        out << p.generateHeroAtMainTown << p.generateHero
+                << p.city[0] << p.city[1] << p.city[2] ;
+
+    out << p.randomHero << p.heroType;
+
+    if(p.heroType != 0xFF)
+    {
+        out << p.heroPortret;
+        saveHString(out, p.heroName);
+    }
+
+    out << p.junk << p.heroesCount;
+    for ( quint32 i = 0; i < p.heroesCount; i++ )
+    {
+        out << p.heroes[i];
+    }
+
     return out;
 }
 QDataStream &operator>>(QDataStream &in, PlayerAttributes_t &p)
@@ -378,9 +613,47 @@ PlayerAttributes_t::~PlayerAttributes_t()
     heroes.clear();
 }
 QT_BEGIN_NAMESPACE
-QDataStream &operator<<(QDataStream &out, const SpecialVictoryCondition_t &)
+QDataStream &operator<<(QDataStream &out, const SpecialVictoryCondition_t &s)
 {
-    qWarning("%s is not yet implemented", Q_FUNC_INFO);
+    out << s.id;
+
+    if ( s.id != 0xFF )
+    {
+        out << s.canStandardEnd << s.canComputer;
+
+        switch(s.id)
+        {
+        case 0x00:
+            out << s.artId;
+            break;
+        case 0x01:
+            out << s.creatureId << s.creatureCount;
+            break;
+        case 0x02:
+            out << s.resId << s.resCount;
+            break;
+        case 0x03:
+            out << s.townCoord[0] << s.townCoord[1] << s.townCoord[2];
+            out << s.hallLevel << s.castleLevel;
+            break;
+        case 0x04:
+        case 0x05:
+        case 0x06:
+        case 0x07:
+            out << s.coord[0] << s.coord[1] << s.coord[2];
+            break;
+        case 0x08:
+        case 0x09:
+            break;
+        case 0x0A:
+            out << s.artType << s.artCoord[0] << s.artCoord[1] << s.artCoord[2];
+            break;
+        default:
+            qWarning("SpecialVictoryCondition ID: %d is unkonwn", s.id);
+            break;
+        };
+    }
+
     return out;
 }
 QDataStream &operator>>(QDataStream &in, SpecialVictoryCondition_t &s)
@@ -426,9 +699,21 @@ QDataStream &operator>>(QDataStream &in, SpecialVictoryCondition_t &s)
     return in;
 }
 
-QDataStream &operator<<(QDataStream &out, const SpecialLossCondition_t &)
+QDataStream &operator<<(QDataStream &out, const SpecialLossCondition_t &s)
 {
-    qWarning("%s is not yet implemented", Q_FUNC_INFO);
+     out <<  s.id;
+
+    if ( s.id != 0xFF )
+    {
+
+        if ( s.id == 0x00 || s.id == 0x01 )
+             out <<  s.coord[0] << s.coord[1] << s.coord[2];
+        else if ( s.id == 0x02 )
+             out <<  s.days;
+        else
+            qWarning("SpecialLossConditions ID: %d is unkown", s.id);
+    }
+
     return out;
 }
 QDataStream &operator>>(QDataStream &in, SpecialLossCondition_t &s)
@@ -448,9 +733,13 @@ QDataStream &operator>>(QDataStream &in, SpecialLossCondition_t &s)
     return in;
 }
 
-QDataStream &operator<<(QDataStream &out, const Teams_t &)
+QDataStream &operator<<(QDataStream &out, const Teams_t &t)
 {
-    qWarning("%s is not yet implemented", Q_FUNC_INFO);
+    out << t.quantity;
+
+    if ( t.quantity > 0 )
+        out.writeRawData((char*)t.commands, sizeof(t.commands));
+
     return out;
 }
 QDataStream &operator>>(QDataStream &in, Teams_t &t)
@@ -463,9 +752,11 @@ QDataStream &operator>>(QDataStream &in, Teams_t &t)
     return in;
 }
 
-QDataStream &operator<<(QDataStream &out, const TunedHero_t &)
+QDataStream &operator<<(QDataStream &out, const TunedHero_t &t)
 {
-    qWarning("%s is not yet implemented", Q_FUNC_INFO);
+    out << t.id << t.portrait;
+    saveHString(out,t.name);
+    out << t.players;
     return out;
 }
 QDataStream &operator>>(QDataStream &in, TunedHero_t &t)
@@ -476,9 +767,22 @@ QDataStream &operator>>(QDataStream &in, TunedHero_t &t)
     return in;
 }
 
-QDataStream &operator<<(QDataStream &out, const FreeHeroes_t &)
+QDataStream &operator<<(QDataStream &out, const FreeHeroes_t &f)
 {
-    qWarning("%s is not yet implemented", Q_FUNC_INFO);
+    out.writeRawData( (char *)f.heroes, sizeof(f.heroes) );
+    out.writeRawData( (char *)f.junk, sizeof(f.junk) );
+
+    out << f.heroesQuantity;
+
+    if ( f.heroesQuantity > 0 )
+    {
+        for ( quint8 i = 0; i < f.heroesQuantity; i++ )
+        {
+            out << f.tunedHeroes[i];
+        }
+    }
+
+    out.writeRawData( (char *) f.junk2, sizeof(f.junk2) );
     return out;
 }
 QDataStream &operator>>(QDataStream &in, FreeHeroes_t &f)
@@ -503,9 +807,9 @@ QDataStream &operator>>(QDataStream &in, FreeHeroes_t &f)
     return in;
 }
 
-QDataStream &operator<<(QDataStream &out, const Artefacts_t &)
+QDataStream &operator<<(QDataStream &out, const Artefacts_t &a)
 {
-    qWarning("%s is not yet implemented", Q_FUNC_INFO);
+    out.writeRawData( (char *) a.artefacts, sizeof(a.artefacts) );
     return out;
 }
 QDataStream &operator>>(QDataStream &in, Artefacts_t &a)
@@ -514,9 +818,9 @@ QDataStream &operator>>(QDataStream &in, Artefacts_t &a)
     return in;
 }
 
-QDataStream &operator<<(QDataStream &out, const Spells_t &)
+QDataStream &operator<<(QDataStream &out, const Spells_t &s)
 {
-    qWarning("%s is not yet implemented", Q_FUNC_INFO);
+    out.writeRawData( (char *) s.spells, sizeof(s.spells) );
     return out;
 }
 QDataStream &operator>>(QDataStream &in, Spells_t &s)
@@ -525,9 +829,9 @@ QDataStream &operator>>(QDataStream &in, Spells_t &s)
     return in;
 }
 
-QDataStream &operator<<(QDataStream &out, const SecSkills_t &)
+QDataStream &operator<<(QDataStream &out, const SecSkills_t &s)
 {
-    qWarning("%s is not yet implemented", Q_FUNC_INFO);
+    out.writeRawData( (char *) s.skills, sizeof(s.skills) );
     return out;
 }
 QDataStream &operator>>(QDataStream &in, SecSkills_t &s)
@@ -536,9 +840,10 @@ QDataStream &operator>>(QDataStream &in, SecSkills_t &s)
     return in;
 }
 
-QDataStream &operator<<(QDataStream &out, const Rumor_t &)
+QDataStream &operator<<(QDataStream &out, const Rumor_t &r)
 {
-    qWarning("%s is not yet implemented", Q_FUNC_INFO);
+    saveHString(out, r.rumor_name);
+    saveHString(out,r.rumor_text);
     return out;
 }
 QDataStream &operator>>(QDataStream &in, Rumor_t &r)
@@ -549,9 +854,17 @@ QDataStream &operator>>(QDataStream &in, Rumor_t &r)
     return in;
 }
 
-QDataStream &operator<<(QDataStream &out, const Rumors_t &)
+QDataStream &operator<<(QDataStream &out, const Rumors_t &r)
 {
-    qWarning("%s is not yet implemented", Q_FUNC_INFO);
+    out << r.quantity;
+
+    if ( r.quantity > 0 )
+    {
+        for ( quint32 i = 0; i < r.quantity; i++ )
+        {
+            out << r.rumors[i];
+        }
+    }
     return out;
 }
 QDataStream &operator>>(QDataStream &in, Rumors_t &r)
@@ -570,9 +883,67 @@ QDataStream &operator>>(QDataStream &in, Rumors_t &r)
     return in;
 }
 
-QDataStream &operator<<(QDataStream &out, const HeroOptions_enabled &)
+QDataStream &operator<<(QDataStream &out, const HeroOptions_enabled &h)
 {
-    qWarning("%s is not yet implemented", Q_FUNC_INFO);
+    out <<h.isExp;
+
+    if ( h.isExp == 1 )
+        out <<h.exp;
+
+    out <<h.isSecSkill;
+
+    if ( h.isSecSkill == 1 )
+    {
+        out <<h.secSkillsQuantity;
+        if ( h.secSkillsQuantity > 0 )
+        {
+            for ( quint32 i = 0; i < h.secSkillsQuantity; i++ )
+            {
+                out <<h.secSkills[i];
+            }
+        }
+    }
+
+    out <<h.isArtefacts;
+
+    if ( h.isArtefacts == 1 )
+    {
+        out <<h.headID << h.shouldersID << h.neckID << h.rightHandID << h.leftHandID;
+        out <<h.trunkID << h.rightRingID << h.leftRingID << h.legsID;
+        out <<h.misc1ID << h.misc2ID << h.misc3ID << h.misc4ID;
+        out <<h.machine1ID << h.machine2ID << h.machine3ID << h.machine4ID;
+        out <<h.magicbook << h.misc5ID;
+
+        out <<h.knapsack_count;
+
+        if ( h.knapsack_count > 0 )
+        {
+            for ( quint16 i = 0; i < h.knapsack_count; i++ )
+            {
+                out <<h.knapsackID[i];
+            }
+        }
+    }
+
+    out <<h.isBiography;
+
+    if ( h.isBiography == 1 )
+        saveHString(out, h.biography);
+
+    out <<h.gender << h.isSpells;
+
+    if ( h.isSpells == 1 )
+    {
+        out.writeRawData( (char *) h.spells, sizeof(h.spells) );
+    }
+
+    out <<h.isPrimarySkills;
+
+    if ( h.isPrimarySkills == 1 )
+    {
+        out <<h.attack << h.defence << h.power << h.knowledge;
+    }
+
     return out;
 }
 QDataStream &operator>>(QDataStream &in, HeroOptions_enabled &h)

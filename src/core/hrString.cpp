@@ -31,5 +31,16 @@ bool loadHString(QDataStream &in, HString &str)
         delete[] t;
     }
     return true;
+}
 
+
+bool saveHString(QDataStream &out, const HString &str)
+{
+    quint32 len = str.length();
+    out<<len;
+
+    if ( len > 0 ) {
+        out.writeRawData( str.toLocal8Bit().data(), len );
+    }
+    return true;
 }
