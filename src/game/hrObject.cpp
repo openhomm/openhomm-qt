@@ -517,7 +517,7 @@ QDataStream &operator>>(QDataStream &in, ObjectAbandonedMine &s)
 }
 
 //QDataStream &operator<<(QDataStream &, const globalEvent &);
-QDataStream &operator>>(QDataStream &in, globalEvent &s)
+QDataStream &operator>>(QDataStream &in, GlobalEvent &s)
 {
     loadHString(in, s.name);
     loadHString(in, s.text);
@@ -899,7 +899,7 @@ QDataStream &operator<<(QDataStream &out, const ObjectAbandonedMine &s)
 }
 
 //QDataStream &operator<<(QDataStream &, const globalEvent &);
-QDataStream &operator<<(QDataStream &out, const globalEvent &s)
+QDataStream &operator<<(QDataStream &out, const GlobalEvent &s)
 {
     saveHString(out, s.name);
     saveHString(out, s.text);

@@ -277,6 +277,14 @@ bool hrH3MReader::load(const QString &name)
             break;
         };
     }
+
+    m >> globalEventCount;
+    for (int i=0; i < globalEventCount; ++i) {
+        GlobalEvent ge;
+        m >> ge;
+        globalEvents.push_back(ge);
+    }
+
     return true;
 }
 
@@ -458,7 +466,10 @@ bool hrH3MReader::save(const QString &name)
             break;
         };
     }
-
+    m << globalEventCount;
+    for (int i=0; i < globalEventCount; ++i) {
+        m<<globalEvents[i];
+    }
     return pack(data,name);
 }
 

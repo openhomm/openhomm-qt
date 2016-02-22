@@ -522,7 +522,7 @@ QDataStream &operator<<(QDataStream &, const ObjectWitchHut &);
 QDataStream &operator>>(QDataStream &, ObjectWitchHut &s);
 QT_END_NAMESPACE
 
-struct globalEvent {
+struct GlobalEvent {
     HString name;
     HString text;
 
@@ -538,8 +538,8 @@ struct globalEvent {
     quint32 junk[4];
 };
 QT_BEGIN_NAMESPACE
-QDataStream &operator<<(QDataStream &, const globalEvent &);
-QDataStream &operator>>(QDataStream &, globalEvent &s);
+QDataStream &operator<<(QDataStream &, const GlobalEvent &);
+QDataStream &operator>>(QDataStream &, GlobalEvent &s);
 QT_END_NAMESPACE
 
 struct ObjectQuestionGuard {

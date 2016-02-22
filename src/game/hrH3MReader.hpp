@@ -380,6 +380,8 @@ protected:
     hrObjectOptions * obj;
     quint32 objectQuantity;
     quint32 objectOptions;
+    quint32 globalEventCount;
+    QVector<GlobalEvent> globalEvents;
     //<objectIndex,...>
     QMap<quint32,ObjectMessageGuards> artefactObjs;
     QMap<quint32,ObjectPandora> pandoras;
