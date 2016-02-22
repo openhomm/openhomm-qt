@@ -132,6 +132,7 @@ void logConsole(QtMsgType type, const QMessageLogContext &context, const QString
         fprintf(stdout, "(FATAL): %s\n", localMsg.constData());
         abort();
     }
+    fflush(stdout);
 }
 
 void logNull(QtMsgType type, const QMessageLogContext &context, const QString &msg)
