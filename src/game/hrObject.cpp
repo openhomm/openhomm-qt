@@ -422,7 +422,7 @@ QDataStream &operator>>(QDataStream &in, ObjectTownRandomDwelling &s)
     return in;
 }
 
-//QDataStream &operator<<(QDataStream &, const ObjectLevelRandomDwelling &);
+
 QDataStream &operator>>(QDataStream &in, ObjectLevelRandomDwelling &s)
 {
     in >> s.owner >> s.castleSpecID;
@@ -433,7 +433,7 @@ QDataStream &operator>>(QDataStream &in, ObjectLevelRandomDwelling &s)
     return in;
 }
 
-//QDataStream &operator<<(QDataStream &, const ObjectGeneralRandomDwelling &);
+
 QDataStream &operator>>(QDataStream &in, ObjectGeneralRandomDwelling &s)
 {
     in >> s.owner >> s.castleSpecID;
@@ -446,21 +446,21 @@ QDataStream &operator>>(QDataStream &in, ObjectGeneralRandomDwelling &s)
     return in;
 }
 
-//QDataStream &operator<<(QDataStream &, const ObjectShipyard &);
+
 QDataStream &operator>>(QDataStream &in, ObjectShipyard &s)
 {
     in >> s.owner;
     return in;
 }
 
-//QDataStream &operator<<(QDataStream &, const ObjectDwelling &);
+
 QDataStream &operator>>(QDataStream &in, ObjectDwelling &s)
 {
     in >> s.owner;
     return in;
 }
 
-//QDataStream &operator<<(QDataStream &, const ObjectArtefact &);
+
 QDataStream &operator>>(QDataStream &in, ObjectMessageGuards &s)
 {
     in >> s.hasText;
@@ -481,21 +481,21 @@ QDataStream &operator>>(QDataStream &in, ObjectMessageGuards &s)
     return in;
 }
 
-//QDataStream &operator<<(QDataStream &, const Guard_t &);
+
 QDataStream &operator>>(QDataStream &in, Guard_t &s)
 {
     in >> s.GuardID >> s.GuardCount;
     return in;
 }
 
-//QDataStream &operator<<(QDataStream &, const Resources_t &);
+
 QDataStream &operator>>(QDataStream &in, Resources_t &s)
 {
     in >> s.wood >> s.mercury >> s.ore >> s.sulfur >> s.crystal >> s.gem >> s.gold;
     return in;
 }
 
-//QDataStream &operator<<(QDataStream &, const ObjectGarrison &);
+
 QDataStream &operator>>(QDataStream &in, ObjectGarrison &s)
 {
     in >> s.color;
@@ -508,7 +508,7 @@ QDataStream &operator>>(QDataStream &in, ObjectGarrison &s)
     return in;
 }
 
-//QDataStream &operator<<(QDataStream &, const ObjectAbandonedMine &);
+
 QDataStream &operator>>(QDataStream &in, ObjectAbandonedMine &s)
 {
     in >> s.resources;
@@ -516,7 +516,7 @@ QDataStream &operator>>(QDataStream &in, ObjectAbandonedMine &s)
     return in;
 }
 
-//QDataStream &operator<<(QDataStream &, const globalEvent &);
+
 QDataStream &operator>>(QDataStream &in, GlobalEvent &s)
 {
     loadHString(in, s.name);
@@ -529,28 +529,28 @@ QDataStream &operator>>(QDataStream &in, GlobalEvent &s)
     return in;
 }
 
-//QDataStream &operator<<(QDataStream &, const ObjectWitchHut &);
+
 QDataStream &operator>>(QDataStream &in, ObjectWitchHut &s)
 {
     in >> s.secskills;
     return in;
 }
 
-//QDataStream &operator<<(QDataStream &, const ObjectMine &);
+
 QDataStream &operator>>(QDataStream &in, ObjectMine &s)
 {
     in >> s.color;
     return in;
 }
 
-//QDataStream &operator<<(QDataStream &, const ObjectHeroPlaceholder &);
+
 QDataStream &operator>>(QDataStream &in, ObjectHeroPlaceholder &s)
 {
     in >> s.color >> s.type;
     return in;
 }
 
-//QDataStream &operator<<(QDataStream &, const ObjectQuestionGuard &);
+
 QDataStream &operator>>(QDataStream &in, ObjectQuestionGuard &s)
 {
     in >> s.quest;
@@ -612,7 +612,7 @@ QDataStream &operator>>(QDataStream &in, ObjectQuestionGuard &s)
     return in;
 }
 
-//QDataStream &operator<<(QDataStream &, const ObjectHero &);
+
 QDataStream &operator>>(QDataStream &in, ObjectHero &s)
 {
     in >> s.heroID >> s.color >> s.hero >> s.isName;
@@ -699,7 +699,7 @@ QDataStream &operator>>(QDataStream &in, ObjectHero &s)
     return in;
 }
 
-//QDataStream &operator<<(QDataStream &, const ObjectProphet &);
+
 QDataStream &operator>>(QDataStream &in, ObjectProphet &s)
 {
     in >> s.quest;
@@ -804,7 +804,7 @@ QDataStream &operator>>(QDataStream &in, ObjectProphet &s)
 
     return in;
 }
-//QDataStream &operator<<(QDataStream &, const ObjectLevelRandomDwelling &);
+
 QDataStream &operator<<(QDataStream &out, const ObjectLevelRandomDwelling &s)
 {
     out << s.owner << s.castleSpecID;
@@ -815,7 +815,7 @@ QDataStream &operator<<(QDataStream &out, const ObjectLevelRandomDwelling &s)
     return out;
 }
 
-//QDataStream &operator<<(QDataStream &, const ObjectGeneralRandomDwelling &);
+
 QDataStream &operator<<(QDataStream &out, const ObjectGeneralRandomDwelling &s)
 {
     out << s.owner << s.castleSpecID;
@@ -828,21 +828,21 @@ QDataStream &operator<<(QDataStream &out, const ObjectGeneralRandomDwelling &s)
     return out;
 }
 
-//QDataStream &operator<<(QDataStream &, const ObjectShipyard &);
+
 QDataStream &operator<<(QDataStream &out, const ObjectShipyard &s)
 {
     out << s.owner;
     return out;
 }
 
-//QDataStream &operator<<(QDataStream &, const ObjectDwelling &);
+
 QDataStream &operator<<(QDataStream &out, const ObjectDwelling &s)
 {
     out << s.owner;
     return out;
 }
 
-//QDataStream &operator<<(QDataStream &, const ObjectArtefact &);
+
 QDataStream &operator<<(QDataStream &out, const ObjectMessageGuards &s)
 {
     out << s.hasText;
@@ -863,21 +863,21 @@ QDataStream &operator<<(QDataStream &out, const ObjectMessageGuards &s)
     return out;
 }
 
-//QDataStream &operator<<(QDataStream &, const Guard_t &);
+
 QDataStream &operator<<(QDataStream &out, const Guard_t &s)
 {
     out << s.GuardID << s.GuardCount;
     return out;
 }
 
-//QDataStream &operator<<(QDataStream &, const Resources_t &);
+
 QDataStream &operator<<(QDataStream &out, const Resources_t &s)
 {
     out << s.wood << s.mercury << s.ore << s.sulfur << s.crystal << s.gem << s.gold;
     return out;
 }
 
-//QDataStream &operator<<(QDataStream &, const ObjectGarrison &);
+
 QDataStream &operator<<(QDataStream &out, const ObjectGarrison &s)
 {
     out << s.color;
@@ -890,7 +890,7 @@ QDataStream &operator<<(QDataStream &out, const ObjectGarrison &s)
     return out;
 }
 
-//QDataStream &operator<<(QDataStream &, const ObjectAbandonedMine &);
+
 QDataStream &operator<<(QDataStream &out, const ObjectAbandonedMine &s)
 {
     out << s.resources;
@@ -898,7 +898,7 @@ QDataStream &operator<<(QDataStream &out, const ObjectAbandonedMine &s)
     return out;
 }
 
-//QDataStream &operator<<(QDataStream &, const globalEvent &);
+
 QDataStream &operator<<(QDataStream &out, const GlobalEvent &s)
 {
     saveHString(out, s.name);
@@ -911,28 +911,28 @@ QDataStream &operator<<(QDataStream &out, const GlobalEvent &s)
     return out;
 }
 
-//QDataStream &operator<<(QDataStream &, const ObjectWitchHut &);
+
 QDataStream &operator<<(QDataStream &out, const ObjectWitchHut &s)
 {
     out << s.secskills;
     return out;
 }
 
-//QDataStream &operator<<(QDataStream &, const ObjectMine &);
+
 QDataStream &operator<<(QDataStream &out, const ObjectMine &s)
 {
     out << s.color;
     return out;
 }
 
-//QDataStream &operator<<(QDataStream &, const ObjectHeroPlaceholder &);
+
 QDataStream &operator<<(QDataStream &out, const ObjectHeroPlaceholder &s)
 {
     out << s.color << s.type;
     return out;
 }
 
-//QDataStream &operator<<(QDataStream &, const ObjectQuestionGuard &);
+
 QDataStream &operator<<(QDataStream &out, const ObjectQuestionGuard &s)
 {
     out << s.quest;
@@ -991,7 +991,7 @@ QDataStream &operator<<(QDataStream &out, const ObjectQuestionGuard &s)
     return out;
 }
 
-//QDataStream &operator<<(QDataStream &, const ObjectHero &);
+
 QDataStream &operator<<(QDataStream &out, const ObjectHero &s)
 {
     out << s.heroID << s.color << s.hero << s.isName;
@@ -1074,7 +1074,7 @@ QDataStream &operator<<(QDataStream &out, const ObjectHero &s)
     return out;
 }
 
-//QDataStream &operator<<(QDataStream &, const ObjectProphet &);
+
 QDataStream &operator<<(QDataStream &out, const ObjectProphet &s)
 {
     out << s.quest;

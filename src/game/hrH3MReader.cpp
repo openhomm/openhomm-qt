@@ -284,7 +284,6 @@ bool hrH3MReader::load(const QString &name)
         m >> ge;
         globalEvents.push_back(ge);
     }
-
     return true;
 }
 
