@@ -19,7 +19,7 @@
 #include "hrApplication.hpp"
 #include "version.hpp"
 #include "hrFullscreenWrapper.hpp"
-#include "hrH3MReader.hpp"
+#include "hrH3Map.hpp"
 #include "hrSettings.hpp"
 #include "hrAdventureScreen.hpp"
 #include "hrMenuScreen.hpp"
@@ -73,7 +73,7 @@ hrWindow::~hrWindow()
 
 void hrWindow::AvdventureScreen()
 {
-    hrH3MReader reader;
+    hrH3Map reader;
 
     QString filename = hrApplication::getMapName();
 

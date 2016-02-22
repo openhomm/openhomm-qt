@@ -18,4 +18,5 @@
 
 typedef QString HString;
 
-bool loadHString(QIODevice *, HString &);
+bool loadHString(QDataStream& in, HString &);
+bool saveHString(QDataStream& out, const HString &);

@@ -17,25 +17,30 @@
 #include "precompiled.hpp"
 #include "hrString.hpp"
 
-bool loadHString(QIODevice *device, HString &str)
+bool loadHString(QDataStream &in, HString &str)
 {
     quint32 len = 0;
-
-    if ( device->read( (char*)&len, sizeof(len) ) != 4 )
-        return false;
-
+    in>>len;
     if ( len == 0 )
         str.clear();
     else if ( len > 0 )
     {
         char *t = new char[len];
-
-        if ( device->read(t, len) != len )
-            return false;
-
+        in.readRawData( t, len );
         str = QString::fromLocal8Bit(t, len);
-
         delete[] t;
+    }
+    return true;
+}
+
+
+bool saveHString(QDataStream &out, const HString &str)
+{
+    quint32 len = str.length();
+    out<<len;
+
+    if ( len > 0 ) {
+        out.writeRawData( str.toLocal8Bit().data(), len );
     }
     return true;
 }

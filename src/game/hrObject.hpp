@@ -49,18 +49,18 @@ struct Guard_t {
     quint16 GuardCount;
 };
 QT_BEGIN_NAMESPACE
-//QDataStream &operator<<(QDataStream &, const Guard_t &);
+QDataStream &operator<<(QDataStream &, const Guard_t &);
 QDataStream &operator>>(QDataStream &, Guard_t &s);
 QT_END_NAMESPACE
 
-struct ObjectArtefact {
-    quint8 isText;
+struct ObjectMessageGuards {
+    quint8 hasText;
 
 //if ( isText == 1 ) {
     HString text;
 //
 //
-    quint8 isGuards;
+    quint8 hasGuards;
 //
 //  if ( isGuards == 1 ) {
         Guard_t guards[7];
@@ -69,15 +69,15 @@ struct ObjectArtefact {
 //    }
 };
 QT_BEGIN_NAMESPACE
-//QDataStream &operator<<(QDataStream &, const ObjectArtefact &);
-QDataStream &operator>>(QDataStream &, ObjectArtefact &s);
+QDataStream &operator<<(QDataStream &, const ObjectMessageGuards &);
+QDataStream &operator>>(QDataStream &, ObjectMessageGuards &s);
 QT_END_NAMESPACE
 
 struct ObjectDwelling {
     quint32 owner; // FF - nobody
 };
 QT_BEGIN_NAMESPACE
-//QDataStream &operator<<(QDataStream &, const ObjectDwelling &);
+QDataStream &operator<<(QDataStream &, const ObjectDwelling &);
 QDataStream &operator>>(QDataStream &, ObjectDwelling &s);
 QT_END_NAMESPACE
 
@@ -85,32 +85,32 @@ struct ObjectShipyard {
     quint32 owner; // FF - nobody
 };
 QT_BEGIN_NAMESPACE
-//QDataStream &operator<<(QDataStream &, const ObjectShipyard &);
+QDataStream &operator<<(QDataStream &, const ObjectShipyard &);
 QDataStream &operator>>(QDataStream &, ObjectShipyard &s);
 QT_END_NAMESPACE
 
 struct ObjectGeneralRandomDwelling {
     quint32 owner;
-    quint32 junk;
-//  if (junk == 0 )
+    quint32 castleSpecID;
+//  if (castleScpecID == 0 )
     quint16 towns;
 
     quint8 minlevel;
     quint8 maxlevel;
 };
 QT_BEGIN_NAMESPACE
-//QDataStream &operator<<(QDataStream &, const ObjectGeneralRandomDwelling &);
+QDataStream &operator<<(QDataStream &, const ObjectGeneralRandomDwelling &);
 QDataStream &operator>>(QDataStream &, ObjectGeneralRandomDwelling &s);
 QT_END_NAMESPACE
 
 struct ObjectLevelRandomDwelling {
     quint32 owner;
-    quint32 junk;
-//  if ( junk == 0 )
+    quint32 castleSpecID;
+//  if ( castleScpecID == 0 )
     quint16 towns;
 };
 QT_BEGIN_NAMESPACE
-//QDataStream &operator<<(QDataStream &, const ObjectLevelRandomDwelling &);
+QDataStream &operator<<(QDataStream &, const ObjectLevelRandomDwelling &);
 QDataStream &operator>>(QDataStream &, ObjectLevelRandomDwelling &s);
 QT_END_NAMESPACE
 
@@ -120,16 +120,15 @@ struct ObjectTownRandomDwelling {
     quint8 maxlevel;
 };
 QT_BEGIN_NAMESPACE
-//QDataStream &operator<<(QDataStream &, const ObjectTownRandomDwelling &);
+QDataStream &operator<<(QDataStream &, const ObjectTownRandomDwelling &);
 QDataStream &operator>>(QDataStream &, ObjectTownRandomDwelling &s);
 QT_END_NAMESPACE
 
 struct ObjectGrail {
-    qint8 radius;
-    qint8 junk2[3];
+    qint32 radius;
 };
 QT_BEGIN_NAMESPACE
-//QDataStream &operator<<(QDataStream &, const ObjectGrail &);
+QDataStream &operator<<(QDataStream &, const ObjectGrail &);
 QDataStream &operator>>(QDataStream &, ObjectGrail &s);
 QT_END_NAMESPACE
 
@@ -144,14 +143,14 @@ struct Resources_t
     qint32 gold;
 };
 QT_BEGIN_NAMESPACE
-//QDataStream &operator<<(QDataStream &, const Resources_t &);
+QDataStream &operator<<(QDataStream &, const Resources_t &);
 QDataStream &operator>>(QDataStream &, Resources_t &s);
 QT_END_NAMESPACE
 
 struct ObjectMonster {
     quint32 monsterID;
-    quint16 monsters_count; // if 0, then random
-    quint8 mood;
+    quint16 monstersCount; // if 0, then random
+    quint8 mood;//character
     quint8 isTreasureOrText;
 
 //  if ( isTreasureOrText == 1 ) {
@@ -167,12 +166,12 @@ struct ObjectMonster {
     quint8 junk2[2];
 };
 QT_BEGIN_NAMESPACE
-//QDataStream &operator<<(QDataStream &, const ObjectMonster &);
+QDataStream &operator<<(QDataStream &, const ObjectMonster &);
 QDataStream &operator>>(QDataStream &, ObjectMonster &s);
 QT_END_NAMESPACE
 
 struct ObjectPandora {
-    ObjectArtefact art;
+    ObjectMessageGuards messageGuards;
     quint32 exp;
     qint32 spell_points;
     qint8 morals;
@@ -185,22 +184,22 @@ struct ObjectPandora {
     quint8 power;
     quint8 knowledge;
 
-    quint8 isSecSkills;
+    quint8 secSkillsCount;
 
 //    if ( isSecSkills > 0 ) {
         QVector<SecondarySkill_t> sec_skills;
 
-    quint8 isArtefacts;
+    quint8 artefactCount;
 
 //    if ( artefacts > 0 ) {
         QVector<quint16> artefacts;
 
-    quint8 isSpells;
+    quint8 spellsCount;
 
 //    if ( isSpells > 0 ) {
         QVector<quint8> spells;
 
-    quint8 monstres_count;
+    quint8 monstreCount;
 
 //    if ( monstres_count > 0 ) {
         QVector<Guard_t> monstres;
@@ -208,40 +207,40 @@ struct ObjectPandora {
     quint8 junk3[8];
 };
 QT_BEGIN_NAMESPACE
-//QDataStream &operator<<(QDataStream &, const ObjectPandora &);
+QDataStream &operator<<(QDataStream &, const ObjectPandora &);
 QDataStream &operator>>(QDataStream &, ObjectPandora &s);
 QT_END_NAMESPACE
 
 struct ObjectResource {
-    ObjectArtefact res;
+    ObjectMessageGuards res;
     quint32 quantity;
     quint32 junk;
 };
 QT_BEGIN_NAMESPACE
-//QDataStream &operator<<(QDataStream &, const ObjectResource &);
+QDataStream &operator<<(QDataStream &, const ObjectResource &);
 QDataStream &operator>>(QDataStream &, ObjectResource &s);
 QT_END_NAMESPACE
 
 struct ObjectScientist {
     quint8 bonus_type; // FF - Random
-    union {
+    union {//quint8?
         quint32 primaryID;
         quint32 secondaryID;
         quint32 spellID;
     };
-    quint8 junk2[3];
+    quint8 junk2[3];//6 byte?
 };
 QT_BEGIN_NAMESPACE
-//QDataStream &operator<<(QDataStream &, const ObjectScientist &);
+QDataStream &operator<<(QDataStream &, const ObjectScientist &);
 QDataStream &operator>>(QDataStream &, ObjectScientist &s);
 QT_END_NAMESPACE
 
 struct ObjectSpell {
-    ObjectArtefact spell;
+    ObjectMessageGuards spell;
     quint32 spellID;
 };
 QT_BEGIN_NAMESPACE
-//QDataStream &operator<<(QDataStream &, const ObjectSpell &);
+QDataStream &operator<<(QDataStream &, const ObjectSpell &);
 QDataStream &operator>>(QDataStream &, ObjectSpell &s);
 QT_END_NAMESPACE
 
@@ -263,47 +262,48 @@ struct TownEvent_t {
     quint32 junk2;
 };
 QT_BEGIN_NAMESPACE
-//QDataStream &operator<<(QDataStream &, const TownEvent_t &);
+QDataStream &operator<<(QDataStream &, const TownEvent_t &);
 QDataStream &operator>>(QDataStream &, TownEvent_t &s);
 QT_END_NAMESPACE
 
 struct ObjectTown {
-    quint32 junk;
+    quint32 identifier;
     quint8 owner;
 
-    quint8 isName;
+    quint8 hasName;
 
 //    if ( isName == 1 )
         HString name;
 
-    quint8 isGuard;
+    quint8 hasGuard;
 
 //    if (isGuard == 1 )
          Guard_t guards[7];
 
     quint8 formation; // 00 - standalone, 01 - group
 
-    quint8 isBuildings;
+    quint8 hasBuildings;
 
 //    if ( isBuildings == 1 ) {
         quint8 built[6];
         quint8 active[6];
 //    } else {
-        quint8 isFort;
+        quint8 hasFort;
 //    }
 
     quint8 mustSpells[9];
     quint8 canSpells[9];
 
-    quint32 event_quantity;
+    quint32 eventCount;
 
 //    if ( event_quantity > 0 ) {
         QVector<TownEvent_t> events;
 //    }
-    quint32 junk3;
+    quint8 alignment;
+    quint8 junk3[3];
 };
 QT_BEGIN_NAMESPACE
-//QDataStream &operator<<(QDataStream &, const ObjectTown &);
+QDataStream &operator<<(QDataStream &, const ObjectTown &);
 QDataStream &operator>>(QDataStream &, ObjectTown &s);
 QT_END_NAMESPACE
 
@@ -311,7 +311,7 @@ struct ObjectShrine {
     quint32 spellID;
 };
 QT_BEGIN_NAMESPACE
-//QDataStream &operator<<(QDataStream &, const ObjectShrine &);
+QDataStream &operator<<(QDataStream &, const ObjectShrine &);
 QDataStream &operator>>(QDataStream &, ObjectShrine &s);
 QT_END_NAMESPACE
 
@@ -323,7 +323,7 @@ struct ObjectEvent {
     quint32 junk;
 };
 QT_BEGIN_NAMESPACE
-//QDataStream &operator<<(QDataStream &, const ObjectEvent &);
+QDataStream &operator<<(QDataStream &, const ObjectEvent &);
 QDataStream &operator>>(QDataStream &, ObjectEvent &s);
 QT_END_NAMESPACE
 
@@ -332,16 +332,16 @@ struct ObjectSign {
     quint32 junk;
 };
 QT_BEGIN_NAMESPACE
-//QDataStream &operator<<(QDataStream &, const ObjectSign &);
+QDataStream &operator<<(QDataStream &, const ObjectSign &);
 QDataStream &operator>>(QDataStream &, ObjectSign &s);
 
-//QDataStream &operator<<(QDataStream &, const hrObject &);
+QDataStream &operator<<(QDataStream &, const hrObject &);
 QDataStream &operator>>(QDataStream &, hrObject &s);
-//QDataStream &operator<<(QDataStream &, const hrObjectOptions &);
+QDataStream &operator<<(QDataStream &, const hrObjectOptions &);
 QDataStream &operator>>(QDataStream &, hrObjectOptions &s);
 QT_END_NAMESPACE
 
-struct ObjectProphet {
+struct ObjectProphet {//seer hut
     quint8 quest;
 
     union
@@ -402,7 +402,7 @@ struct ObjectProphet {
     quint16 junk;
 };
 QT_BEGIN_NAMESPACE
-//QDataStream &operator<<(QDataStream &, const ObjectProphet &);
+QDataStream &operator<<(QDataStream &, const ObjectProphet &);
 QDataStream &operator>>(QDataStream &, ObjectProphet &s);
 QT_END_NAMESPACE
 
@@ -493,7 +493,7 @@ struct ObjectHero {
     quint32 unknown[4];
 };
 QT_BEGIN_NAMESPACE
-//QDataStream &operator<<(QDataStream &, const ObjectHero &);
+QDataStream &operator<<(QDataStream &, const ObjectHero &);
 QDataStream &operator>>(QDataStream &, ObjectHero &s);
 QT_END_NAMESPACE
 
@@ -502,7 +502,7 @@ struct ObjectHeroPlaceholder {
     quint8 type;
 };
 QT_BEGIN_NAMESPACE
-//QDataStream &operator<<(QDataStream &, const ObjectHeroPlaceholder &);
+QDataStream &operator<<(QDataStream &, const ObjectHeroPlaceholder &);
 QDataStream &operator>>(QDataStream &, ObjectHeroPlaceholder &s);
 QT_END_NAMESPACE
 
@@ -510,7 +510,7 @@ struct ObjectMine {
     quint32 color;
 };
 QT_BEGIN_NAMESPACE
-//QDataStream &operator<<(QDataStream &, const ObjectMine &);
+QDataStream &operator<<(QDataStream &, const ObjectMine &);
 QDataStream &operator>>(QDataStream &, ObjectMine &s);
 QT_END_NAMESPACE
 
@@ -518,11 +518,11 @@ struct ObjectWitchHut {
     quint32 secskills;
 };
 QT_BEGIN_NAMESPACE
-//QDataStream &operator<<(QDataStream &, const ObjectWitchHut &);
+QDataStream &operator<<(QDataStream &, const ObjectWitchHut &);
 QDataStream &operator>>(QDataStream &, ObjectWitchHut &s);
 QT_END_NAMESPACE
 
-struct globalEvent {
+struct GlobalEvent {
     HString name;
     HString text;
 
@@ -538,8 +538,8 @@ struct globalEvent {
     quint32 junk[4];
 };
 QT_BEGIN_NAMESPACE
-//QDataStream &operator<<(QDataStream &, const globalEvent &);
-QDataStream &operator>>(QDataStream &, globalEvent &s);
+QDataStream &operator<<(QDataStream &, const GlobalEvent &);
+QDataStream &operator>>(QDataStream &, GlobalEvent &s);
 QT_END_NAMESPACE
 
 struct ObjectQuestionGuard {
@@ -572,7 +572,7 @@ struct ObjectQuestionGuard {
     HString quest_end;
 };
 QT_BEGIN_NAMESPACE
-//QDataStream &operator<<(QDataStream &, const ObjectQuestionGuard &);
+QDataStream &operator<<(QDataStream &, const ObjectQuestionGuard &);
 QDataStream &operator>>(QDataStream &, ObjectQuestionGuard &s);
 QT_END_NAMESPACE
 
@@ -583,7 +583,7 @@ struct ObjectGarrison {
     quint32 junk[2];
 };
 QT_BEGIN_NAMESPACE
-//QDataStream &operator<<(QDataStream &, const ObjectGarrison &);
+QDataStream &operator<<(QDataStream &, const ObjectGarrison &);
 QDataStream &operator>>(QDataStream &, ObjectGarrison &s);
 QT_END_NAMESPACE
 
@@ -592,6 +592,6 @@ struct ObjectAbandonedMine {
     quint8 junk[3];
 };
 QT_BEGIN_NAMESPACE
-//QDataStream &operator<<(QDataStream &, const ObjectAbandonedMine &);
+QDataStream &operator<<(QDataStream &, const ObjectAbandonedMine &);
 QDataStream &operator>>(QDataStream &, ObjectAbandonedMine &s);
 QT_END_NAMESPACE

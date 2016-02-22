@@ -19,7 +19,7 @@
 #include "hrGraphicsItem.hpp"
 #include "hrTile.hpp"
 #include "hrSceneObject.hpp"
-#include "hrH3MReader.hpp"
+#include "hrH3Map.hpp"
 #include "hrCache.hpp"
 #include "hrCoord.hpp"
 
@@ -77,7 +77,7 @@ class hrAdventureScreen : public hrScene
 public:
     hrAdventureScreen();
     ~hrAdventureScreen();
-    void loadMap(hrH3MReader *reader);
+    void loadMap(hrH3Map *reader);
     void collect();
     void onMouseEvent(const QPointF &pos);
     void onMouseLeave();

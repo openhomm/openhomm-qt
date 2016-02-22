@@ -38,9 +38,13 @@ public:
     quint8 difficult()const { return _difficult; }
     quint8 levelLimit() const { return _levelLimit; }
 
-    bool load(QIODevice *device, quint32 mapVersion);
+    bool load(QDataStream &in, quint32 mapVersion);
+    bool save(QDataStream &in, quint32 mapVersion);
+protected:
+    template <typename T>
+    void loadVar(QIODevice* dev, T& var);
 private:
-    quint8  _unknown;
+    quint8  _areAnyPlayers;
     quint32 _mapSize;
     quint8  _underground;
     HString _name;
@@ -82,8 +86,9 @@ struct PlayerAttributes_t {
     quint8 mainCity;
 
 //  if mainCity == 1 {
-    quint8 generateHero;
-    quint8 city[4]; // 0 - city type, 0xFF - random city
+    quint8 generateHeroAtMainTown;
+    quint8 generateHero;// city type, 0xFF - random city
+    quint8 city[3];
                     // 1-3 coords (x,y,z)
 // }
 
@@ -336,13 +341,14 @@ QT_END_NAMESPACE
 //    HeroOptions_enabled options[156];
 //};
 
-class hrH3MReader
+class hrH3Map
 {
 public:
-    hrH3MReader();
-    ~hrH3MReader();
+    hrH3Map();
+    ~hrH3Map();
 
     bool load(const QString &name);
+    bool save(const QString &name);
     hrTile getTile(quint32 index, bool isUnderground = false);
 
     bool hasUnderground() const;
@@ -374,4 +380,30 @@ protected:
     hrObjectOptions * obj;
     quint32 objectQuantity;
     quint32 objectOptions;
+    quint32 globalEventCount;
+    QVector<GlobalEvent> globalEvents;
+    //<objectIndex,...>
+    QMap<quint32,ObjectMessageGuards> artefactObjs;
+    QMap<quint32,ObjectPandora> pandoras;
+    QMap<quint32,ObjectDwelling> dwellings;
+    QMap<quint32,ObjectEvent> localevents;
+    QMap<quint32,ObjectGarrison> garrisons;
+    QMap<quint32,ObjectHero> heroes;
+    QMap<quint32,ObjectGrail> grails;
+    QMap<quint32,ObjectAbandonedMine> aMines;
+    QMap<quint32,ObjectMine> mines;
+    QMap<quint32,ObjectMonster> monsters;
+    QMap<quint32,ObjectResource> resources;
+    QMap<quint32,ObjectScientist> scientists;
+    QMap<quint32,ObjectProphet> prophets;
+    QMap<quint32,ObjectShipyard> shipyards;
+    QMap<quint32,ObjectShrine> shrines;
+    QMap<quint32,ObjectSign> signs;
+    QMap<quint32,ObjectSpell> spellObjs;
+    QMap<quint32,ObjectTown> towns;
+    QMap<quint32,ObjectWitchHut> whuts;
+    QMap<quint32,ObjectQuestionGuard> qguards;
+    QMap<quint32,ObjectGeneralRandomDwelling> grDwellings;
+    QMap<quint32,ObjectLevelRandomDwelling> lrDwellings;
+    QMap<quint32,ObjectTownRandomDwelling> trDwellings;
 };
