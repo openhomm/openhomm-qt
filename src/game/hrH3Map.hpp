@@ -341,11 +341,11 @@ QT_END_NAMESPACE
 //    HeroOptions_enabled options[156];
 //};
 
-class hrH3MReader
+class hrH3Map
 {
 public:
-    hrH3MReader();
-    ~hrH3MReader();
+    hrH3Map();
+    ~hrH3Map();
 
     bool load(const QString &name);
     bool save(const QString &name);

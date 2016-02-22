@@ -16,7 +16,7 @@
 //
 #include "precompiled.hpp"
 #include "hrApplication.hpp"
-#include "hrH3MReader.hpp"
+#include "hrH3Map.hpp"
 #include "hrFilesystem.hpp"
 #include "hrWindow.hpp"
 

@@ -15,7 +15,7 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
 #include "precompiled.hpp"
-#include "hrH3MReader.hpp"
+#include "hrH3Map.hpp"
 #include <zlib.h>
 
 QByteArray unpack(const QString &filename)
@@ -61,11 +61,11 @@ bool pack(const QByteArray& array, const QString &filename)
   \class hrH3MReader
   \brief The hrH3MReader class
 */
-hrH3MReader::hrH3MReader() : ground(NULL), underground(NULL), objects(NULL), obj(NULL)
+hrH3Map::hrH3Map() : ground(NULL), underground(NULL), objects(NULL), obj(NULL)
 {
 }
 
-hrH3MReader::~hrH3MReader()
+hrH3Map::~hrH3Map()
 {
     if (ground != NULL)
         delete [] ground;
@@ -81,7 +81,7 @@ hrH3MReader::~hrH3MReader()
     obj = NULL;
 }
 
-bool hrH3MReader::load(const QString &name)
+bool hrH3Map::load(const QString &name)
 {
     QByteArray data;
 
@@ -287,7 +287,7 @@ bool hrH3MReader::load(const QString &name)
     return true;
 }
 
-bool hrH3MReader::save(const QString &name)
+bool hrH3Map::save(const QString &name)
 {
     QByteArray data;
 
@@ -472,7 +472,7 @@ bool hrH3MReader::save(const QString &name)
     return pack(data,name);
 }
 
-hrTile hrH3MReader::getTile(quint32 index, bool isUnderground)
+hrTile hrH3Map::getTile(quint32 index, bool isUnderground)
 {
     Q_ASSERT(index >= 0 && index <= _header.mapSize() * _header.mapSize());
     if ( isUnderground && _header.isUnderground() )
@@ -481,22 +481,22 @@ hrTile hrH3MReader::getTile(quint32 index, bool isUnderground)
     return ground[index];
 }
 
-bool hrH3MReader::hasUnderground() const
+bool hrH3Map::hasUnderground() const
 {
     return _header.isUnderground();
 }
 
-int hrH3MReader::getSize() const
+int hrH3Map::getSize() const
 {
     return _header.mapSize();
 }
 
-int hrH3MReader::getObjectsCount() const
+int hrH3Map::getObjectsCount() const
 {
     return objectOptions;
 }
 
-hrSceneObject hrH3MReader::getObject(quint32 index) const
+hrSceneObject hrH3Map::getObject(quint32 index) const
 {
     Q_ASSERT(index >= 0 && index < objectOptions);
     return hrSceneObject(obj[index].objectID
@@ -506,7 +506,7 @@ hrSceneObject hrH3MReader::getObject(quint32 index) const
                          , QPoint(obj[index].coord[0], obj[index].coord[1])
                          );
 }
-const QString& hrH3MReader::getObjectName(quint32 id) const
+const QString& hrH3Map::getObjectName(quint32 id) const
 {
     Q_ASSERT(id >= 0 && id < objectQuantity);
     return objects[id].filename;

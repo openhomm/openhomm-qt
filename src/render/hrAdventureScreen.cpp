@@ -135,7 +135,7 @@ void hrAdventureScreen::drawRoad(const hrTile &tile, const QPoint &pos)
     addItem(item);
 }
 
-void hrAdventureScreen::loadMap(hrH3MReader *reader)
+void hrAdventureScreen::loadMap(hrH3Map *reader)
 {
     Q_ASSERT(reader);
     clearMap();
