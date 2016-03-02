@@ -1,12 +1,6 @@
 INCLUDEPATH += $$PWD
 VPATH += $$PWD
 
-#contains(QT_CONFIG, zlib) {
-#    INCLUDEPATH += $$(QTDIR)/src/3rdparty/zlib
-#    VPATH += $$(QTDIR)/src/3rdparty/zlib
-#}
-LIBS += -lz
-
 HEADERS += hrString.hpp \
     hrLodEngine.hpp \
     hrLodEngineIterator.hpp \
