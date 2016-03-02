@@ -1,4 +1,4 @@
-OpenHoMM  [![Build Status](https://travis-ci.org/openhomm/openhomm.svg?branch=master)](https://travis-ci.org/openhomm/openhomm)
+OpenHoMM  [![Build Status](https://travis-ci.org/openhomm/openhomm.svg?branch=master)](https://travis-ci.org/openhomm/openhomm) [![Build status](https://ci.appveyor.com/api/projects/status/oa8t0l90y9jjl45v?svg=true)](https://ci.appveyor.com/project/openhomm/openhomm)
 ========
 
 OpenHoMM is open source clone of 'Heroes Of Might And Magic III Shadow Of Death' game engine.
