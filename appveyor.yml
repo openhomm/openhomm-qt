@@ -8,6 +8,11 @@ init:
     call "C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\vcvarsall.bat" amd64
 environment:
   QMAKESPEC: win32-msvc2013
+install:
+- cmd: >-
+    cd C:\projects\openhomm
+
+    git submodule update --init --recursive
 build_script:
 - cmd: >-
     cd C:\projects\openhomm
