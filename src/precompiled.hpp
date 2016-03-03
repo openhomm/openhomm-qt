@@ -28,8 +28,6 @@
 #   include <windows.h>
 #endif 
 
-#include "hrPlatform.hpp"
-
 #include "hrString.hpp"
 
 #endif
