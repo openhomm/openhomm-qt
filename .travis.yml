@@ -23,10 +23,10 @@ before_install:
 
 install:
   - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew install qt5; fi
-  - sudo apt-get install -qq qt55base
+  - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then sudo apt-get install -qq qt55base; fi
 
 before_script:
-  - source /opt/qt55/bin/qt55-env.sh
+  - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then source /opt/qt55/bin/qt55-env.sh; fi
 
 script:
   - qmake
