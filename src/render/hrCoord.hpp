@@ -15,7 +15,6 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
 #pragma once
-#include "hrPlatform.hpp"
 
 class QPoint;
 class QRect;
@@ -24,31 +23,31 @@ class QSize;
 namespace coord
 {
     const int dim = 32;
-    HR_INLINE int toPix(int x)
+    inline int toPix(int x)
     {
         return x * dim;
     }
-    HR_INLINE int toCell(int x)
+    inline int toCell(int x)
     {
         return x / dim;
     }
-    HR_INLINE QPoint toPix(const QPoint &p)
+    inline QPoint toPix(const QPoint &p)
     {
         return QPoint(toPix(p.x()), toPix(p.y()));
     }
-    HR_INLINE QPoint toCell(const QPoint &p)
+    inline QPoint toCell(const QPoint &p)
     {
         return QPoint(toCell(p.x()), toCell(p.y()));
     }
-    HR_INLINE QSize toCell(const QSize &s)
+    inline QSize toCell(const QSize &s)
     {
         return QSize(toCell(s.width()), toCell(s.height()));
     }
-    HR_INLINE QRect toPix(const QRect &r)
+    inline QRect toPix(const QRect &r)
     {
         return QRect(toPix(r.x()), toPix(r.y()), toPix(r.width()), toPix(r.height()));
     }
-    HR_INLINE QRect toCell(const QRect &r)
+    inline QRect toCell(const QRect &r)
     {
         return QRect(toCell(r.x()), toCell(r.y()), toCell(r.width()), toCell(r.height()));
     }

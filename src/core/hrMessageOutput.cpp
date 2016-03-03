@@ -42,7 +42,7 @@
 
 #endif
 
-#if defined(__WIN32__) || defined(WIN) || defined(WIN32)
+#if defined(Q_OS_WIN32)
     #define C_FRONTBLACK    0
     #define C_FRONTRED      FOREGROUND_RED
     #define C_FRONTGREEN    FOREGROUND_GREEN
@@ -70,20 +70,20 @@
 
 static void COLOR_set(short color)
 {
-#if defined(linux) || defined(__linux) || defined(__linux__)
+#if defined(Q_OS_UNIX) || defined(Q_OS_OSX)
     fprintf(stdout, "\e[%dm", color);
 #endif
-#if defined(__WIN32__) || defined(WIN) || defined(WIN32)
+#if defined(Q_OS_WIN32)
     SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE),color);
 #endif
 }
 
 static void COLOR_reset()
 {
-#if defined(linux) || defined(__linux) || defined(__linux__)
+#if defined(Q_OS_UNIX) || defined(Q_OS_OSX)
     fprintf(stdout, "\e[0m");
 #endif
-#if defined(__WIN32__) || defined(WIN) || defined(WIN32)
+#if defined(Q_OS_WIN32)
     SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE),0);
 #endif
 }

@@ -6,7 +6,6 @@ HEADERS += hrString.hpp \
     hrLodEngineIterator.hpp \
     hrSndEngineIterator.hpp \
     hrSndEngine.hpp \
-    hrPlatform.hpp \
     hrSettings.hpp \
     hrFilesystem.hpp \
     hrFileEngineHandlers.hpp \

@@ -16,8 +16,6 @@
 //
 #pragma once
 
-#include "hrPlatform.hpp"
-
 #ifndef GL_TEXTURE_RECTANGLE_ARB
 #define GL_TEXTURE_RECTANGLE_ARB 0x84F5
 #endif
@@ -60,7 +58,7 @@ namespace hrgl
 
       \sa http://graphics.stanford.edu/~seander/bithacks.html#RoundUpPowerOf2
     */
-    HR_INLINE int NearestGLTextureSize(int v)
+    inline int NearestGLTextureSize(int v)
     {
         v--;
         v |= v >> 1;
