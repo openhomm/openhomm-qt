@@ -17,7 +17,7 @@
 #include "precompiled.hpp"
 #include "hrMessageOutput.hpp"
 
-#if defined(linux) || defined(__linux) || defined(__linux__)
+#if defined(Q_OS_UNIX) || defined(Q_OS_OSX)
     #define C_FRONTBLACK    30
     #define C_FRONTRED      31
     #define C_FRONTGREEN    32
