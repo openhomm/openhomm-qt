@@ -151,7 +151,7 @@ bool hrH3Map::load(const QString &name)
 
         quint32 objID=obj[i].objectID;
 
-        switch(objects[obj[i].objectID].object_class)
+        switch(objects[objID].object_class)
         {
         case 5:
         case 65:
@@ -279,7 +279,7 @@ bool hrH3Map::load(const QString &name)
     }
 
     m >> globalEventCount;
-    for (int i=0; i < globalEventCount; ++i) {
+    for (quint32 i=0; i < globalEventCount; ++i) {
         GlobalEvent ge;
         m >> ge;
         globalEvents.push_back(ge);
@@ -339,7 +339,7 @@ bool hrH3Map::save(const QString &name)
         m << obj[i];
 
         quint32 objID=obj[i].objectID;
-        switch(objects[obj[i].objectID].object_class)
+        switch(objects[objID].object_class)
         {
         case 5:
         case 65:
@@ -466,7 +466,7 @@ bool hrH3Map::save(const QString &name)
         };
     }
     m << globalEventCount;
-    for (int i=0; i < globalEventCount; ++i) {
+    for (quint32 i=0; i < globalEventCount; ++i) {
         m<<globalEvents[i];
     }
     return pack(data,name);
