@@ -1,13 +1,13 @@
 version: 1.0.{branch}.{build}
-os: Visual Studio 2013
+os: Visual Studio 2015
 clone_folder: c:\projects\openhomm
 init:
 - cmd: >-
     set PATH=C:\Qt\5.5\msvc2013_64\bin;%PATH%
 
-    call "C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\vcvarsall.bat" amd64
+    call "C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\vcvarsall.bat" amd64
 environment:
-  QMAKESPEC: win32-msvc2013
+  QMAKESPEC: win32-msvc2015
 install:
 - cmd: >-
     cd C:\projects\openhomm
