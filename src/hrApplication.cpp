@@ -15,15 +15,16 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
 #include "precompiled.hpp"
+
+#include <fstream>
+
 #include "hrApplication.hpp"
 #include "hrPushButton.hpp"
 #include "hrSettings.hpp"
 #include "hrFileEngineHandlers.hpp"
 #include "hrSettings.hpp"
-#include "hrMessageOutput.hpp"
 
 QString hrApplication::mapName = "";
-
 /*!
   \class hrApplication
 */
@@ -34,21 +35,16 @@ QString hrApplication::mapName = "";
 */
 hrApplication::hrApplication(int &argc, char **argv):
         QApplication(argc, argv),
-        lodHandler(NULL),
-        sndHandler(NULL),
-        vfsHandler(NULL)
+        lodHandler(nullptr),
+        sndHandler(nullptr),
+        vfsHandler(nullptr)
 {
     mapName = hrSettings::get().gameDir() + '/';
 
     QString logType = hrSettings::get().logType();
 
-    if ( logType == QLatin1String("console") )
-        qInstallMessageHandler(logConsole);
-    else if ( logType == QLatin1String("null") )
-        qInstallMessageHandler(logNull);
-    else if ( logType == QLatin1String("console2") )
-        qInstallMessageHandler(logColoredConsole);
-
+    qInstallMessageHandler(&hrApplication::hrLogger);
+    qSetMessagePattern("[%{time process}] [%{type}]%{if-category} [%{category}]%{endif} %{message}");
     this->createFileEngineHandlers();
 
     if ( argc > 1 ) {
@@ -77,11 +73,25 @@ void hrApplication::createFileEngineHandlers()
 void hrApplication::destroyFileEngineHandlers()
 {
     delete lodHandler;
-    lodHandler = NULL;
+    lodHandler = nullptr;
 
     delete sndHandler;
-    sndHandler = NULL;
+    sndHandler = nullptr;
 
     delete vfsHandler;
-    vfsHandler = NULL;
+    vfsHandler = nullptr;
+}
+
+void hrApplication::hrLogger(QtMsgType type, const QMessageLogContext &context, const QString &msg)
+{
+    QString logMessage = qFormatLogMessage(type, context, msg);
+    static QMutex mutex;
+    QMutexLocker lock(&mutex);
+    static std::ofstream logFile("logfile.txt");
+    if (logFile)
+    {
+        logFile << qPrintable(logMessage) << std::endl;
+    }
+    fprintf(stderr, "%s\n", logMessage.toLocal8Bit().constData());
+    fflush(stderr);
 }

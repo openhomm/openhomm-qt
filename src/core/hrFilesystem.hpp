@@ -19,6 +19,9 @@
 typedef QHash<QString, QString> fileSystemCache;
 typedef QHashIterator<QString, QString> fileSystemCacheIterator;
 
+constexpr const char* MOUNT_SUCCESSFULLY = "\tSuccessfully mounted!";
+constexpr const char* MOUNT_FAILED       = "\tFailed to mount!";
+
 class hrFilesystem
 {
 public:

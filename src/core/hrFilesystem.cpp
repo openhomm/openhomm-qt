@@ -22,8 +22,7 @@
 
 fileSystemCache hrFilesystem::_cache;
 
-const char * MOUNT_SUCCESSFULLY = "\tSuccessfully mounted!";
-const char * MOUNT_FAILED       = "\tFailed to mount!";
+Q_LOGGING_CATEGORY(fsCat, "fs.main");
 
 /**
 *  Find a case-correct path.
@@ -46,19 +45,19 @@ QString hrFilesystem::adjustCaseInPath(const QString &path, const QDir &baseDir)
 
             if (candidates.size() == 0)
             {
-                qCritical("Directory `%s` not found in directory `%s`", qPrintable(next), qPrintable(current.path()));
+                qCCritical(fsCat) << QString("Directory `%1` not found in directory `%2`").arg(next).arg(current.path());
                 return QString();
             }
 
             if (candidates.size() != 1)
-                qWarning("Ambiguous element `%s` in directory `%s`, selecting `%s`", qPrintable(next), qPrintable(current.path()), qPrintable(candidates.first()));
+                qCWarning(fsCat) << QString("Ambiguous element `%1` in directory `%2`, selecting `%3`").arg(next).arg(current.path()).arg(candidates.first());
 
             next = candidates.first();
         }
 
         if (!current.cd(next))
         {
-            qCritical("Cannot enter directory `%s` in directory `%s`", qPrintable(next), qPrintable(current.path()));
+            qCCritical(fsCat) << QString("Cannot enter directory `%1` in directory `%2`").arg(next).arg(current.path());
             return QString();
         }
     }
@@ -71,12 +70,12 @@ QString hrFilesystem::adjustCaseInPath(const QString &path, const QDir &baseDir)
 
         if (candidates.size() == 0)
         {
-            qCritical("File or directory `%s` not found in directory `%s`", qPrintable(last), qPrintable(current.path()));
+            qCCritical(fsCat) << QString("File or directory `%1` not found in directory `%2`").arg(last).arg(current.path());
             return QString();
         }
 
         if (candidates.size() != 1)
-            qWarning("Ambiguous element `%s` in directory `%s`, selecting `%s`", qPrintable(last), qPrintable(current.path()), qPrintable(candidates.first()));
+            qCWarning(fsCat) << QString("Ambiguous element `%1` in directory `%2`, selecting `%3`").arg(last).arg(current.path()).arg(candidates.first());
 
         last = candidates.first();
     }
@@ -94,32 +93,31 @@ bool hrFilesystem::mount(const QString &path)
     if (normalPath.isNull() || !QFile::exists(normalPath))
         return false;
 
-    qDebug("Trying to mount: %s", qPrintable(normalPath));
+    qCInfo(fsCat) << QString("Trying to mount: %1").arg(normalPath);
 
     if ( normalPath.endsWith(".lod", Qt::CaseInsensitive) )
     {
         if ( hrLodEngine::fillInternalCache(normalPath) )
-            qDebug(MOUNT_SUCCESSFULLY);
+            qCInfo(fsCat) << MOUNT_SUCCESSFULLY;
         else
-            qCritical(MOUNT_FAILED);
+            qCCritical(fsCat) << MOUNT_FAILED;
     }
     else if ( normalPath.endsWith(".snd", Qt::CaseInsensitive) )
     {
         if ( hrSndEngine::fillInternalCache(normalPath) )
-            qDebug(MOUNT_SUCCESSFULLY);
+            qCInfo(fsCat) << MOUNT_SUCCESSFULLY;
         else
-            qCritical(MOUNT_FAILED);
+            qCCritical(fsCat) << MOUNT_FAILED;
     }
     else
     {
         if ( !mountDir(normalPath))
-            qCritical("\tUnsupported archive type");
+            qCCritical(fsCat) << "\tUnsupported archive type";
         else
-            qDebug(MOUNT_SUCCESSFULLY);
+            qCInfo(fsCat) << MOUNT_SUCCESSFULLY;
     }
 
     return true;
-
 }
 /*!
   \overload

@@ -8,8 +8,7 @@ HEADERS += hrString.hpp \
     hrSndEngine.hpp \
     hrSettings.hpp \
     hrFilesystem.hpp \
-    hrFileEngineHandlers.hpp \
-    hrMessageOutput.hpp
+    hrFileEngineHandlers.hpp
 SOURCES += hrString.cpp \
     hrLodEngine.cpp \
     hrLodEngineIterator.cpp \
@@ -17,6 +16,4 @@ SOURCES += hrString.cpp \
     hrSndEngine.cpp \
     hrSettings.cpp \
     hrFilesystem.cpp \
-    hrFileEngineHandlers.cpp \
-    hrMessageOutput.cpp
-
+    hrFileEngineHandlers.cpp

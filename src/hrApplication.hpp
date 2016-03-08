@@ -34,6 +34,8 @@ private:
     void createFileEngineHandlers();
     void destroyFileEngineHandlers();
     void loadSettings();
+    static void hrLogger (QtMsgType type, const QMessageLogContext &context, const QString &msg);
+
 // data
 private:
     hrLodEngineHandler *lodHandler;
