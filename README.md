@@ -5,7 +5,7 @@ OpenHoMM is open source clone of 'Heroes Of Might And Magic III Shadow Of Death'
 
 ###Requirments:
 * original game data
-* Qt >= 5.4
+* Qt >= 5.5.1
 
 ###Plans for near future:
 * It is necessary to rewrite support of snd/lod, because QFSFileEngine, QAbstractFileEngine, QAbstractFileEngineIterator and QAbstractFileEngineHandler were removed from Qt 5 public API.

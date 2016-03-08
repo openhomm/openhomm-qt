@@ -1,9 +1,31 @@
-#version check qt
-#TOO_OLD_LIST=$$find(QT_VERSION, ^4\\.[0-4])
-#count(TOO_OLD_LIST, 1) {
-#    message("Cannot build the Openhomm with a Qt version that old:" $$QT_VERSION)
-#    error("Use at least Qt 4.5.")
-#}
+# from qt creator codebase
+defineTest(minQtVersion) {
+    maj = $$1
+    min = $$2
+    patch = $$3
+    isEqual(QT_MAJOR_VERSION, $$maj) {
+        isEqual(QT_MINOR_VERSION, $$min) {
+            isEqual(QT_PATCH_VERSION, $$patch) {
+                return(true)
+            }
+            greaterThan(QT_PATCH_VERSION, $$patch) {
+                return(true)
+            }
+        }
+        greaterThan(QT_MINOR_VERSION, $$min) {
+            return(true)
+        }
+    }
+    greaterThan(QT_MAJOR_VERSION, $$maj) {
+        return(true)
+    }
+    return(false)
+}
+
+!minQtVersion(5,5,1) {
+    message("Cannot build the Openhomm with a Qt version that old:" $$QT_VERSION)
+    error("Use at least Qt 5.5.1")
+}
 
 OPENHOMM_MAJOR = 1
 OPENHOMM_MINOR = 0
