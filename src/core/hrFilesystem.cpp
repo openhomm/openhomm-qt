@@ -22,6 +22,9 @@
 
 fileSystemCache hrFilesystem::_cache;
 
+const char* MOUNT_SUCCESSFULLY = "\tSuccessfully mounted!";
+const char* MOUNT_FAILED       = "\tFailed to mount!";
+
 Q_LOGGING_CATEGORY(fsCat, "fs.main");
 
 /**
