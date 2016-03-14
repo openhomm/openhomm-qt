@@ -18,7 +18,6 @@
 #include <qpixmap.h>
 #include <qpainter.h>
 #include <qvariant.h>
-#include <qdebug.h>
 
 #include "hrPcxHandler.hpp"
 
@@ -110,7 +109,7 @@ bool hrPcxHandler::canRead(QIODevice *device)
     device->read( (char *) &w, 4);
     device->read( (char *) &h, 4);
     device->seek(0);
-    
+
     if ( s == w * h )
         return true;
     if ( s == w * h * 3 )
