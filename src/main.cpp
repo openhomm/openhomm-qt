@@ -44,7 +44,7 @@ int main(int argc, char** argv)
 
     hrWindow w;
     w.show();
-    w.AvdventureScreen();
+    w.AdventureScreen();
 
     return app.exec();
 }

@@ -28,7 +28,7 @@ public:
     hrWindow(QMainWindow *parent = 0);
     ~hrWindow();
 
-    void AvdventureScreen();
+    void AdventureScreen();
 
 private:
     hrMenuScreen *menuscr;

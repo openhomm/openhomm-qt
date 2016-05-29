@@ -71,7 +71,7 @@ hrWindow::~hrWindow()
     delete advscr;
 }
 
-void hrWindow::AvdventureScreen()
+void hrWindow::AdventureScreen()
 {
     hrH3Map reader;
 
