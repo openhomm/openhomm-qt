@@ -4,7 +4,7 @@ OpenHoMM  [![Build Status](https://travis-ci.org/openhomm/openhomm.svg?branch=ma
 OpenHoMM is open source clone of 'Heroes Of Might And Magic III Shadow Of Death' game engine.
 
 ## Some demo (build  Qt 5.8 2017/06/07)
-[![Alt text](https://i.ytimg.com/vi/yo2wqjiMjjo/hq720.jpg?custom=true&w=196&h=110&stc=true&jpg444=true&jpgq=90&sp=68&sigh=z_Pn0iP1GQtyqqbEPv49LN14XO4)](https://www.youtube.com/watch?v=VID)
+[![Alt text](https://i.ytimg.com/vi/yo2wqjiMjjo/hq720.jpg?custom=true&w=196&h=110&stc=true&jpg444=true&jpgq=90&sp=68&sigh=z_Pn0iP1GQtyqqbEPv49LN14XO4)](https://www.youtube.com/watch?v=yo2wqjiMjjo)
 
 ### Requirments:
 * original game data
